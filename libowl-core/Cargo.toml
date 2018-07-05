@@ -1,0 +1,6 @@
+[package]
+name = "libowl-core"
+version = "0.1.0"
+authors = ["Kangsu Kim <pica744@gmail.com>"]
+
+[dependencies]
