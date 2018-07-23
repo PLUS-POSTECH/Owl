@@ -1,6 +1,0 @@
-[package]
-name = "owl"
-version = "0.1.0"
-authors = ["KSAlpha"]
-
-[dependencies]

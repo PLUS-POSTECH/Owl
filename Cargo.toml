@@ -1,6 +1,7 @@
 [workspace]
 
 members = [
-    "owl",
-    "libowl-core",
+    "owl-cli",
+    "owl-daemon",
+    "owl-exploit",
 ]
