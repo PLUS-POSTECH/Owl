@@ -1,0 +1,12 @@
+DROP TABLE exploit_log;
+DROP TYPE exploit_status;
+DROP TABLE exploit_request_targets;
+DROP TABLE exploit_requests;
+DROP TABLE exploit_targets;
+DROP TABLE exploit_attachments;
+DROP TABLE exploits;
+DROP TABLE service_providers;
+DROP TABLE service_variant_attachments;
+DROP TABLE service_variants;
+DROP TABLE services;
+DROP TABLE teams;
