@@ -7,7 +7,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - cargo-{{ .Branch }}-{{ checksum "cargo.toml" }}
+            - cargo-{{ .Branch }}-{{ checksum "Cargo.toml" }}
             - cargo-{{ .Branch }}
             - cargo-master
       - run:
@@ -17,7 +17,7 @@ jobs:
           name: Test
           command: cargo test
       - save_cache:
-          key: cargo-{{ .Branch }}-{{ checksum "cargo.toml" }}-{{ epoch }}
+          key: cargo-{{ .Branch }}-{{ checksum "Cargo.toml" }}-{{ epoch }}
           paths:
             - "~/.cargo"
             - "target"
