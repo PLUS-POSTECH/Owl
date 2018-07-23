@@ -5,9 +5,19 @@ jobs:
       - image: rust:latest
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - cargo-{{ .Branch }}-{{ checksum "cargo.toml" }}
+            - cargo-{{ .Branch }}
+            - cargo-master
       - run:
           name: Build
           command: cargo build
       - run:
           name: Test
           command: cargo test
+      - save_cache:
+          key: cargo-{{ .Branch }}-{{ checksum "cargo.toml" }}-{{ epoch }}
+          paths:
+            - "~/.cargo"
+            - "target"
