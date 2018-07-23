@@ -68,9 +68,10 @@ pub struct ExploitAttachment {
     pub data: Vec<u8>,
 }
 
-#[derive(Queryable, Associations)]
+#[derive(Queryable, Identifiable, Associations)]
 #[belongs_to(Exploit)]
 #[belongs_to(ServiceVariant)]
+#[primary_key(exploit_id, service_variant_id)]
 pub struct ExploitTarget {
     pub exploit_id: i32,
     pub service_variant_id: i32,
