@@ -2,32 +2,40 @@ version: 2
 jobs:
   build:
     docker:
-      - image: rust:stretch
-      - image: postgres:latest
+      - image: circleci/rust:stretch
+      - image: circleci/postgres:latest
     steps:
       - checkout
       - restore_cache:
           keys:
-            - cargo-{{ .Branch }}-{{ checksum "Cargo.toml" }}
-            - cargo-{{ .Branch }}
-            - cargo-master
+            - deps-{{ .Branch }}
+            - deps-master
       - run:
           name: Install dependencies
           command: |
-            echo deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main > /etc/apt/sources.list.d/pgdg.list
-            wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-            apt-get update -qq
-            apt-get install -qqy libpq-dev cmake
+            sudo echo deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main > /etc/apt/sources.list.d/pgdg.list
+            wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+            sudo apt-get update -qq
+            sudo apt-get install -qqy libpq-dev cmake
             which cargo-install-update || cargo install cargo-update
             which diesel || cargo install diesel_cli --no-default-features --features=postgres
             cargo install-update -a
+      - save_cache:
+          key: deps-{{ .Branch }}-{{ epoch }}
+          paths:
+            - "~/.cargo"
+            - "/var/cache/apt"
       - run:
           name: Setup database
           command: |
-            scripts/wait-for 127.0.0.1:5432
+            dockerize -wait tcp://localhost:5432 -timeout 1m
             cd owl-daemon
-            echo "DATABASE_URL=postgres://postgres@localhost/owl_daemon" > .env
+            echo "DATABASE_URL=postgres://root:circle_test@localhost/owl_daemon" > .env
             diesel database setup
+      - restore_cache:
+          keys:
+            - build-{{ .Branch }}-{{ checksum "Cargo.toml" }}
+            - build-{{ .Branch }}
       - run:
           name: Build
           command: cargo build
@@ -35,8 +43,6 @@ jobs:
           name: Test
           command: cargo test
       - save_cache:
-          key: cargo-{{ .Branch }}-{{ checksum "Cargo.toml" }}-{{ epoch }}
+          key: build-{{ .Branch }}-{{ checksum "Cargo.toml" }}-{{ epoch }}
           paths:
-            - "~/.cargo"
             - "target"
-            - "/var/cache/apt"
