@@ -14,10 +14,10 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            sudo echo deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main > /etc/apt/sources.list.d/pgdg.list
-            wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-            sudo apt update
-            sudo apt install libpq-dev
+            echo deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main > /etc/apt/sources.list.d/pgdg.list
+            wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+            apt update
+            apt install libpq-dev
             cargo install diesel_cli --no-default-features --features=postgres
       - run:
           name: Setup database
