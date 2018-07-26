@@ -2,7 +2,8 @@ version: 2
 jobs:
   build:
     docker:
-      - image: rust:latest
+      - image: circleci/rust:stretch
+      - image: postgres:latest
     steps:
       - checkout
       - restore_cache:
@@ -10,6 +11,21 @@ jobs:
             - cargo-{{ .Branch }}-{{ checksum "Cargo.toml" }}
             - cargo-{{ .Branch }}
             - cargo-master
+      - run:
+          name: Install dependencies
+          command: |
+            sudo echo deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main > /etc/apt/sources.list.d/pgdg.list
+            wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+            sudo apt update
+            sudo apt install libpq-dev
+            cargo install diesel_cli --no-default-features --features=postgres
+      - run:
+          name: Setup database
+          command: |
+            scripts/wait-for localhost:5432
+            cd owl-daemon
+            echo "DATABASE_URL=postgres://postgres@localhost/owl_daemon" > .env
+            diesel database setup
       - run:
           name: Build
           command: cargo build
@@ -21,3 +37,4 @@ jobs:
           paths:
             - "~/.cargo"
             - "target"
+            - "/var/cache/apt"
