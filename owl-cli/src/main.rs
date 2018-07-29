@@ -1,7 +1,12 @@
-#[macro_use]
+extern crate owl_daemon;
 extern crate clap;
+extern crate tarpc;
 
 use clap::{Arg, App, SubCommand};
+
+use tarpc::sync::{client, client::ClientExt};
+
+use owl_daemon::SyncClient;
 
 fn main() {
     let matches = App::new("Owl CLI")
@@ -16,4 +21,7 @@ fn main() {
 
     let config = matches.value_of("config").unwrap_or("config.toml");
     println!("Value for config: {}", config);
+
+    let client = SyncClient::connect("localhost:5959", client::Options::default()).unwrap();
+    println!("{}", client.hello("Mom".to_string()).unwrap());
 }

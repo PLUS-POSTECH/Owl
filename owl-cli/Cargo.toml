@@ -4,4 +4,6 @@ version = "0.1.0"
 authors = ["Kangsu Kim <pica744@gmail.com>"]
 
 [dependencies]
+owl-daemon = { path = "../owl-daemon" }
 clap = "2.32"
+tarpc = "0.12.0"

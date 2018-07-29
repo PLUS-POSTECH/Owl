@@ -1,27 +1,18 @@
 extern crate owl_daemon;
 extern crate tarpc;
 
-use std::sync::mpsc;
 use std::thread;
 
-use tarpc::sync::{client, server,
-                  client::ClientExt};
-use owl_daemon::{
-    HelloServer,
-    SyncClient,
-    SyncServiceExt,
-};
+use tarpc::sync::server;
+use owl_daemon::{HelloServer, SyncServiceExt};
 
 fn main() {
-    let (tx, rx) = mpsc::channel();
-    thread::spawn(move || {
-        let handle = HelloServer.listen("localhost:0", server::Options::default())
+    let join_handle = thread::spawn(move || {
+        let handle = HelloServer.listen("localhost:5959", server::Options::default())
             .unwrap();
-        tx.send(handle.addr()).unwrap();
+        println!("Owl-daemon is starting...");
         handle.run();
     });
-    let addr = rx.recv().unwrap();
-    println!("{:?}", addr);
-    let client = SyncClient::connect(addr, client::Options::default()).unwrap();
-    println!("{}", client.hello("Mom".to_string()).unwrap());
+
+    join_handle.join().unwrap();
 }
