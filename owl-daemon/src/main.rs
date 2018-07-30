@@ -1,14 +1,20 @@
+extern crate actix;
+extern crate diesel;
+extern crate futures;
 extern crate owl_daemon;
 extern crate tarpc;
-extern crate diesel;
 
+use std::sync::Arc;
 use std::thread;
 
-use diesel::prelude::*;
+use actix::{Arbiter, SyncArbiter};
+use futures::{future, Future};
 use tarpc::sync::server;
-use owl_daemon::{HelloServer, SyncServiceExt, connect_db, models, schema};
+use owl_daemon::{HelloServer, SyncServiceExt, connect_db};
+use owl_daemon::actors::{CreateTeam, GetTeam, DeleteTeam, DbExecutor};
 
 fn main() {
+    let system = actix::System::new("owl-daemon");
     let server_handle = thread::spawn(move || {
         let handle = HelloServer.listen("localhost:5959", server::Options::default())
             .unwrap();
@@ -16,30 +22,38 @@ fn main() {
         handle.run();
     });
 
-    let db_handle = thread::spawn(move || {
-        use schema::teams;
-        use models::Team;
+    let addr = Arc::new(SyncArbiter::start(1, move || DbExecutor {db_connection: connect_db()}));
 
-        let pg_connection = connect_db();
-        diesel::insert_into(teams::table)
-            .values((teams::name.eq("PLUS"), teams::description.eq("Best Team")))
-            .execute(&pg_connection)
-            .unwrap();
 
-        let results = teams::table
-            .load::<Team>(&pg_connection)
-            .unwrap();
+    let create_message = CreateTeam {
+        name: "PLUS".to_string(),
+        description: "Best Team".to_string(),
+    };
 
-        for team in results {
-            println!("{}: {}", team.name, team.description)
+    let create_res = addr.clone().send(create_message);
+    let get_addr = addr.clone();
+    let delete_addr = addr.clone();
+    Arbiter::spawn(create_res.then(move |res| {
+        let id = res.unwrap().unwrap();
+        println!("CREATE: {}", id);
+        get_addr.send(GetTeam)
+    }).then(move |res| {
+        let teams = res.unwrap().unwrap();
+        println!("Fetch");
+        for team in teams {
+            println!("{}: {}", team.name, team.description);
         }
+        println!("-----");
+        let delete_message = DeleteTeam {
+            name: "PLUS".to_string(),
+        };
+        delete_addr.send(delete_message)
+    }).then(move |res| {
+        let id = res.unwrap().unwrap();
+        println!("DELETE: {}", id);
+        future::result(Ok(()))
+    }));
 
-        diesel::delete(teams::table)
-            .filter(teams::name.eq("PLUS"))
-            .execute(&pg_connection)
-            .unwrap();
-    });
-
-    db_handle.join().unwrap();
+    system.run();
     server_handle.join().unwrap();
 }
