@@ -1,7 +1,6 @@
 #![feature(plugin, use_extern_macros, proc_macro_path_invoc)]
 #![plugin(tarpc_plugins)]
 
-extern crate actix;
 extern crate chrono;
 #[macro_use] extern crate diesel;
 extern crate dotenv;
@@ -13,7 +12,6 @@ use diesel::prelude::*;
 use dotenv::dotenv;
 use tarpc::util::Never;
 
-pub mod actors;
 pub mod models;
 pub mod schema;
 

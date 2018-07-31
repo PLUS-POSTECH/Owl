@@ -1,4 +1,3 @@
-extern crate actix;
 extern crate diesel;
 extern crate futures;
 extern crate owl_daemon;
