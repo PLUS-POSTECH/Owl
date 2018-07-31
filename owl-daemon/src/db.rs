@@ -8,7 +8,8 @@ pub struct DbPool {
 }
 
 impl DbPool {
-    pub fn run<T>(&self, f: &Fn(r2d2::PooledConnection<ConnectionManager<PgConnection>>) -> T) -> T {
-        f(self.pool.get().unwrap())
+    pub fn run<T>(&self, f: &Fn(&PgConnection) -> T) -> T {
+        let connection = self.pool.get().unwrap();
+        f(&*connection)
     }
 }

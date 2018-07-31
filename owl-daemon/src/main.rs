@@ -27,13 +27,13 @@ fn main() {
     let insert = db_pool.run::<Result<usize, Error>>(&|c| {
         diesel::insert_into(teams::table)
             .values((teams::name.eq("PLUS"), teams::description.eq("Best Team")))
-            .execute(&*c)
+            .execute(c)
     }).unwrap();
     println!("INSERT: {}", insert);
 
     let fetch = db_pool.run::<Result<Vec<Team>, Error>>(&|c| {
         teams::table
-            .load::<Team>(&*c)
+            .load::<Team>(c)
     }).unwrap();
 
     for team in fetch {
@@ -43,7 +43,7 @@ fn main() {
     let delete = db_pool.run::<Result<usize, Error>>(&|c| {
         diesel::delete(teams::table)
             .filter(teams::name.eq("PLUS"))
-            .execute(&*c)
+            .execute(c)
     }).unwrap();
     println!("DELETE: {}", delete);
 
