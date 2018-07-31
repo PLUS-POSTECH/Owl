@@ -4,14 +4,20 @@
 extern crate chrono;
 #[macro_use] extern crate diesel;
 extern crate dotenv;
+extern crate r2d2;
+extern crate r2d2_diesel;
 #[macro_use] extern crate tarpc;
+extern crate tokio;
 
 use std::env;
 use diesel::pg::PgConnection;
-use diesel::prelude::*;
 use dotenv::dotenv;
+use r2d2_diesel::ConnectionManager;
 use tarpc::util::Never;
 
+use self::db::DbPool;
+
+pub mod db;
 pub mod models;
 pub mod schema;
 
@@ -28,7 +34,8 @@ impl SyncService for HelloServer {
     }
 }
 
-pub fn connect_db() -> PgConnection {
+
+pub fn connect_db() -> DbPool {
     dotenv().ok();
 
     let database_url = match env::var("DATABASE_URL") {
@@ -36,6 +43,7 @@ pub fn connect_db() -> PgConnection {
         Err(_e) => "postgres://postgres@localhost/owl-daemon".to_string(),
     };
 
-    PgConnection::establish(&database_url)
-        .expect(&format!("Error connecting to {}", database_url))
+    let manager = ConnectionManager::<PgConnection>::new(database_url);
+    let pool = r2d2::Pool::builder().build(manager).expect("Failed to create pool.");
+    DbPool { pool: pool }
 }
