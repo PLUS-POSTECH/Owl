@@ -16,12 +16,12 @@ cargo run
 
 ## Development
 
-- Install nightly version of Rust. Tarpc seems to require Rust nightly.
+- Install `nightly-2018-07-07` version of Rust. Tarpc seems to require Rust nightly, and newer nightly seems to hate Diesel.
+    - `rustup install nightly-2018-07-07`
 - Install PostgreSQL library(libpq).
-- Install [clippy](https://github.com/rust-lang-nursery/rust-clippy#as-a-cargo-subcommand-cargo-clippy) and [rustfmt](https://github.com/rust-lang-nursery/rustfmt#installation).
+- Install [rustfmt](https://github.com/rust-lang-nursery/rustfmt#installation).
 Copy files in [hooks](hooks) directory to `.git/hooks`.
-    - `rustup component add clippy-preview --toolchain=nightly`
-    - `rustup component add rustfmt-preview --toolchain=nightly`
+    - `rustup component add rustfmt-preview --toolchain=nightly-2018-07-07`
 
 ## License
 
