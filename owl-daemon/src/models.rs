@@ -1,11 +1,10 @@
 use std::io::Write;
 
+use super::schema::*;
 use chrono::{DateTime, Utc};
 use diesel::deserialize::{self, FromSql};
 use diesel::pg::Pg;
 use diesel::serialize::{self, IsNull, Output, ToSql};
-
-use schema::*;
 
 #[derive(Queryable, Identifiable)]
 pub struct Team {
@@ -23,7 +22,7 @@ pub struct Service {
 
 #[derive(Queryable, Identifiable, Associations)]
 #[belongs_to(Service)]
-#[belongs_to(Team, foreign_key="published_team_id")]
+#[belongs_to(Team, foreign_key = "published_team_id")]
 pub struct ServiceVariant {
     pub id: i32,
     pub service_id: i32,
@@ -95,7 +94,7 @@ pub struct ExploitRequestTarget {
 }
 
 #[derive(SqlType)]
-#[postgres(type_name="Exploit_status")]
+#[postgres(type_name = "Exploit_status")]
 pub struct ExploitStatusType;
 
 #[derive(Debug, FromSqlRow, AsExpression)]

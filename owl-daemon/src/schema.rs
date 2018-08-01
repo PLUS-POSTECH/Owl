@@ -121,5 +121,5 @@ allow_tables_to_appear_in_same_query!(
 );
 
 #[derive(SqlType)]
-#[postgres(type_name="exploit_status")]
+#[postgres(type_name = "exploit_status")]
 pub struct ExploitStatusType;

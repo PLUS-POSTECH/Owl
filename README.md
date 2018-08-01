@@ -14,6 +14,15 @@ cargo build
 cargo run
 ```
 
+## Development
+
+- Install nightly version of Rust. Tarpc seems to require Rust nightly.
+- Install PostgreSQL library(libpq).
+- Install [clippy](https://github.com/rust-lang-nursery/rust-clippy#as-a-cargo-subcommand-cargo-clippy) and [rustfmt](https://github.com/rust-lang-nursery/rustfmt#installation).
+Copy files in [hooks](hooks) directory to `.git/hooks`.
+    - `rustup component add clippy-preview --toolchain=nightly`
+    - `rustup component add rustfmt-preview --toolchain=nightly`
+
 ## License
 
 Licensed under either of
