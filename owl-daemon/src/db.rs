@@ -1,4 +1,5 @@
-use diesel::PgConnection;
+use diesel::{Connection, PgConnection};
+use diesel::result::Error;
 use r2d2;
 use r2d2_diesel::ConnectionManager;
 
@@ -8,8 +9,11 @@ pub struct DbPool {
 }
 
 impl DbPool {
-    pub fn run<T>(&self, f: &Fn(&PgConnection) -> T) -> T {
+    pub fn run<T, E>(&self, f: &Fn(&PgConnection) -> Result<T, E>) -> Result<T, E>
+        where E: From<Error> {
         let connection = self.pool.get().unwrap();
-        f(&*connection)
+        connection.transaction::<T, E, _>(|| {
+            f(&*connection)
+        })
     }
 }

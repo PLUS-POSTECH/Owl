@@ -26,16 +26,18 @@ fn main() {
     let db_pool = connect_db();
 
     let insert = db_pool
-        .run::<Result<usize, Error>>(&|c| {
-            diesel::insert_into(teams::table)
+        .run(&|c| -> Result<usize, Error> {
+            Ok(diesel::insert_into(teams::table)
                 .values((teams::name.eq("PLUS"), teams::description.eq("Best Team")))
-                .execute(c)
+                .execute(c)?)
         })
         .unwrap();
     println!("INSERT: {}", insert);
 
     let fetch = db_pool
-        .run::<Result<Vec<Team>, Error>>(&|c| teams::table.load::<Team>(c))
+        .run(&|c| -> Result<Vec<Team>, Error> {
+            Ok(teams::table.load::<Team>(c)?)
+        })
         .unwrap();
 
     for team in fetch {
@@ -43,10 +45,10 @@ fn main() {
     }
 
     let delete = db_pool
-        .run::<Result<usize, Error>>(&|c| {
-            diesel::delete(teams::table)
+        .run(&|c| -> Result<usize, Error> {
+            Ok(diesel::delete(teams::table)
                 .filter(teams::name.eq("PLUS"))
-                .execute(c)
+                .execute(c)?)
         })
         .unwrap();
     println!("DELETE: {}", delete);
