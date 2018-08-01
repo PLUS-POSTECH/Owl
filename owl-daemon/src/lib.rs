@@ -28,10 +28,11 @@ service! {
 }
 
 #[derive(Clone)]
-pub struct HelloServer;
+pub struct OwlDaemon;
 
-impl SyncService for HelloServer {
-    fn hello(&self, name: String) -> Result<String, Never> {
+impl FutureService for OwlDaemon {
+    type HelloFut = Result<String, Never>;
+    fn hello(&self, name: String) -> Self::HelloFut {
         Ok(format!("Hello, {}!", name))
     }
 }

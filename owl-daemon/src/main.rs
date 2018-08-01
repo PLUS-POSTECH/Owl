@@ -1,30 +1,35 @@
+#[macro_use]
+extern crate log;
+
 extern crate diesel;
 extern crate futures;
 extern crate owl_daemon;
 extern crate r2d2;
 extern crate r2d2_diesel;
 extern crate tarpc;
+extern crate tokio;
 
-use std::thread;
+use std::net::{ToSocketAddrs};
 
 use diesel::prelude::*;
 use diesel::result::Error;
 use owl_daemon::models::*;
 use owl_daemon::schema::*;
-use owl_daemon::{connect_db, HelloServer, SyncServiceExt};
-use tarpc::sync::server;
+use owl_daemon::{connect_db, OwlDaemon, FutureServiceExt};
+use tarpc::future::server;
+use tarpc::tokio_core::reactor;
 
 fn main() {
-    let server_handle = thread::spawn(move || {
-        let handle = HelloServer
-            .listen("localhost:5959", server::Options::default())
-            .unwrap();
-        println!("Owl-daemon is starting...");
-        handle.run();
-    });
+    let mut reactor = reactor::Core::new().unwrap();
+    let (_server_handle, server) = OwlDaemon
+        .listen("localhost:5959".to_socket_addrs().unwrap().next().unwrap(),
+            &reactor.handle(), server::Options::default())
+        .unwrap();
 
+    info!("Connecting DB...")
     let db_pool = connect_db();
 
+    info!("Testing DB...")
     let insert = db_pool
         .run(&|c| -> Result<usize, Error> {
             Ok(diesel::insert_into(teams::table)
@@ -53,5 +58,6 @@ fn main() {
         .unwrap();
     println!("DELETE: {}", delete);
 
-    server_handle.join().unwrap();
+    info!("Starting Owl Daemon...")
+    reactor.run(server).unwrap();
 }
