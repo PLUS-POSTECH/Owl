@@ -8,6 +8,7 @@ extern crate r2d2;
 extern crate r2d2_diesel;
 extern crate tarpc;
 extern crate tokio;
+extern crate tokio_core;
 
 use std::net::{ToSocketAddrs};
 
@@ -17,7 +18,7 @@ use owl_daemon::models::*;
 use owl_daemon::schema::*;
 use owl_daemon::{connect_db, OwlDaemon, FutureServiceExt};
 use tarpc::future::server;
-use tarpc::tokio_core::reactor;
+use tokio_core::reactor;
 
 fn main() {
     let mut reactor = reactor::Core::new().unwrap();
