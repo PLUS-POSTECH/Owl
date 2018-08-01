@@ -1,24 +1,23 @@
-extern crate owl_daemon;
 extern crate clap;
+extern crate owl_daemon;
 extern crate tarpc;
 
-use clap::{Arg, App, SubCommand};
-
-use tarpc::sync::{client, client::ClientExt};
-
+use clap::{App, Arg, SubCommand};
 use owl_daemon::SyncClient;
+use tarpc::sync::{client, client::ClientExt};
 
 fn main() {
     let matches = App::new("Owl CLI")
         .version("0.1")
-        .arg(Arg::with_name("config")
-            .short("c")
-            .long("config")
-            .value_name("TOML")
-            .help("Sets a custom config file (default is \"config.toml\"")
-            .takes_value(true))
-        .subcommand(SubCommand::with_name("test")
-            .about("test basic connection"))
+        .arg(
+            Arg::with_name("config")
+                .short("c")
+                .long("config")
+                .value_name("TOML")
+                .help("Sets a custom config file (default is \"config.toml\"")
+                .takes_value(true),
+        )
+        .subcommand(SubCommand::with_name("test").about("test basic connection"))
         .get_matches();
 
     let config = matches.value_of("config").unwrap_or("config.toml");
