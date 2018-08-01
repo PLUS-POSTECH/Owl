@@ -38,10 +38,8 @@ impl SyncService for HelloServer {
 pub fn connect_db() -> DbPool {
     dotenv().ok();
 
-    let database_url = match env::var("DATABASE_URL") {
-        Ok(val) => val,
-        Err(_e) => "postgres://postgres@localhost/owl-daemon".to_string(),
-    };
+    let database_url = env::var("DATABASE_URL")
+        .unwrap_or("postgres://postgres@localhost/owl-daemon".to_string());
 
     let manager = ConnectionManager::<PgConnection>::new(database_url);
     let pool = r2d2::Pool::builder().build(manager).expect("Failed to create pool.");
