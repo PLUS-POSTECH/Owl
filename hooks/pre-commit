@@ -80,9 +80,39 @@ fi
 if [ ${FMTRESULT} != 0 ]; then
     FAILED=1
     printf "${FAILURE}\n"
-    echo "$diff" | sed 's/Using rustfmt config file.*$/d/'
+    echo "$diff"
 else
     printf "${SUCCESS}\n"
 fi
+
+printf "${PREFIX} Checking for clippy ... "
+command -v cargo clippy &>/dev/null
+if [ $? == 0 ]; then
+    printf "${SUCCESS}\n"
+else
+    printf "${FAILURE}\n"
+    exit 1
+fi
+
+printf "${PREFIX} Running clippy ... "
+
+# https://github.com/rust-lang/cargo/pull/5750
+touch owl-cli/src/main.rs
+touch owl-daemon/src/lib.rs
+touch owl-exploit/src/lib.rs
+
+CLIPPYRESULT=0
+linter="$(cargo clippy 2>&1)"
+if grep --quiet "at line" <<< "$diff"; then
+    CLIPPYRESULT=1
+fi
+
+if [ ${CLIPPYRESULT} != 0 ]; then
+    FAILED=1
+    printf "${FAILURE}\n"
+else
+    printf "${SUCCESS}\n"
+fi
+echo "$linter"
 
 exit ${FAILED}
