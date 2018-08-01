@@ -26,10 +26,10 @@ fn main() {
             &reactor.handle(), server::Options::default())
         .unwrap();
 
-    info!("Connecting DB...")
+    info!("Connecting DB...");
     let db_pool = connect_db();
 
-    info!("Testing DB...")
+    info!("Testing DB...");
     let insert = db_pool
         .run(&|c| -> Result<usize, Error> {
             Ok(diesel::insert_into(teams::table)
@@ -58,6 +58,6 @@ fn main() {
         .unwrap();
     println!("DELETE: {}", delete);
 
-    info!("Starting Owl Daemon...")
+    info!("Starting Owl Daemon...");
     reactor.run(server).unwrap();
 }
