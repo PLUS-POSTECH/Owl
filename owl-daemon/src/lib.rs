@@ -2,11 +2,13 @@
 #![plugin(tarpc_plugins)]
 
 extern crate chrono;
-#[macro_use] extern crate diesel;
+#[macro_use]
+extern crate diesel;
 extern crate dotenv;
 extern crate r2d2;
 extern crate r2d2_diesel;
-#[macro_use] extern crate tarpc;
+#[macro_use]
+extern crate tarpc;
 extern crate tokio;
 
 use std::env;
