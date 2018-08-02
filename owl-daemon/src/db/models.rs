@@ -93,10 +93,6 @@ pub struct ExploitRequestTarget {
     pub service_provider_id: i32,
 }
 
-#[derive(SqlType)]
-#[postgres(type_name = "Exploit_status")]
-pub struct ExploitStatusType;
-
 #[derive(Debug, FromSqlRow, AsExpression)]
 #[sql_type = "ExploitStatusType"]
 pub enum ExploitStatus {
