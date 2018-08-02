@@ -2,6 +2,7 @@
 extern crate log;
 
 extern crate diesel;
+extern crate env_logger;
 extern crate failure;
 extern crate futures;
 extern crate owl_daemon;
@@ -15,7 +16,7 @@ use std::net::{ToSocketAddrs};
 
 use diesel::prelude::*;
 use diesel::PgConnection;
-use owl_daemon::{connect_db, OwlDaemon, FutureServiceExt};
+use owl_daemon::{OwlDaemon, FutureServiceExt};
 use owl_daemon::db::models::*;
 use owl_daemon::db::schema::*;
 use owl_daemon::db::{build_connection_pool, DbPool};
@@ -39,7 +40,7 @@ fn test_db(db_pool: DbPool) -> Result<(), Error> {
         println!("FETCH: {} - {}", team.name, team.description);
     }
 
-    info!("Delete Test data");
+    info!("Insert Test data");
     let delete = diesel::delete(teams::table)
         .filter(teams::name.eq("PLUS"))
         .execute(con)?;
@@ -49,13 +50,14 @@ fn test_db(db_pool: DbPool) -> Result<(), Error> {
 }
 
 fn main() {
+    env_logger::init();
     let mut reactor = reactor::Core::new().unwrap();
-    let (_server_handle, server) = OwlDaemon
+    let db_pool = build_connection_pool().expect("Failed to connect to the database");
+    let (_server_handle, server) = OwlDaemon::new(db_pool.clone())
         .listen("localhost:5959".to_socket_addrs().unwrap().next().unwrap(),
             &reactor.handle(), server::Options::default())
         .unwrap();
 
-    let db_pool = build_connection_pool().expect("Failed to connect to the database");
     test_db(db_pool.clone()).expect("DB test failed");
 
     info!("Starting Owl Daemon...");
