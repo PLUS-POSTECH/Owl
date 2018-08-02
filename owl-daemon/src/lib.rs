@@ -74,7 +74,7 @@ fn test_db(db_pool: DbPool) -> Result<(), Error> {
         println!("FETCH: {} - {}", team.name, team.description);
     }
 
-    info!("Insert Test data");
+    info!("Delete Test data");
     let delete = diesel::delete(teams::table)
         .filter(teams::name.eq("PLUS"))
         .execute(con)?;

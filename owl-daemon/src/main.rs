@@ -14,40 +14,10 @@ extern crate tokio_core;
 
 use std::net::{ToSocketAddrs};
 
-use diesel::prelude::*;
-use diesel::PgConnection;
 use owl_daemon::{OwlDaemon, FutureServiceExt};
-use owl_daemon::db::models::*;
-use owl_daemon::db::schema::*;
-use owl_daemon::db::{build_connection_pool, DbPool};
-use owl_daemon::error::Error;
+use owl_daemon::db::{build_connection_pool};
 use tarpc::future::server;
 use tokio_core::reactor;
-
-fn test_db(db_pool: DbPool) -> Result<(), Error> {
-    info!("Testing DB...");
-    let con: &PgConnection = &*db_pool.get()?;
-
-    info!("Insert Test data");
-    let insert = diesel::insert_into(teams::table)
-        .values((teams::name.eq("PLUS"), teams::description.eq("Best Team")))
-        .execute(con)?;
-    println!("INSERT: {}", insert);
-
-    info!("Fetch Test data");
-    let fetch = teams::table.load::<Team>(con)?;
-    for team in fetch {
-        println!("FETCH: {} - {}", team.name, team.description);
-    }
-
-    info!("Insert Test data");
-    let delete = diesel::delete(teams::table)
-        .filter(teams::name.eq("PLUS"))
-        .execute(con)?;
-    println!("DELETE: {}", delete);
-
-    Ok(())
-}
 
 fn main() {
     env_logger::init();
@@ -58,8 +28,6 @@ fn main() {
         .listen("localhost:5959".to_socket_addrs().unwrap().next().unwrap(),
             &reactor.handle(), server::Options::default())
         .unwrap();
-
-    test_db(db_pool.clone()).expect("DB test failed");
 
     info!("Starting Owl Daemon...");
     reactor.run(server).unwrap();
