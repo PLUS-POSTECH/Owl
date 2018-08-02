@@ -12,6 +12,7 @@ extern crate tarpc;
 
 extern crate chrono;
 extern crate dotenv;
+extern crate futures;
 extern crate r2d2;
 extern crate r2d2_diesel;
 extern crate tokio;
@@ -22,7 +23,9 @@ use self::db::schema::*;
 use self::error::Error;
 use diesel::prelude::*;
 use diesel::PgConnection;
+use futures::future;
 use tarpc::util::Never;
+use tokio::runtime::TaskExecutor;
 
 pub mod db;
 pub mod error;
@@ -34,18 +37,23 @@ service! {
 #[derive(Clone)]
 pub struct OwlDaemon {
     db_pool: DbPool,
+    task_executor: TaskExecutor,
 }
 
 impl OwlDaemon {
-    pub fn new(db_pool: DbPool) -> OwlDaemon {
-        OwlDaemon { db_pool }
+    pub fn new(db_pool: DbPool, task_executor: TaskExecutor) -> OwlDaemon {
+        OwlDaemon { db_pool, task_executor }
     }
 }
 
 impl FutureService for OwlDaemon {
     type HelloFut = Result<String, Never>;
     fn hello(&self, name: String) -> Self::HelloFut {
-        test_db(self.db_pool.clone()).unwrap();
+        let task_executor = self.task_executor.clone();
+        let db_pool = self.db_pool.clone();
+        task_executor.spawn(future::lazy(|| {
+            Ok(test_db(db_pool).unwrap())
+        }));
         Ok(format!("Hello, {}!", name))
     }
 }
