@@ -6,6 +6,7 @@ extern crate env_logger;
 extern crate failure;
 extern crate futures;
 extern crate owl_daemon;
+extern crate owl_rpc;
 extern crate r2d2;
 extern crate r2d2_diesel;
 extern crate tarpc;
@@ -14,8 +15,9 @@ extern crate tokio_core;
 
 use std::net::{ToSocketAddrs};
 
-use owl_daemon::{OwlDaemon, FutureServiceExt};
+use owl_daemon::OwlDaemon;
 use owl_daemon::db::{build_connection_pool};
+use owl_rpc::FutureServiceExt;
 use tarpc::future::server;
 use tokio_core::reactor;
 

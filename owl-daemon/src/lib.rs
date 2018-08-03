@@ -1,21 +1,19 @@
-#![feature(plugin, use_extern_macros, proc_macro_path_invoc)]
-#![plugin(tarpc_plugins)]
-
 #[macro_use]
 extern crate diesel;
 #[macro_use]
 extern crate failure;
 #[macro_use]
 extern crate log;
-#[macro_use]
-extern crate tarpc;
 
 extern crate chrono;
 extern crate dotenv;
 extern crate futures;
 extern crate r2d2;
 extern crate r2d2_diesel;
+extern crate tarpc;
 extern crate tokio;
+extern crate owl_exploit;
+extern crate owl_rpc;
 
 use self::db::DbPool;
 use self::db::models::*;
@@ -26,13 +24,10 @@ use diesel::PgConnection;
 use futures::future;
 use tarpc::util::Never;
 use tokio::runtime::TaskExecutor;
+use owl_rpc::FutureService;
 
 pub mod db;
 pub mod error;
-
-service! {
-    rpc hello(name: String) -> String;
-}
 
 #[derive(Clone)]
 pub struct OwlDaemon {

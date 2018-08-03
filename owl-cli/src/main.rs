@@ -1,10 +1,10 @@
 extern crate clap;
-extern crate owl_daemon;
+extern crate owl_rpc;
 extern crate tarpc;
 
 use clap::{App, Arg, SubCommand};
-use owl_daemon::SyncClient;
-use tarpc::sync::{client, client::ClientExt};
+use owl_rpc::SyncClient;
+use tarpc::sync::client::{self, ClientExt};
 
 fn main() {
     let matches = App::new("Owl CLI")
