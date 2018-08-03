@@ -72,5 +72,5 @@ CREATE TABLE exploit_tasks (
     retries integer NOT NULL,
     status exploit_status NOT NULL,
     published_time timestamp with time zone NOT NULL,
-    last_updated_time timestamp with time zone NOT NULL,
+    last_updated_time timestamp with time zone NOT NULL
 );
