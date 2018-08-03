@@ -1,7 +1,5 @@
-DROP TABLE exploit_log;
+DROP TABLE exploit_tasks;
 DROP TYPE exploit_status;
-DROP TABLE exploit_request_targets;
-DROP TABLE exploit_requests;
 DROP TABLE exploit_targets;
 DROP TABLE exploit_attachments;
 DROP TABLE exploits;
