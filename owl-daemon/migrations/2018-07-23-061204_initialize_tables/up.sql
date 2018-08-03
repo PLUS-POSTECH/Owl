@@ -73,5 +73,4 @@ CREATE TABLE exploit_tasks (
     status exploit_status NOT NULL,
     published_time timestamp with time zone NOT NULL,
     last_updated_time timestamp with time zone NOT NULL,
-    CONSTRAINT exploit_task_targets_unique UNIQUE (exploit_id, service_provider_id)
 );
