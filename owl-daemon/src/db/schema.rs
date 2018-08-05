@@ -62,8 +62,6 @@ table! {
         team_id -> Int4,
         service_variant_id -> Int4,
         connection_string -> Text,
-        sla_pass -> Nullable<Bool>,
-        exploited -> Nullable<Bool>,
         published_time -> Timestamptz,
     }
 }
@@ -92,7 +90,8 @@ table! {
         id -> Int4,
         service_id -> Int4,
         name -> Varchar,
-        published_team_id -> Int4,
+        sla_pass -> Nullable<Bool>,
+        publisher_id -> Int4,
         published_time -> Timestamptz,
     }
 }
@@ -102,7 +101,6 @@ table! {
         id -> Int4,
         name -> Varchar,
         description -> Text,
-        points -> Int4,
     }
 }
 
@@ -115,7 +113,7 @@ joinable!(service_providers -> service_variants (service_variant_id));
 joinable!(service_providers -> teams (team_id));
 joinable!(service_variant_attachments -> service_variants (service_variant_id));
 joinable!(service_variants -> services (service_id));
-joinable!(service_variants -> teams (published_team_id));
+joinable!(service_variants -> teams (publisher_id));
 
 allow_tables_to_appear_in_same_query!(
     exploit_attachments,

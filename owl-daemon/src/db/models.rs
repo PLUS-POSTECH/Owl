@@ -6,7 +6,6 @@ pub struct Team {
     pub id: i32,
     pub name: String,
     pub description: String,
-    pub points: i32,
 }
 
 #[derive(Queryable, Identifiable)]
@@ -20,12 +19,13 @@ pub struct Service {
 
 #[derive(Queryable, Identifiable, Associations)]
 #[belongs_to(Service)]
-#[belongs_to(Team, foreign_key = "published_team_id")]
+#[belongs_to(Team, foreign_key = "publisher_id")]
 pub struct ServiceVariant {
     pub id: i32,
     pub service_id: i32,
     pub name: String,
-    pub published_team_id: i32,
+    pub sla_pass: Option<bool>,
+    pub publisher_id: i32,
     pub published_time: DateTime<Utc>,
 }
 
@@ -46,8 +46,6 @@ pub struct ServiceProvider {
     pub team_id: i32,
     pub service_variant_id: i32,
     pub connection_string: String,
-    pub sla_pass: Option<bool>,
-    pub exploited: Option<bool>,
     pub published_time: DateTime<Utc>,
 }
 
