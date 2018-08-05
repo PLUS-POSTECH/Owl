@@ -43,8 +43,8 @@ CREATE TABLE exploits (
     name varchar NOT NULL,
     description text NOT NULL,
     enabled boolean NOT NULL,
-    retry_option serial,
-    timeout_option serial,
+    retry_option integer,
+    timeout_option integer,
     flag_auth boolean NOT NULL,
     last_modified_time timestamp with time zone NOT NULL,
     deleted boolean NOT NULL

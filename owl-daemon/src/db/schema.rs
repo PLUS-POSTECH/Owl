@@ -1,6 +1,12 @@
-#[derive(SqlType)]
-#[postgres(type_name = "exploit_status")]
-pub struct ExploitStatusType;
+#[derive(DbEnum, Debug)]
+pub enum ExploitStatus {
+    Pending,
+    Running,
+    Authing,
+    Ok,
+    RunFailed,
+    AuthFailed,
+}
 
 table! {
     exploit_attachments (id) {
@@ -17,8 +23,8 @@ table! {
         name -> Varchar,
         description -> Text,
         enabled -> Bool,
-        retry_option -> Int4,
-        timeout_option -> Int4,
+        retry_option -> Nullable<Int4>,
+        timeout_option -> Nullable<Int4>,
         flag_auth -> Bool,
         last_modified_time -> Timestamptz,
         deleted -> Bool,
@@ -34,14 +40,14 @@ table! {
 
 table! {
     use diesel::sql_types::*;
-    use super::ExploitStatusType;
+    use super::ExploitStatusMapping;
 
     exploit_tasks (id) {
         id -> Int4,
         exploit_id -> Int4,
         service_provider_id -> Int4,
         retries -> Int4,
-        status -> ExploitStatusType,
+        status -> ExploitStatusMapping,
         published_time -> Timestamptz,
         last_updated_time -> Timestamptz,
     }
