@@ -1,12 +1,9 @@
 version: 2
 jobs:
-  master-build:
+  build-master:
     docker:
       - image: ksalpha/rust-diesel-ci:latest
       - image: circleci/postgres:latest
-    branches:
-      only:
-        - master
     steps:
       - checkout
       - run:
@@ -26,13 +23,10 @@ jobs:
       - run:
           name: Test
           command: cargo test
-  dev-build:
+  build-dev:
     docker:
       - image: ksalpha/rust-diesel-ci:latest
       - image: circleci/postgres:latest
-    branches:
-      ignore:
-        - master
     steps:
       - checkout
       - restore_cache:
@@ -67,3 +61,18 @@ jobs:
           key: build-{{ .Branch }}-{{ checksum "Cargo.toml" }}-{{ epoch }}
           paths:
             - "target"
+
+workflows:
+  version: 2
+  build-per-branch:
+    jobs:
+      - build-master:
+          filters:
+            branches:
+              only:
+                - master
+      - build-dev:
+          filters:
+            branches:
+              ignore:
+                - master
