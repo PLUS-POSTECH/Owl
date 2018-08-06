@@ -5,10 +5,10 @@ extern crate tarpc;
 extern crate tokio_core;
 
 use self::team::{team_command, team_match};
-use clap::{App, Arg};
+use clap::{App, AppSettings, Arg};
 use futures::Future;
-use owl_rpc::FutureClient;
 use owl_rpc::error::Error as RpcError;
+use owl_rpc::FutureClient;
 use tarpc::future::client::{self, ClientExt};
 use tarpc::util::FirstSocketAddr;
 use tokio_core::reactor;
@@ -18,6 +18,7 @@ mod team;
 fn main() {
     let matches = App::new("Owl CLI")
         .version("0.1")
+        .setting(AppSettings::SubcommandRequired)
         .arg(
             Arg::with_name("config")
                 .short("c")
