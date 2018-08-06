@@ -21,6 +21,7 @@ use self::db::models::*;
 use self::db::schema::*;
 use self::db::DbPool;
 use self::error::Error as DaemonError;
+use self::service_provider::fetch_service_providers;
 use diesel::prelude::*;
 use diesel::PgConnection;
 use owl_rpc::error::Error as RpcError;
@@ -42,6 +43,7 @@ use tokio::runtime::TaskExecutor;
 
 pub mod db;
 pub mod error;
+pub mod service_provider;
 
 #[derive(Clone)]
 pub struct OwlDaemon {
@@ -112,7 +114,18 @@ impl FutureService for OwlDaemon {
         cli_token: String,
         params: ServiceProviderListParams,
     ) -> Self::ListServiceProviderFut {
-        Err(())
+        let connection_result = self.db_pool.get();
+        if connection_result.is_err() {
+            return Err(())
+        }
+
+        let connection = connection_result.unwrap();
+        let result = fetch_service_providers(&*connection, params);
+
+        match result {
+            Ok(data) => Ok(data),
+            Err(_err) => Err(()),
+        }
     }
 
     type UpdateServiceProviderFut = Result<(), RpcError>;
