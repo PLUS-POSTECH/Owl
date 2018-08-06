@@ -9,7 +9,6 @@ extern crate serde_derive;
 extern crate tarpc;
 
 extern crate chrono;
-extern crate uuid;
 
 use self::model::exploit::{
     ExploitData, ExploitEditParams, ExploitListParams, ExploitRunParams, ExploitStatusParams,
@@ -24,27 +23,26 @@ use self::model::service::variant::{
 };
 use self::model::service::{ServiceData, ServiceEditParams};
 use self::model::team::{TeamData, TeamEditParams};
-use uuid::Uuid;
 
 pub mod error;
 pub mod model;
 
 service! {
-    rpc edit_team(cli_token: Uuid, params: TeamEditParams) -> Result<(), ()>;
-    rpc list_team(cli_token: Uuid) -> Result<Vec<TeamData>, ()>;
+    rpc edit_team(cli_token: String, params: TeamEditParams) -> Result<(), ()>;
+    rpc list_team(cli_token: String) -> Result<Vec<TeamData>, ()>;
 
-    rpc edit_service(cli_token: Uuid, params: ServiceEditParams) -> Result<(), ()>;
-    rpc list_service(cli_token: Uuid) -> Result<Vec<ServiceData>, ()>;
+    rpc edit_service(cli_token: String, params: ServiceEditParams) -> Result<(), ()>;
+    rpc list_service(cli_token: String) -> Result<Vec<ServiceData>, ()>;
 
-    rpc download_service_variant(cli_token: Uuid, params: ServiceVariantDownloadParams) -> Result<ServiceVariantAttachmentData, ()>;
-    rpc edit_service_variant(cli_token: Uuid, params: ServiceVariantEditParams) -> Result<(), ()>;
-    rpc list_service_variant(cli_token: Uuid, params: ServiceVariantListParams) -> Result<Vec<ServiceVariantData>, ()>;
+    rpc download_service_variant(cli_token: String, params: ServiceVariantDownloadParams) -> Result<ServiceVariantAttachmentData, ()>;
+    rpc edit_service_variant(cli_token: String, params: ServiceVariantEditParams) -> Result<(), ()>;
+    rpc list_service_variant(cli_token: String, params: ServiceVariantListParams) -> Result<Vec<ServiceVariantData>, ()>;
 
-    rpc list_service_provider(cli_token: Uuid, params: ServiceProviderListParams) -> Result<Vec<ServiceProviderData>, ()>;
-    rpc update_service_provider(cli_token: Uuid, params: ServiceProviderUpdateParams) -> Result<(), ()>;
+    rpc list_service_provider(cli_token: String, params: ServiceProviderListParams) -> Result<Vec<ServiceProviderData>, ()>;
+    rpc update_service_provider(cli_token: String, params: ServiceProviderUpdateParams) -> Result<(), ()>;
 
-    rpc edit_exploit(cli_token: Uuid, params: ExploitEditParams) -> Result<(), ()>;
-    rpc list_exploit(cli_token: Uuid, params: ExploitListParams) -> Result<Vec<ExploitData>, ()>;
-    rpc run_exploit(cli_token: Uuid, params: ExploitRunParams) -> Result<Option<ExploitTaskData>, ()>;
-    rpc stat_exploit(cli_token: Uuid, params: ExploitStatusParams) -> Result<ExploitTaskData, ()>;
+    rpc edit_exploit(cli_token: String, params: ExploitEditParams) -> Result<(), ()>;
+    rpc list_exploit(cli_token: String, params: ExploitListParams) -> Result<Vec<ExploitData>, ()>;
+    rpc run_exploit(cli_token: String, params: ExploitRunParams) -> Result<Option<ExploitTaskData>, ()>;
+    rpc stat_exploit(cli_token: String, params: ExploitStatusParams) -> Result<ExploitTaskData, ()>;
 }
