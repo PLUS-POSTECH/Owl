@@ -92,3 +92,17 @@ pub struct ExploitTask {
     pub published_time: DateTime<Utc>,
     pub last_updated_time: DateTime<Utc>,
 }
+
+#[derive(Insertable)]
+#[table_name = "service_providers"]
+pub struct ServiceProviderInsertable {
+    pub team_id: i32,
+    pub service_variant_id: i32,
+    pub connection_string: String,
+}
+
+#[derive(AsChangeset)]
+#[table_name = "service_providers"]
+pub struct ServiceProviderChangeset {
+    pub connection_string: Option<String>,
+}
