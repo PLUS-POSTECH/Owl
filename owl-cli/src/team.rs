@@ -1,4 +1,5 @@
-use clap::{App, Arg, SubCommand};
+use clap::{App, Arg, ArgMatches, SubCommand};
+use owl_rpc::error::Error as RpcError;
 
 pub fn team_command() -> App<'static, 'static> {
     SubCommand::with_name("team")
@@ -17,4 +18,8 @@ pub fn team_command() -> App<'static, 'static> {
             Arg::from_usage("-d, --description [DESCRIPTION] 'team description'"),
         ]))
         .subcommand(SubCommand::with_name("list").about("list team"))
+}
+
+pub fn team_match(matches: &ArgMatches) -> Result<String, RpcError> {
+    Ok("It was a team related command!".to_string())
 }
