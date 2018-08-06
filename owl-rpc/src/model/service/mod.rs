@@ -4,7 +4,7 @@ pub mod provider;
 pub mod variant;
 
 #[derive(Serialize, Deserialize)]
-pub struct ServiceListItem {
+pub struct ServiceData {
     pub name: String,
     pub description: String,
     pub published_time: DateTime<Utc>,

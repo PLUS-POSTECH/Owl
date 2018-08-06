@@ -7,26 +7,27 @@ pub struct ServiceVariantFetchParams {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct ServiceVariantData {
-    pub name: String,
-    pub service_name: String,
-    pub publisher_name: String,
-    pub published_time: DateTime<Utc>,
-    pub files: Vec<FileEntry>,
-}
-
-#[derive(Serialize, Deserialize)]
 pub struct ServiceVariantListParams {
     pub show_all: bool,
     pub filter_providers: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct ServiceVariantListItem {
+pub struct ServiceVariantData {
     pub name: String,
     pub service_name: String,
     pub publisher_name: String,
     pub published_time: DateTime<Utc>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ServiceVariantDownloadParams {
+    pub name: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ServiceVariantAttachmentData {
+    pub file_entries: Vec<FileEntry>,
 }
 
 #[derive(Serialize, Deserialize)]

@@ -1,5 +1,5 @@
 #[derive(Serialize, Deserialize)]
-pub struct TeamListItem {
+pub struct TeamData {
     pub name: String,
     pub description: String,
 }
@@ -11,7 +11,7 @@ pub enum TeamEditParams {
     Update(TeamUpdateParams),
 }
 
-pub type TeamAddParams = TeamListItem;
+pub type TeamAddParams = TeamData;
 
 #[derive(Serialize, Deserialize)]
 pub struct TeamDeleteParams {

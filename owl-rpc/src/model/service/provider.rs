@@ -7,7 +7,7 @@ pub struct ServiceProviderListParams {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct ServiceProviderListItem {
+pub struct ServiceProviderData {
     pub provider_name: String,
     pub service_variant_name: String,
     pub connection_string: String,
