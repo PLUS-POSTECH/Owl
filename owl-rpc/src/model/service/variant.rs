@@ -6,6 +6,7 @@ pub struct ServiceVariantFetchParams {
     pub name: String,
 }
 
+// Filter conditions are combined using OR within field and combined using AND across fields
 #[derive(Serialize, Deserialize)]
 pub struct ServiceVariantListParams {
     pub show_all: bool,

@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 
+// Filter conditions are combined using OR within field and combined using AND across fields
 #[derive(Serialize, Deserialize)]
 pub struct ServiceProviderListParams {
     pub show_all: bool,
