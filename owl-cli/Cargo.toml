@@ -5,6 +5,6 @@ authors = ["Kangsu Kim <pica744@gmail.com>", "Yechan Bae <qwazpia@gmail.com>"]
 license = "MIT/Apache 2.0"
 
 [dependencies]
-owl-daemon = { path = "../owl-daemon" }
+owl-rpc = { path = "../owl-rpc" }
 clap = "2.32.0"
 tarpc = "0.12.0"

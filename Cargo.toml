@@ -4,4 +4,5 @@ members = [
     "owl-cli",
     "owl-daemon",
     "owl-exploit",
+    "owl-rpc",
 ]
