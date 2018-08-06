@@ -46,7 +46,7 @@ pub fn fetch_service_providers(
     }?.into_iter()
         .map(
             |x: (String, String, String, DateTime<Utc>)| ServiceProviderData {
-                provider_name: x.0,
+                team_name: x.0,
                 service_variant_name: x.1,
                 connection_string: x.2,
                 published_time: x.3,
@@ -60,7 +60,7 @@ pub fn update_service_providers(
     conn: &PgConnection,
     params: ServiceProviderUpdateParams,
 ) -> Result<(), Error> {
-    let provider_name = params.provider_name;
+    let team_name = params.team_name;
     let service_variant_name = params.service_variant_name;
     let connection_string = params.connection_string;
 
@@ -70,7 +70,7 @@ pub fn update_service_providers(
             .first::<ServiceVariant>(conn)?;
 
         let team = teams::table
-            .filter(teams::name.eq(provider_name))
+            .filter(teams::name.eq(team_name))
             .first::<Team>(conn)?;
 
         let query = service_providers::table

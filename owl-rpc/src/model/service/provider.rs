@@ -10,7 +10,7 @@ pub struct ServiceProviderListParams {
 
 #[derive(Serialize, Deserialize)]
 pub struct ServiceProviderData {
-    pub provider_name: String,
+    pub team_name: String,
     pub service_variant_name: String,
     pub connection_string: String,
     pub published_time: DateTime<Utc>,
@@ -18,7 +18,7 @@ pub struct ServiceProviderData {
 
 #[derive(Serialize, Deserialize)]
 pub struct ServiceProviderUpdateParams {
-    pub provider_name: String,
+    pub team_name: String,
     pub service_variant_name: String,
     pub connection_string: Option<String>,
 }
