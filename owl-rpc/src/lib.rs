@@ -23,26 +23,27 @@ use self::model::service::variant::{
 };
 use self::model::service::{ServiceData, ServiceEditParams};
 use self::model::team::{TeamData, TeamEditParams};
+use error::Error;
 
 pub mod error;
 pub mod model;
 
 service! {
-    rpc edit_team(cli_token: String, params: TeamEditParams) -> Result<(), ()>;
-    rpc list_team(cli_token: String) -> Result<Vec<TeamData>, ()>;
+    rpc edit_team(cli_token: String, params: TeamEditParams) -> () | Error;
+    rpc list_team(cli_token: String) -> Vec<TeamData> | Error;
 
-    rpc edit_service(cli_token: String, params: ServiceEditParams) -> Result<(), ()>;
-    rpc list_service(cli_token: String) -> Result<Vec<ServiceData>, ()>;
+    rpc edit_service(cli_token: String, params: ServiceEditParams) -> () | Error;
+    rpc list_service(cli_token: String) -> Vec<ServiceData> | Error;
 
-    rpc download_service_variant(cli_token: String, params: ServiceVariantDownloadParams) -> Result<ServiceVariantAttachmentData, ()>;
-    rpc edit_service_variant(cli_token: String, params: ServiceVariantEditParams) -> Result<(), ()>;
-    rpc list_service_variant(cli_token: String, params: ServiceVariantListParams) -> Result<Vec<ServiceVariantData>, ()>;
+    rpc download_service_variant(cli_token: String, params: ServiceVariantDownloadParams) -> ServiceVariantAttachmentData | Error;
+    rpc edit_service_variant(cli_token: String, params: ServiceVariantEditParams) -> () | Error;
+    rpc list_service_variant(cli_token: String, params: ServiceVariantListParams) -> Vec<ServiceVariantData> | Error;
 
-    rpc list_service_provider(cli_token: String, params: ServiceProviderListParams) -> Result<Vec<ServiceProviderData>, ()>;
-    rpc update_service_provider(cli_token: String, params: ServiceProviderUpdateParams) -> Result<(), ()>;
+    rpc list_service_provider(cli_token: String, params: ServiceProviderListParams) -> Vec<ServiceProviderData> | Error;
+    rpc update_service_provider(cli_token: String, params: ServiceProviderUpdateParams) -> () | Error;
 
-    rpc edit_exploit(cli_token: String, params: ExploitEditParams) -> Result<(), ()>;
-    rpc list_exploit(cli_token: String, params: ExploitListParams) -> Result<Vec<ExploitData>, ()>;
-    rpc run_exploit(cli_token: String, params: ExploitRunParams) -> Result<Option<ExploitTaskData>, ()>;
-    rpc stat_exploit(cli_token: String, params: ExploitStatusParams) -> Result<ExploitTaskData, ()>;
+    rpc edit_exploit(cli_token: String, params: ExploitEditParams) -> () | Error;
+    rpc list_exploit(cli_token: String, params: ExploitListParams) -> Vec<ExploitData> | Error;
+    rpc run_exploit(cli_token: String, params: ExploitRunParams) -> Option<ExploitTaskData> | Error;
+    rpc stat_exploit(cli_token: String, params: ExploitStatusParams) -> ExploitTaskData | Error;
 }

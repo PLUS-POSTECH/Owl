@@ -3,8 +3,8 @@ extern crate owl_rpc;
 extern crate tarpc;
 
 use clap::{App, Arg, SubCommand};
-use owl_rpc::SyncClient;
-use tarpc::sync::client::{self, ClientExt};
+use owl_rpc::FutureClient;
+use tarpc::future::client::{self, ClientExt};
 
 fn main() {
     let matches = App::new("Owl CLI")
@@ -17,14 +17,11 @@ fn main() {
                 .help("Sets a custom config file (default is \"config.toml\"")
                 .takes_value(true),
         )
-        .subcommand(SubCommand::with_name("test").about("test basic connection"))
+        .subcommand(SubCommand::with_name("team").about("CTF team management"))
         .get_matches();
 
     let config = matches.value_of("config").unwrap_or("config.toml");
     println!("Value for config: {}", config);
 
-    if let Some(_matches) = matches.subcommand_matches("test") {
-        let client = SyncClient::connect("localhost:5959", client::Options::default()).unwrap();
-        println!("{}", client.hello("Mom".to_string()).unwrap());
-    }
+    if let Some(_matches) = matches.subcommand_matches("team") {}
 }

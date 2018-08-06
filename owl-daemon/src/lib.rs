@@ -20,12 +20,24 @@ extern crate tokio;
 use self::db::models::*;
 use self::db::schema::*;
 use self::db::DbPool;
-use self::error::Error;
+use self::error::Error as DaemonError;
 use diesel::prelude::*;
 use diesel::PgConnection;
-use futures::future;
+use owl_rpc::error::Error as RpcError;
+use owl_rpc::model::exploit::{
+    ExploitData, ExploitEditParams, ExploitListParams, ExploitRunParams, ExploitStatusParams,
+    ExploitTaskData,
+};
+use owl_rpc::model::service::provider::{
+    ServiceProviderData, ServiceProviderListParams, ServiceProviderUpdateParams,
+};
+use owl_rpc::model::service::variant::{
+    ServiceVariantAttachmentData, ServiceVariantData, ServiceVariantDownloadParams,
+    ServiceVariantEditParams, ServiceVariantListParams,
+};
+use owl_rpc::model::service::{ServiceData, ServiceEditParams};
+use owl_rpc::model::team::{TeamData, TeamEditParams};
 use owl_rpc::FutureService;
-use tarpc::util::Never;
 use tokio::runtime::TaskExecutor;
 
 pub mod db;
@@ -47,16 +59,93 @@ impl OwlDaemon {
 }
 
 impl FutureService for OwlDaemon {
-    type HelloFut = Result<String, Never>;
-    fn hello(&self, name: String) -> Self::HelloFut {
-        let task_executor = self.task_executor.clone();
-        let db_pool = self.db_pool.clone();
-        task_executor.spawn(future::lazy(|| Ok(test_db(db_pool).unwrap())));
-        Ok(format!("Hello, {}!", name))
+    type EditTeamFut = Result<(), RpcError>;
+    fn edit_team(&self, cli_token: String, params: TeamEditParams) -> Self::EditTeamFut {
+        Err(())
+    }
+
+    type ListTeamFut = Result<Vec<TeamData>, RpcError>;
+    fn list_team(&self, cli_token: String) -> Self::ListTeamFut {
+        Err(())
+    }
+
+    type EditServiceFut = Result<(), RpcError>;
+    fn edit_service(&self, cli_token: String, params: ServiceEditParams) -> Self::EditServiceFut {
+        Err(())
+    }
+
+    type ListServiceFut = Result<Vec<ServiceData>, RpcError>;
+    fn list_service(&self, cli_token: String) -> Self::ListServiceFut {
+        Err(())
+    }
+
+    type DownloadServiceVariantFut = Result<ServiceVariantAttachmentData, RpcError>;
+    fn download_service_variant(
+        &self,
+        cli_token: String,
+        params: ServiceVariantDownloadParams,
+    ) -> Self::DownloadServiceVariantFut {
+        Err(())
+    }
+
+    type EditServiceVariantFut = Result<(), RpcError>;
+    fn edit_service_variant(
+        &self,
+        cli_token: String,
+        params: ServiceVariantEditParams,
+    ) -> Self::EditServiceVariantFut {
+        Err(())
+    }
+
+    type ListServiceVariantFut = Result<Vec<ServiceVariantData>, RpcError>;
+    fn list_service_variant(
+        &self,
+        cli_token: String,
+        params: ServiceVariantListParams,
+    ) -> Self::ListServiceVariantFut {
+        Err(())
+    }
+
+    type ListServiceProviderFut = Result<Vec<ServiceProviderData>, RpcError>;
+    fn list_service_provider(
+        &self,
+        cli_token: String,
+        params: ServiceProviderListParams,
+    ) -> Self::ListServiceProviderFut {
+        Err(())
+    }
+
+    type UpdateServiceProviderFut = Result<(), RpcError>;
+    fn update_service_provider(
+        &self,
+        cli_token: String,
+        params: ServiceProviderUpdateParams,
+    ) -> Self::UpdateServiceProviderFut {
+        Err(())
+    }
+
+    type EditExploitFut = Result<(), RpcError>;
+    fn edit_exploit(&self, cli_token: String, params: ExploitEditParams) -> Self::EditExploitFut {
+        Err(())
+    }
+
+    type ListExploitFut = Result<Vec<ExploitData>, RpcError>;
+    fn list_exploit(&self, cli_token: String, params: ExploitListParams) -> Self::ListExploitFut {
+        Err(())
+    }
+
+    type RunExploitFut = Result<Option<ExploitTaskData>, RpcError>;
+    fn run_exploit(&self, cli_token: String, params: ExploitRunParams) -> Self::RunExploitFut {
+        Err(())
+    }
+
+    type StatExploitFut = Result<ExploitTaskData, RpcError>;
+    fn stat_exploit(&self, cli_token: String, params: ExploitStatusParams) -> Self::StatExploitFut {
+        Err(())
     }
 }
 
-fn test_db(db_pool: DbPool) -> Result<(), Error> {
+fn test_db(db_pool: DbPool) -> Result<(), DaemonError> {
     info!("Testing DB...");
     let con: &PgConnection = &*db_pool.get()?;
 
