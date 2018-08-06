@@ -1,9 +1,11 @@
-use clap::{App, Arg, ArgMatches, SubCommand};
-use owl_rpc::error::Error as RpcError;
+use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
+use owl_rpc::FutureClient;
+use tarpc::util::Message;
 
 pub fn team_command() -> App<'static, 'static> {
     SubCommand::with_name("team")
         .about("CTF team management (admin)")
+        .setting(AppSettings::SubcommandRequired)
         .subcommand(SubCommand::with_name("add").about("add team").args(&[
             Arg::from_usage("<NAME> 'team name'"),
             Arg::from_usage("[DESCRIPTION] 'team description'"),
@@ -20,6 +22,6 @@ pub fn team_command() -> App<'static, 'static> {
         .subcommand(SubCommand::with_name("list").about("list team"))
 }
 
-pub fn team_match(matches: &ArgMatches) -> Result<String, RpcError> {
+pub fn team_match(matches: &ArgMatches, client: &FutureClient) -> Result<String, Message> {
     Ok("It was a team related command!".to_string())
 }
