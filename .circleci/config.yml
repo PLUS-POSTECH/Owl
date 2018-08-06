@@ -1,6 +1,29 @@
 version: 2
 jobs:
-  build:
+  build-master:
+    docker:
+      - image: ksalpha/rust-diesel-ci:latest
+      - image: circleci/postgres:latest
+    steps:
+      - checkout
+      - run:
+          name: Update dependencies
+          command: |
+            cargo install-update -a
+      - run:
+          name: Setup database
+          command: |
+            dockerize -wait tcp://localhost:5432 -timeout 1m
+            cd owl-daemon
+            echo "DATABASE_URL=postgres://root:circle_test@localhost/owl_daemon" > .env
+            diesel database setup
+      - run:
+          name: Build
+          command: cargo build
+      - run:
+          name: Test
+          command: cargo test
+  build-dev:
     docker:
       - image: ksalpha/rust-diesel-ci:latest
       - image: circleci/postgres:latest
@@ -9,12 +32,9 @@ jobs:
       - restore_cache:
           keys:
             - deps-{{ .Branch }}
-            - deps-master
       - run:
-          name: Install dependencies
+          name: Update dependencies
           command: |
-            which cargo-install-update || cargo install cargo-update
-            which diesel || cargo install diesel_cli --no-default-features --features=postgres
             cargo install-update -a
       - save_cache:
           key: deps-{{ .Branch }}-{{ epoch }}
@@ -41,3 +61,18 @@ jobs:
           key: build-{{ .Branch }}-{{ checksum "Cargo.toml" }}-{{ epoch }}
           paths:
             - "target"
+
+workflows:
+  version: 2
+  build-per-branch:
+    jobs:
+      - build-master:
+          filters:
+            branches:
+              only:
+                - master
+      - build-dev:
+          filters:
+            branches:
+              ignore:
+                - master
