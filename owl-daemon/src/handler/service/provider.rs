@@ -3,8 +3,8 @@ use db::models::*;
 use db::schema::*;
 use diesel;
 use diesel::prelude::*;
-use diesel::PgConnection;
 use diesel::result::Error as DieselError;
+use diesel::PgConnection;
 use error::Error;
 use owl_rpc::model::service::provider::{
     ServiceProviderData, ServiceProviderListParams, ServiceProviderUpdateParams,
@@ -81,18 +81,15 @@ pub fn update_service_providers(
             .select(service_providers::id);
 
         if let Ok(recent_record_id) = query.first::<i32>(conn) {
-            let target = service_providers::table
-                .find(recent_record_id);
+            let target = service_providers::table.find(recent_record_id);
 
-            let record = target
-                .first::<ServiceProvider>(conn)?;
+            let record = target.first::<ServiceProvider>(conn)?;
 
             if (record.team_id, record.service_variant_id) == (team.id, service_variant.id) {
                 diesel::update(target)
-                    .set(ServiceProviderChangeset {
-                        connection_string,
-                    }).execute(conn)?;
-                return Ok(())
+                    .set(ServiceProviderChangeset { connection_string })
+                    .execute(conn)?;
+                return Ok(());
             }
         }
 
@@ -103,7 +100,8 @@ pub fn update_service_providers(
                         team_id: team.id,
                         service_variant_id: service_variant.id,
                         connection_string,
-                    }).execute(conn)?;
+                    })
+                    .execute(conn)?;
                 Ok(())
             },
             None => Err(Error::Diesel(DieselError::NotFound)),

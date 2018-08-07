@@ -7,6 +7,8 @@ pub enum Error {
     R2D2(#[cause] r2d2::Error),
     #[fail(display = "diesel error: {}", _0)]
     Diesel(#[cause] diesel::result::Error),
+    #[fail(display = "error: {}", _0)]
+    Message(String),
 }
 
 impl From<r2d2::Error> for Error {

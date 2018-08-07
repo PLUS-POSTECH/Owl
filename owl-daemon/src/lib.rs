@@ -24,7 +24,6 @@ use self::error::Error as DaemonError;
 use self::handler::service::provider::{fetch_service_providers, update_service_providers};
 use diesel::prelude::*;
 use diesel::PgConnection;
-use owl_rpc::error::Error as RpcError;
 use owl_rpc::model::exploit::{
     ExploitData, ExploitEditParams, ExploitListParams, ExploitRunParams, ExploitStatusParams,
     ExploitTaskData,
@@ -36,9 +35,10 @@ use owl_rpc::model::service::variant::{
     ServiceVariantAttachmentData, ServiceVariantData, ServiceVariantDownloadParams,
     ServiceVariantEditParams, ServiceVariantListParams,
 };
-use owl_rpc::model::service::{ServiceData, ServiceEditParams};
+use owl_rpc::model::service::{ServiceData, ServiceEditParams, ServiceListParams};
 use owl_rpc::model::team::{TeamData, TeamEditParams};
 use owl_rpc::FutureService;
+use tarpc::util::Message;
 use tokio::runtime::TaskExecutor;
 
 pub mod db;
@@ -60,55 +60,79 @@ impl OwlDaemon {
     }
 }
 
+fn run_handler<F, R>(f: F, db_pool: DbPool) -> Result<R, Message>
+where
+    F: FnOnce(DbPool) -> Result<R, DaemonError>,
+{
+    match f(db_pool) {
+        Ok(result) => Ok(result),
+        Err(err) => Err(Message(err.to_string())),
+    }
+}
+
+fn run_handler_with_param<F, P, R>(f: F, db_pool: DbPool, params: P) -> Result<R, Message>
+where
+    F: FnOnce(DbPool, P) -> Result<R, DaemonError>,
+{
+    match f(db_pool, params) {
+        Ok(result) => Ok(result),
+        Err(err) => Err(Message(err.to_string())),
+    }
+}
+
 impl FutureService for OwlDaemon {
-    type EditTeamFut = Result<(), RpcError>;
+    // Team
+    type EditTeamFut = Result<(), Message>;
     fn edit_team(&self, cli_token: String, params: TeamEditParams) -> Self::EditTeamFut {
-        Err(())
+        run_handler_with_param(handler::team::edit_team, self.db_pool.clone(), params)
     }
 
-    type ListTeamFut = Result<Vec<TeamData>, RpcError>;
+    type ListTeamFut = Result<Vec<TeamData>, Message>;
     fn list_team(&self, cli_token: String) -> Self::ListTeamFut {
-        Err(())
+        run_handler(handler::team::list_team, self.db_pool.clone())
     }
 
-    type EditServiceFut = Result<(), RpcError>;
+    // Service
+    type EditServiceFut = Result<(), Message>;
     fn edit_service(&self, cli_token: String, params: ServiceEditParams) -> Self::EditServiceFut {
-        Err(())
+        run_handler_with_param(handler::service::edit_service, self.db_pool.clone(), params)
     }
 
-    type ListServiceFut = Result<Vec<ServiceData>, RpcError>;
-    fn list_service(&self, cli_token: String) -> Self::ListServiceFut {
-        Err(())
+    type ListServiceFut = Result<Vec<ServiceData>, Message>;
+    fn list_service(&self, cli_token: String, params: ServiceListParams) -> Self::ListServiceFut {
+        run_handler_with_param(handler::service::list_service, self.db_pool.clone(), params)
     }
 
-    type DownloadServiceVariantFut = Result<ServiceVariantAttachmentData, RpcError>;
+    // Service Variant
+    type DownloadServiceVariantFut = Result<ServiceVariantAttachmentData, Message>;
     fn download_service_variant(
         &self,
         cli_token: String,
         params: ServiceVariantDownloadParams,
     ) -> Self::DownloadServiceVariantFut {
-        Err(())
+        Err(Message("Not Implemented".to_string()))
     }
 
-    type EditServiceVariantFut = Result<(), RpcError>;
+    type EditServiceVariantFut = Result<(), Message>;
     fn edit_service_variant(
         &self,
         cli_token: String,
         params: ServiceVariantEditParams,
     ) -> Self::EditServiceVariantFut {
-        Err(())
+        Err(Message("Not Implemented".to_string()))
     }
 
-    type ListServiceVariantFut = Result<Vec<ServiceVariantData>, RpcError>;
+    type ListServiceVariantFut = Result<Vec<ServiceVariantData>, Message>;
     fn list_service_variant(
         &self,
         cli_token: String,
         params: ServiceVariantListParams,
     ) -> Self::ListServiceVariantFut {
-        Err(())
+        Err(Message("Not Implemented".to_string()))
     }
 
-    type ListServiceProviderFut = Result<Vec<ServiceProviderData>, RpcError>;
+    // Service Provider
+    type ListServiceProviderFut = Result<Vec<ServiceProviderData>, Message>;
     fn list_service_provider(
         &self,
         cli_token: String,
@@ -116,7 +140,7 @@ impl FutureService for OwlDaemon {
     ) -> Self::ListServiceProviderFut {
         let connection_result = self.db_pool.get();
         if connection_result.is_err() {
-            return Err(())
+            return Err(Message("".to_string()));
         }
 
         let connection = connection_result.unwrap();
@@ -124,11 +148,11 @@ impl FutureService for OwlDaemon {
 
         match result {
             Ok(data) => Ok(data),
-            Err(_err) => Err(()),
+            Err(_) => Err(Message("".to_string())),
         }
     }
 
-    type UpdateServiceProviderFut = Result<(), RpcError>;
+    type UpdateServiceProviderFut = Result<(), Message>;
     fn update_service_provider(
         &self,
         cli_token: String,
@@ -136,7 +160,7 @@ impl FutureService for OwlDaemon {
     ) -> Self::UpdateServiceProviderFut {
         let connection_result = self.db_pool.get();
         if connection_result.is_err() {
-            return Err(())
+            return Err(Message("".to_string()));
         }
 
         let connection = connection_result.unwrap();
@@ -144,28 +168,28 @@ impl FutureService for OwlDaemon {
 
         match result {
             Ok(data) => Ok(data),
-            Err(_err) => Err(()),
+            Err(_err) => Err(Message("".to_string())),
         }
     }
 
-    type EditExploitFut = Result<(), RpcError>;
+    type EditExploitFut = Result<(), Message>;
     fn edit_exploit(&self, cli_token: String, params: ExploitEditParams) -> Self::EditExploitFut {
-        Err(())
+        Err(Message("Not Implemented".to_string()))
     }
 
-    type ListExploitFut = Result<Vec<ExploitData>, RpcError>;
+    type ListExploitFut = Result<Vec<ExploitData>, Message>;
     fn list_exploit(&self, cli_token: String, params: ExploitListParams) -> Self::ListExploitFut {
-        Err(())
+        Err(Message("Not Implemented".to_string()))
     }
 
-    type RunExploitFut = Result<Option<ExploitTaskData>, RpcError>;
+    type RunExploitFut = Result<Option<ExploitTaskData>, Message>;
     fn run_exploit(&self, cli_token: String, params: ExploitRunParams) -> Self::RunExploitFut {
-        Err(())
+        Err(Message("Not Implemented".to_string()))
     }
 
-    type StatExploitFut = Result<ExploitTaskData, RpcError>;
+    type StatExploitFut = Result<ExploitTaskData, Message>;
     fn stat_exploit(&self, cli_token: String, params: ExploitStatusParams) -> Self::StatExploitFut {
-        Err(())
+        Err(Message("Not Implemented".to_string()))
     }
 }
 
