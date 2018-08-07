@@ -1,0 +1,135 @@
+use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
+use error::Error;
+use owl_rpc::model::service::variant::*;
+use SharedParam;
+
+pub fn service_variant_command() -> App<'static, 'static> {
+    SubCommand::with_name("variant")
+        .about("CTF service variant management")
+        .setting(AppSettings::SubcommandRequired)
+        .subcommands(vec![
+            SubCommand::with_name("add")
+                .about("Add new service variant (admin)")
+                .args(&[
+                    Arg::from_usage("<file>... 'Binary file representing service variant'"),
+                    Arg::from_usage(
+                        "-s, --service <service_name> 'Classification of the service variant'",
+                    ),
+                    Arg::from_usage(
+                        "-p, --publisher <team_name> 'Name of the team who published the variant'",
+                    ),
+                ]),
+            SubCommand::with_name("delete")
+                .about("Delete specified service variant (admin)")
+                .args(&[Arg::from_usage(
+                    "<name>... 'Name of the service variant to delete'",
+                )]),
+            SubCommand::with_name("update")
+                .about("Update service variant (admin)")
+                .args(&[
+                    Arg::from_usage("<name>... 'Name of the service variant to update'"),
+                    Arg::from_usage(
+                        "-s, --service [service_name] 'Classification of the service variant'",
+                    ),
+                    Arg::from_usage(
+                        "-p, --publisher [team_name] 'Name of the team who published the variant'",
+                    ),
+                    Arg::from_usage(
+                        "-v, --sla-pass [sla_pass] 'Indicator if the variant passed SLA check'",
+                    ).possible_values(&["true", "false", "none"]),
+                ]),
+            SubCommand::with_name("list")
+                .about("List available service providers")
+                .args(&[
+                    Arg::from_usage("-a, --all 'Shows disabled service also'"),
+                    Arg::from_usage("-t, --filter-team [team_name]... 'Filters variants by team'"),
+                ]),
+            SubCommand::with_name("download")
+                .about("Download service variant")
+                .args(&[Arg::from_usage(
+                    "<name>... 'Name of the service variant to download'",
+                )]),
+        ])
+}
+
+pub fn service_variant_match(
+    matches: &ArgMatches,
+    shared_param: SharedParam,
+) -> Result<String, Error> {
+    match matches.subcommand() {
+        ("add", Some(matches)) => {
+            shared_param.client.edit_service_variant(
+                shared_param.token,
+                ServiceVariantEditParams::Add {
+                    service_name: matches.value_of("service").unwrap().to_string(),
+                    publisher_name: matches.value_of("publisher").unwrap().to_string(),
+                    files: vec![], //Fix
+                },
+            )?;
+
+            Ok("Variant successfully added".to_string())
+        },
+        ("delete", Some(matches)) => {
+            shared_param.client.edit_service_variant(
+                shared_param.token,
+                ServiceVariantEditParams::Delete {
+                    name: matches.value_of("name").unwrap().to_string(),
+                },
+            )?;
+
+            Ok("Variant successfully deleted".to_string())
+        },
+        ("update", Some(matches)) => {
+            shared_param.client.edit_service_variant(
+                shared_param.token,
+                ServiceVariantEditParams::Update {
+                    name: matches.value_of("name").unwrap().to_string(),
+                    service_name: matches.value_of("service").map(ToString::to_string),
+                    publisher_name: matches.value_of("publisher").map(ToString::to_string),
+                    sla_pass: match matches.value_of("sla-pass") {
+                        Some("true") => Some(Some(true)),
+                        Some("false") => Some(Some(false)),
+                        Some("none") => Some(None),
+                        _ => None, //Fix!
+                    },
+                },
+            )?;
+
+            Ok("Variant successfully updated".to_string())
+        },
+        ("list", Some(matches)) => {
+            let service_variants = shared_param.client.list_service_variant(
+                shared_param.token,
+                ServiceVariantListParams {
+                    show_all: matches.is_present("all"),
+                    filter_teams: matches
+                        .values_of("filter-team")
+                        .unwrap()
+                        .map(|x| x.to_string())
+                        .collect(),
+                },
+            )?;
+
+            if service_variants.is_empty() {
+                Ok("No service variant registered".to_string())
+            } else {
+                Ok(service_variants
+                    .into_iter()
+                    .map(|service_variant| {
+                        format!(
+                            "- {:10} | {:10} | {:10} | {}",
+                            service_variant.name,
+                            service_variant.service_name,
+                            service_variant.publisher_name,
+                            service_variant.published_time
+                        )
+                    })
+                    .collect::<Vec<_>>()
+                    .join("\n"))
+            }
+        },
+        ("download", Some(matches)) => Ok("".to_string()),
+
+        _ => Err(Error::InvalidSubcommand),
+    }
+}
