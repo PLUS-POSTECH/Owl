@@ -64,7 +64,7 @@ pub fn team_match(matches: &ArgMatches, shared_param: SharedParam) -> Result<Str
             Ok("Team successfully updated".to_string())
         },
 
-        ("list", Some(matches)) => {
+        ("list", Some(_)) => {
             let teams = shared_param.client.list_team(shared_param.token)?;
 
             if teams.is_empty() {
