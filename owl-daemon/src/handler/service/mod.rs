@@ -59,16 +59,25 @@ pub fn edit_service(db_pool: DbPool, params: ServiceEditParams) -> Result<(), Er
     }
 }
 
-pub fn list_service(db_pool: DbPool) -> Result<Vec<ServiceData>, Error> {
+pub fn list_service(db_pool: DbPool, params: ServiceListParams) -> Result<Vec<ServiceData>, Error> {
     use db::schema::services::dsl::*;
 
     let con: &PgConnection = &*db_pool.get()?;
 
-    let fetch = services.load::<Service>(con)?;
+    let fetch = if params.show_all {
+        services.load::<Service>(con)?
+    } else {
+        services.filter(enabled.eq(true)).load::<Service>(con)?
+    };
+
     Ok(fetch
         .into_iter()
         .map(|service| ServiceData {
-            name: service.name,
+            name: if service.enabled {
+                service.name
+            } else {
+                format!("({})", service.name)
+            },
             description: service.description,
             published_time: service.published_time,
         })

@@ -25,3 +25,8 @@ pub enum ServiceEditParams {
         enabled: Option<bool>,
     },
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct ServiceListParams {
+    pub show_all: bool,
+}

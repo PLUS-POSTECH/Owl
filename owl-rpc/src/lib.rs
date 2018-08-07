@@ -19,7 +19,7 @@ use self::model::service::variant::{
     ServiceVariantAttachmentData, ServiceVariantData, ServiceVariantDownloadParams,
     ServiceVariantEditParams, ServiceVariantListParams,
 };
-use self::model::service::{ServiceData, ServiceEditParams};
+use self::model::service::{ServiceData, ServiceEditParams, ServiceListParams};
 use self::model::team::{TeamData, TeamEditParams};
 use tarpc::util::Message;
 
@@ -30,7 +30,7 @@ service! {
     rpc list_team(cli_token: String) -> Vec<TeamData> | Message;
 
     rpc edit_service(cli_token: String, params: ServiceEditParams) -> () | Message;
-    rpc list_service(cli_token: String) -> Vec<ServiceData> | Message;
+    rpc list_service(cli_token: String, params: ServiceListParams) -> Vec<ServiceData> | Message;
 
     rpc download_service_variant(cli_token: String, params: ServiceVariantDownloadParams) -> ServiceVariantAttachmentData | Message;
     rpc edit_service_variant(cli_token: String, params: ServiceVariantEditParams) -> () | Message;

@@ -38,7 +38,11 @@ pub fn service_command() -> App<'static, 'static> {
                     Arg::from_usage("<description> 'service description'"),
                 ]),
         )
-        .subcommand(SubCommand::with_name("list").about("list services"))
+        .subcommand(
+            SubCommand::with_name("list")
+                .about("list services")
+                .args(&[Arg::from_usage("-a, --all 'include disabled services'")]),
+        )
 }
 
 pub fn service_match(matches: &ArgMatches, shared_param: SharedParam) -> Result<String, Error> {
@@ -94,8 +98,13 @@ pub fn service_match(matches: &ArgMatches, shared_param: SharedParam) -> Result<
         )?;
 
         Ok("Service successfully updated".to_string())
-    } else if let Some(_) = matches.subcommand_matches("list") {
-        let services = shared_param.client.list_service(shared_param.token)?;
+    } else if let Some(matches) = matches.subcommand_matches("list") {
+        let services = shared_param.client.list_service(
+            shared_param.token,
+            ServiceListParams {
+                show_all: matches.is_present("all"),
+            },
+        )?;
 
         if services.is_empty() {
             Ok("No service registered".to_string())
