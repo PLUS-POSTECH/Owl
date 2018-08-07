@@ -88,24 +88,21 @@ pub fn update_service_provider(
 
             if (record.team_id, record.service_variant_id) == (team.id, service_variant.id) {
                 diesel::update(target)
-                    .set(ServiceProviderChangeset { connection_string })
-                    .execute(conn)?;
-                return Ok(());
-            }
-        }
-
-        match connection_string {
-            Some(connection_string) => {
-                diesel::insert_into(service_providers::table)
-                    .values(ServiceProviderInsertable {
-                        team_id: team.id,
-                        service_variant_id: service_variant.id,
-                        connection_string,
+                    .set(ServiceProviderChangeset {
+                        connection_string: Some(connection_string),
                     })
                     .execute(conn)?;
-                Ok(())
-            },
-            None => Err(Error::Diesel(DieselError::NotFound)),
+            }
+        } else {
+            diesel::insert_into(service_providers::table)
+                .values(ServiceProviderInsertable {
+                    team_id: team.id,
+                    service_variant_id: service_variant.id,
+                    connection_string,
+                })
+                .execute(conn)?;
         }
+
+        Ok(())
     })
 }

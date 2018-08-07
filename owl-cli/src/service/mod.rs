@@ -1,4 +1,4 @@
-use self::provider::{service_provider_command, service_provider_matches};
+use self::provider::{service_provider_command, service_provider_match};
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 use error::Error;
 use owl_rpc::model::service::*;
@@ -121,7 +121,7 @@ pub fn service_match(matches: &ArgMatches, shared_param: SharedParam) -> Result<
                     .join("\n"))
             }
         },
-        ("provider", Some(matches)) => service_provider_match(matches),
+        ("provider", Some(matches)) => service_provider_match(matches, shared_param),
 
         _ => Err(Error::InvalidSubcommand),
     }

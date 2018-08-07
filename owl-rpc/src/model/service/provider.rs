@@ -20,5 +20,5 @@ pub struct ServiceProviderData {
 pub struct ServiceProviderUpdateParams {
     pub team_name: String,
     pub service_variant_name: String,
-    pub connection_string: Option<String>,
+    pub connection_string: String,
 }

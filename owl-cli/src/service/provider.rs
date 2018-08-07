@@ -1,6 +1,6 @@
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 use error::Error;
-use owl_rpc::model::service::*;
+use owl_rpc::model::service::provider::*;
 use SharedParam;
 
 pub fn service_provider_command() -> App<'static, 'static> {
@@ -22,7 +22,7 @@ pub fn service_provider_command() -> App<'static, 'static> {
                 .args(&[
                     Arg::from_usage("-t, --team <team_name> 'Name of the team providing service'"),
                     Arg::from_usage("-v, --service-variant <service_variant_name> 'Name of the service variant being provided'"),
-                    Arg::from_usage("-s, --connection-string [connection_string] 'URI to use when connecting to service'"),
+                    Arg::from_usage("-s, --connection-string <connection_string> 'URI to use when connecting to service'"),
                 ]),
         ])
 }
@@ -32,85 +32,53 @@ pub fn service_provider_match(
     shared_param: SharedParam,
 ) -> Result<String, Error> {
     match matches.subcommand() {
-        ("add", Some(matches)) => {
-            shared_param.client.edit_service(
+        ("list", Some(matches)) => {
+            let service_providers = shared_param.client.list_service_provider(
                 shared_param.token,
-                ServiceEditParams::Add {
-                    name: matches.value_of("name").unwrap().to_string(),
-                    description: matches.value_of("description").unwrap_or("").to_string(),
+                ServiceProviderListParams {
+                    show_all: matches.is_present("all"),
+                    filter_teams: matches
+                        .values_of("filter-team")
+                        .unwrap()
+                        .map(|x| x.to_string())
+                        .collect(),
+                    filter_service_variants: matches
+                        .values_of("filter-service_variant")
+                        .unwrap()
+                        .map(|x| x.to_string())
+                        .collect(),
                 },
             )?;
 
-            Ok("Service successfully added".to_string())
+            if service_providers.is_empty() {
+                Ok("No service provider registered".to_string())
+            } else {
+                Ok(service_providers
+                    .into_iter()
+                    .map(|service_provider| {
+                        format!(
+                            "- {:10} | {:10} | {}",
+                            service_provider.team_name,
+                            service_provider.service_variant_name,
+                            service_provider.connection_string
+                        )
+                    })
+                    .collect::<Vec<_>>()
+                    .join("\n"))
+            }
         },
 
-        ("delete", Some(matches)) => {
-            shared_param.client.edit_service(
+        ("update", Some(matches)) => {
+            shared_param.client.update_service_provider(
                 shared_param.token,
-                ServiceEditParams::Delete {
-                    name: matches.value_of("name").unwrap().to_string(),
+                ServiceProviderUpdateParams {
+                    team_name: matches.value_of("team").unwrap().to_string(),
+                    service_variant_name: matches.value_of("service-variant").unwrap().to_string(),
+                    connection_string: matches.value_of("connection-string").unwrap().to_string(),
                 },
             )?;
 
             Ok("Service successfully deleted".to_string())
-        },
-
-        ("enable", Some(matches)) => {
-            shared_param.client.edit_service(
-                shared_param.token,
-                ServiceEditParams::Update {
-                    name: matches.value_of("name").unwrap().to_string(),
-                    description: None,
-                    enabled: Some(true),
-                },
-            )?;
-
-            Ok("Service successfully updated".to_string())
-        },
-
-        ("disable", Some(matches)) => {
-            shared_param.client.edit_service(
-                shared_param.token,
-                ServiceEditParams::Update {
-                    name: matches.value_of("name").unwrap().to_string(),
-                    description: None,
-                    enabled: Some(false),
-                },
-            )?;
-
-            Ok("Service successfully updated".to_string())
-        },
-
-        ("update", Some(matches)) => {
-            shared_param.client.edit_service(
-                shared_param.token,
-                ServiceEditParams::Update {
-                    name: matches.value_of("name").unwrap().to_string(),
-                    description: matches.value_of("description").map(ToString::to_string),
-                    enabled: None,
-                },
-            )?;
-
-            Ok("Service successfully updated".to_string())
-        },
-
-        ("list", Some(matches)) => {
-            let services = shared_param.client.list_service(
-                shared_param.token,
-                ServiceListParams {
-                    show_all: matches.is_present("all"),
-                },
-            )?;
-
-            if services.is_empty() {
-                Ok("No service registered".to_string())
-            } else {
-                Ok(services
-                    .into_iter()
-                    .map(|service| format!("- {:10} | {}", service.name, service.description))
-                    .collect::<Vec<_>>()
-                    .join("\n"))
-            }
         },
 
         _ => Err(Error::InvalidSubcommand),
