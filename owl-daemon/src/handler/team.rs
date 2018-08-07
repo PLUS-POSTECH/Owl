@@ -1,5 +1,4 @@
-use db::models::*;
-use db::schema::*;
+use db::models::Team;
 use db::DbPool;
 use diesel;
 use diesel::prelude::*;
@@ -8,24 +7,31 @@ use error::Error;
 use owl_rpc::model::team::*;
 
 pub fn edit_team(db_pool: DbPool, params: TeamEditParams) -> Result<(), Error> {
+    use db::schema::teams::dsl::*;
+
     let con: &PgConnection = &*db_pool.get()?;
 
     match params {
-        TeamEditParams::Add(params) => {
-            diesel::insert_into(teams::table)
-                .values((
-                    teams::name.eq(params.name),
-                    teams::description.eq(params.description),
-                ))
+        TeamEditParams::Add {
+            name: param_name,
+            description: param_description,
+        } => {
+            diesel::insert_into(teams)
+                .values((name.eq(param_name), description.eq(param_description)))
                 .execute(con)?;
         },
-        TeamEditParams::Delete(params) => {
-            diesel::delete(teams::table)
-                .filter(teams::name.eq(params.name))
-                .execute(con)?;
+        TeamEditParams::Delete { name: param_name } => {
+            diesel::delete(teams.filter(name.eq(param_name))).execute(con)?;
         },
-        TeamEditParams::Update(params) => {
-            unimplemented!();
+        TeamEditParams::Update {
+            name: param_name,
+            description: param_description,
+        } => {
+            if let Some(param_description) = param_description {
+                diesel::update(teams.filter(name.eq(param_name)))
+                    .set(description.eq(param_description))
+                    .execute(con)?;
+            }
         },
     };
 
@@ -33,9 +39,11 @@ pub fn edit_team(db_pool: DbPool, params: TeamEditParams) -> Result<(), Error> {
 }
 
 pub fn list_team(db_pool: DbPool) -> Result<Vec<TeamData>, Error> {
+    use db::schema::teams::dsl::*;
+
     let con: &PgConnection = &*db_pool.get()?;
 
-    let fetch = teams::table.load::<Team>(con)?;
+    let fetch = teams.load::<Team>(con)?;
     Ok(fetch
         .into_iter()
         .map(|team| TeamData {
