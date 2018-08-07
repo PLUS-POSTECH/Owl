@@ -18,7 +18,7 @@ pub fn service_provider_command() -> App<'static, 'static> {
                         .multiple(true),
                 ]),
             SubCommand::with_name("update")
-                .about("Update service provider information")
+                .about("Update service provider information (admin)")
                 .args(&[
                     Arg::from_usage("-t, --team <team_name> 'Name of the team providing service'"),
                     Arg::from_usage("-v, --service-variant <service_variant_name> 'Name of the service variant being provided'"),
