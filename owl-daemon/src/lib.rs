@@ -169,28 +169,3 @@ impl FutureService for OwlDaemon {
         Err(Message("Not Implemented".to_string()))
     }
 }
-
-fn test_db(db_pool: DbPool) -> Result<(), DaemonError> {
-    info!("Testing DB...");
-    let con: &PgConnection = &*db_pool.get()?;
-
-    info!("Insert Test data");
-    let insert = diesel::insert_into(teams::table)
-        .values((teams::name.eq("PLUS"), teams::description.eq("Best Team")))
-        .execute(con)?;
-    println!("INSERT: {}", insert);
-
-    info!("Fetch Test data");
-    let fetch = teams::table.load::<Team>(con)?;
-    for team in fetch {
-        println!("FETCH: {} - {}", team.name, team.description);
-    }
-
-    info!("Delete Test data");
-    let delete = diesel::delete(teams::table)
-        .filter(teams::name.eq("PLUS"))
-        .execute(con)?;
-    println!("DELETE: {}", delete);
-
-    Ok(())
-}
