@@ -23,19 +23,11 @@ use self::db::DbPool;
 use self::error::Error as DaemonError;
 use diesel::prelude::*;
 use diesel::PgConnection;
-use owl_rpc::model::exploit::{
-    ExploitData, ExploitEditParams, ExploitListParams, ExploitRunParams, ExploitStatusParams,
-    ExploitTaskData,
-};
-use owl_rpc::model::service::provider::{
-    ServiceProviderData, ServiceProviderListParams, ServiceProviderUpdateParams,
-};
-use owl_rpc::model::service::variant::{
-    ServiceVariantAttachmentData, ServiceVariantData, ServiceVariantDownloadParams,
-    ServiceVariantEditParams, ServiceVariantListParams,
-};
-use owl_rpc::model::service::{ServiceData, ServiceEditParams, ServiceListParams};
-use owl_rpc::model::team::{TeamData, TeamEditParams};
+use owl_rpc::model::exploit::*;
+use owl_rpc::model::service::provider::*;
+use owl_rpc::model::service::variant::*;
+use owl_rpc::model::service::*;
+use owl_rpc::model::team::*;
 use owl_rpc::FutureService;
 use tarpc::util::Message;
 use tokio::runtime::TaskExecutor;
@@ -176,29 +168,4 @@ impl FutureService for OwlDaemon {
     fn stat_exploit(&self, cli_token: String, params: ExploitStatusParams) -> Self::StatExploitFut {
         Err(Message("Not Implemented".to_string()))
     }
-}
-
-fn test_db(db_pool: DbPool) -> Result<(), DaemonError> {
-    info!("Testing DB...");
-    let con: &PgConnection = &*db_pool.get()?;
-
-    info!("Insert Test data");
-    let insert = diesel::insert_into(teams::table)
-        .values((teams::name.eq("PLUS"), teams::description.eq("Best Team")))
-        .execute(con)?;
-    println!("INSERT: {}", insert);
-
-    info!("Fetch Test data");
-    let fetch = teams::table.load::<Team>(con)?;
-    for team in fetch {
-        println!("FETCH: {} - {}", team.name, team.description);
-    }
-
-    info!("Delete Test data");
-    let delete = diesel::delete(teams::table)
-        .filter(teams::name.eq("PLUS"))
-        .execute(con)?;
-    println!("DELETE: {}", delete);
-
-    Ok(())
 }

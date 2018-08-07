@@ -16,9 +16,6 @@ use std::net::ToSocketAddrs;
 use self::team::{team_command, team_match};
 use clap::{App, AppSettings, Arg, SubCommand};
 use dotenv::dotenv;
-use owl_rpc::model::service::provider::{
-    ServiceProviderData, ServiceProviderListParams, ServiceProviderUpdateParams,
-};
 use owl_rpc::SyncClient;
 use service::{service_command, service_match};
 use tarpc::sync::client::{self, ClientExt};
