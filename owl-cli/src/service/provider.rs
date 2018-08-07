@@ -12,10 +12,8 @@ pub fn service_provider_command() -> App<'static, 'static> {
                 .about("List available service providers")
                 .args(&[
                     Arg::from_usage("-a, --all 'Shows disabled service also'"),
-                    Arg::from_usage("-t, --filter-team [team_name] 'Filters providers by team'")
-                        .multiple(true),
-                    Arg::from_usage("-v, --filter-service-variant [service_variant_name] 'Filters providers by service variant'")
-                        .multiple(true),
+                    Arg::from_usage("-t, --filter-team [team_name]... 'Filters providers by team'"),
+                    Arg::from_usage("-v, --filter-service-variant [service_variant_name]... 'Filters providers by service variant'"),
                 ]),
             SubCommand::with_name("update")
                 .about("Update service provider information (admin)")
@@ -78,7 +76,7 @@ pub fn service_provider_match(
                 },
             )?;
 
-            Ok("Service successfully deleted".to_string())
+            Ok("Provider successfully updated".to_string())
         },
 
         _ => Err(Error::InvalidSubcommand),
