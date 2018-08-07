@@ -37,6 +37,7 @@ struct Config {
 #[derive(Deserialize)]
 struct Server {
     connection: String,
+    db: String,
 }
 
 fn read_file_contents(file_name: &str) -> Result<Vec<u8>, Error> {
@@ -54,7 +55,7 @@ fn main_wrap() -> Result<(), Error> {
 
     let mut reactor = reactor::Core::new()?;
     let task_executor = reactor.runtime().executor();
-    let db_pool = build_connection_pool()?;
+    let db_pool = build_connection_pool(config.server.db.clone())?;
     let (_server_handle, server) = OwlDaemon::new(db_pool, task_executor).listen(
         config.server.connection.try_first_socket_addr()?,
         &reactor.handle(),
