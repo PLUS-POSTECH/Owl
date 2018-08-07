@@ -92,12 +92,12 @@ impl FutureService for OwlDaemon {
 
     type EditServiceFut = Result<(), Message>;
     fn edit_service(&self, cli_token: String, params: ServiceEditParams) -> Self::EditServiceFut {
-        Err(Message("Not Implemented".to_string()))
+        run_handler_with_param(handler::service::edit_service, self.db_pool.clone(), params)
     }
 
     type ListServiceFut = Result<Vec<ServiceData>, Message>;
     fn list_service(&self, cli_token: String) -> Self::ListServiceFut {
-        Err(Message("Not Implemented".to_string()))
+        run_handler(handler::service::list_service, self.db_pool.clone())
     }
 
     type DownloadServiceVariantFut = Result<ServiceVariantAttachmentData, Message>;

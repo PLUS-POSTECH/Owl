@@ -12,25 +12,16 @@ pub struct ServiceData {
 
 #[derive(Serialize, Deserialize)]
 pub enum ServiceEditParams {
-    Add(ServiceAddParams),
-    Delete(ServiceDeleteParams),
-    Update(ServiceUpdateParams),
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct ServiceAddParams {
-    pub name: String,
-    pub description: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct ServiceDeleteParams {
-    pub name: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct ServiceUpdateParams {
-    pub name: String,
-    pub description: Option<String>,
-    pub enabled: Option<bool>,
+    Add {
+        name: String,
+        description: String,
+    },
+    Delete {
+        name: String,
+    },
+    Update {
+        name: String,
+        description: Option<String>,
+        enabled: Option<bool>,
+    },
 }

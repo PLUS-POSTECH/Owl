@@ -5,22 +5,30 @@ use SharedParam;
 
 pub fn team_command() -> App<'static, 'static> {
     SubCommand::with_name("team")
-        .about("CTF team management (admin)")
+        .about("CTF team management")
         .setting(AppSettings::SubcommandRequired)
-        .subcommand(SubCommand::with_name("add").about("add team").args(&[
-            Arg::from_usage("<name> 'team name'"),
-            Arg::from_usage("[description] 'team description'"),
-        ]))
+        .subcommand(
+            SubCommand::with_name("add")
+                .about("add team (admin)")
+                .args(&[
+                    Arg::from_usage("<name> 'team name'"),
+                    Arg::from_usage("[description] 'team description'"),
+                ]),
+        )
         .subcommand(
             SubCommand::with_name("delete")
-                .about("delete team")
+                .about("delete team (admin)")
                 .args(&[Arg::from_usage("<name> 'team name'")]),
         )
-        .subcommand(SubCommand::with_name("update").about("update team").args(&[
-            Arg::from_usage("<name> 'team name'"),
-            Arg::from_usage("<description> 'team description'"),
-        ]))
-        .subcommand(SubCommand::with_name("list").about("list team"))
+        .subcommand(
+            SubCommand::with_name("update")
+                .about("update team (admin)")
+                .args(&[
+                    Arg::from_usage("<name> 'team name'"),
+                    Arg::from_usage("<description> 'team description'"),
+                ]),
+        )
+        .subcommand(SubCommand::with_name("list").about("list teams"))
 }
 
 pub fn team_match(matches: &ArgMatches, shared_param: SharedParam) -> Result<String, Error> {

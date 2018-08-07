@@ -13,10 +13,12 @@ use self::team::{team_command, team_match};
 use clap::{App, AppSettings, Arg};
 use dotenv::dotenv;
 use owl_rpc::SyncClient;
+use service::{service_command, service_match};
 use tarpc::sync::client::{self, ClientExt};
 use tarpc::util::FirstSocketAddr;
 
 mod error;
+mod service;
 mod team;
 
 pub struct SharedParam {
@@ -40,10 +42,10 @@ fn main() {
                 .takes_value(true),
         )
         .subcommand(team_command())
+        .subcommand(service_command())
         .get_matches();
 
-    let config = matches.value_of("config").unwrap_or("config.toml");
-    println!("Value for config: {}", config);
+    let _config = matches.value_of("config").unwrap_or("config.toml");
 
     // TODO: read connection string from config
     let client = match SyncClient::connect(
@@ -65,6 +67,8 @@ fn main() {
 
     let result = if let Some(matches) = matches.subcommand_matches("team") {
         team_match(matches, shared_param)
+    } else if let Some(matches) = matches.subcommand_matches("service") {
+        service_match(matches, shared_param)
     } else {
         Ok("It was not a team related command...".to_string())
     };

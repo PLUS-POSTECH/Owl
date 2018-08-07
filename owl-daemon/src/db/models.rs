@@ -24,6 +24,14 @@ pub struct Service {
     pub published_time: DateTime<Utc>,
 }
 
+#[derive(AsChangeset)]
+#[table_name = "services"]
+pub struct ServiceChangeset {
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub enabled: Option<bool>,
+}
+
 #[derive(Queryable, Identifiable, Associations)]
 #[belongs_to(Service)]
 #[belongs_to(Team, foreign_key = "publisher_id")]
