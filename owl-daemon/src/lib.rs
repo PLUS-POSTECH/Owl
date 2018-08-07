@@ -21,7 +21,6 @@ use self::db::models::*;
 use self::db::schema::*;
 use self::db::DbPool;
 use self::error::Error as DaemonError;
-use self::handler::service::provider::{fetch_service_providers, update_service_providers};
 use diesel::prelude::*;
 use diesel::PgConnection;
 use owl_rpc::model::exploit::{
@@ -138,18 +137,11 @@ impl FutureService for OwlDaemon {
         cli_token: String,
         params: ServiceProviderListParams,
     ) -> Self::ListServiceProviderFut {
-        let connection_result = self.db_pool.get();
-        if connection_result.is_err() {
-            return Err(Message("".to_string()));
-        }
-
-        let connection = connection_result.unwrap();
-        let result = fetch_service_providers(&*connection, params);
-
-        match result {
-            Ok(data) => Ok(data),
-            Err(_) => Err(Message("".to_string())),
-        }
+        run_handler_with_param(
+            handler::service::provider::list_service_provider,
+            self.db_pool.clone(),
+            params,
+        )
     }
 
     type UpdateServiceProviderFut = Result<(), Message>;
@@ -158,18 +150,11 @@ impl FutureService for OwlDaemon {
         cli_token: String,
         params: ServiceProviderUpdateParams,
     ) -> Self::UpdateServiceProviderFut {
-        let connection_result = self.db_pool.get();
-        if connection_result.is_err() {
-            return Err(Message("".to_string()));
-        }
-
-        let connection = connection_result.unwrap();
-        let result = update_service_providers(&*connection, params);
-
-        match result {
-            Ok(data) => Ok(data),
-            Err(_err) => Err(Message("".to_string())),
-        }
+        run_handler_with_param(
+            handler::service::provider::update_service_provider,
+            self.db_pool.clone(),
+            params,
+        )
     }
 
     type EditExploitFut = Result<(), Message>;
