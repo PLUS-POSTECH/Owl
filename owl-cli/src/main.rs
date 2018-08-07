@@ -44,28 +44,6 @@ fn main() {
             Arg::from_usage("-c, --config [toml] 'custom config file location'")
                 .default_value("config.toml"),
         )
-        /*
-        if let Some(matches) = matches.subcommand_matches("provider") {
-            if let Some(matches) = matches.subcommand_matches("list") {
-                let options = client::Options::default().handle(reactor.handle());
-                let params = ServiceProviderListParams {
-                    show_all: matches.is_present("all"),
-                    filter_teams: matches.values_of("filter-team").unwrap().map(|x| x.to_string()).collect(),
-                    filter_service_variants: matches.values_of("filter-service-variant").unwrap().map(|x| x.to_string()).collect(),
-                };
-                let result = reactor.run(FutureClient::connect("localhost:5959".to_socket_addrs().unwrap().next().unwrap(), options)
-                    .then(move |client| {
-                        client.unwrap().list_service_provider("".to_string(), params)
-                    })
-                );
-            }
-            if let Some(matches) = matches.subcommand_matches("update") {
-
-            }
-        }
-    }
-    */
-
         .subcommands(vec![team_command(), service_command()])
         .get_matches();
 
