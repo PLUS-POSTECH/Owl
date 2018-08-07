@@ -1,45 +1,36 @@
-use self::provider::{service_provider_command, service_provider_matches};
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 use error::Error;
 use owl_rpc::model::service::*;
 use SharedParam;
 
-pub mod provider;
-
-pub fn service_command() -> App<'static, 'static> {
-    SubCommand::with_name("service")
-        .about("CTF service management")
+pub fn service_provider_command() -> App<'static, 'static> {
+    SubCommand::with_name("provider")
+        .about("CTF service provider management")
         .setting(AppSettings::SubcommandRequired)
         .subcommands(vec![
-            SubCommand::with_name("add")
-                .about("add service (admin)")
-                .args(&[
-                    Arg::from_usage("<name> 'service name'"),
-                    Arg::from_usage("[description] 'service description'"),
-                ]),
-            SubCommand::with_name("delete")
-                .about("delete service (admin)")
-                .args(&[Arg::from_usage("<name> 'service name'")]),
-            SubCommand::with_name("enable")
-                .about("enable service (admin)")
-                .args(&[Arg::from_usage("<name> 'service name'")]),
-            SubCommand::with_name("disable")
-                .about("disable service (admin)")
-                .args(&[Arg::from_usage("<name> 'service name'")]),
-            SubCommand::with_name("update")
-                .about("update service (admin)")
-                .args(&[
-                    Arg::from_usage("<name> 'service name'"),
-                    Arg::from_usage("<description> 'service description'"),
-                ]),
             SubCommand::with_name("list")
-                .about("list services")
-                .args(&[Arg::from_usage("-a, --all 'include disabled services'")]),
-            service_provider_command(),
+                .about("List available service providers")
+                .args(&[
+                    Arg::from_usage("-a, --all 'Shows disabled service also'"),
+                    Arg::from_usage("-t, --filter-team [team_name] 'Filters providers by team'")
+                        .multiple(true),
+                    Arg::from_usage("-v, --filter-service-variant [service_variant_name] 'Filters providers by service variant'")
+                        .multiple(true),
+                ]),
+            SubCommand::with_name("update")
+                .about("Update service provider information")
+                .args(&[
+                    Arg::from_usage("-t, --team <team_name> 'Name of the team providing service'"),
+                    Arg::from_usage("-v, --service-variant <service_variant_name> 'Name of the service variant being provided'"),
+                    Arg::from_usage("-s, --connection-string [connection_string] 'URI to use when connecting to service'"),
+                ]),
         ])
 }
 
-pub fn service_match(matches: &ArgMatches, shared_param: SharedParam) -> Result<String, Error> {
+pub fn service_provider_match(
+    matches: &ArgMatches,
+    shared_param: SharedParam,
+) -> Result<String, Error> {
     match matches.subcommand() {
         ("add", Some(matches)) => {
             shared_param.client.edit_service(
@@ -121,7 +112,6 @@ pub fn service_match(matches: &ArgMatches, shared_param: SharedParam) -> Result<
                     .join("\n"))
             }
         },
-        ("provider", Some(matches)) => service_provider_match(matches),
 
         _ => Err(Error::InvalidSubcommand),
     }
