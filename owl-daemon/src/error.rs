@@ -1,5 +1,8 @@
+use std::io;
+
 use diesel;
 use r2d2;
+use toml;
 
 #[derive(Debug, Fail)]
 pub enum Error {
@@ -7,6 +10,12 @@ pub enum Error {
     R2D2(#[cause] r2d2::Error),
     #[fail(display = "diesel error: {}", _0)]
     Diesel(#[cause] diesel::result::Error),
+    #[fail(display = "IO error: {}", _0)]
+    Io(#[cause] io::Error),
+    #[fail(display = "Toml deserialization error: {}", _0)]
+    TomlDe(#[cause] toml::de::Error),
+    #[fail(display = "Unknown error")]
+    Unknown,
     #[fail(display = "error: {}", _0)]
     Message(String),
 }
@@ -20,5 +29,23 @@ impl From<r2d2::Error> for Error {
 impl From<diesel::result::Error> for Error {
     fn from(e: diesel::result::Error) -> Self {
         Error::Diesel(e)
+    }
+}
+
+impl From<io::Error> for Error {
+    fn from(e: io::Error) -> Self {
+        Error::Io(e)
+    }
+}
+
+impl From<toml::de::Error> for Error {
+    fn from(e: toml::de::Error) -> Self {
+        Error::TomlDe(e)
+    }
+}
+
+impl From<()> for Error {
+    fn from(e: ()) -> Self {
+        Error::Unknown
     }
 }

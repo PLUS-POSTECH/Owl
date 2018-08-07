@@ -44,10 +44,10 @@ pub struct SharedParam {
     pub token: String,
 }
 
-pub fn read_file_contents(file_name: &str) -> Result<String, Error> {
+pub fn read_file_contents(file_name: &str) -> Result<Vec<u8>, Error> {
     let mut file = File::open(file_name)?;
-    let mut contents = String::new();
-    file.read_to_string(&mut contents)?;
+    let mut contents = Vec::new();
+    file.read_to_end(&mut contents)?;
     Ok(contents)
 }
 
@@ -65,7 +65,8 @@ fn main_wrap() -> Result<String, Error> {
         .subcommands(vec![team_command(), service_command()])
         .get_matches();
 
-    let config: Config = toml::from_str(&read_file_contents(matches.value_of("config").unwrap())?)?;
+    let config: Config =
+        toml::from_slice(&read_file_contents(matches.value_of("config").unwrap())?)?;
 
     let client = SyncClient::connect(
         config.client.connection.try_first_socket_addr()?,

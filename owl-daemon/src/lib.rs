@@ -4,8 +4,6 @@ extern crate diesel;
 extern crate diesel_derive_enum;
 #[macro_use]
 extern crate failure;
-#[macro_use]
-extern crate log;
 
 extern crate chrono;
 extern crate dotenv;
@@ -16,13 +14,10 @@ extern crate r2d2;
 extern crate r2d2_diesel;
 extern crate tarpc;
 extern crate tokio;
+extern crate toml;
 
-use self::db::models::*;
-use self::db::schema::*;
 use self::db::DbPool;
 use self::error::Error as DaemonError;
-use diesel::prelude::*;
-use diesel::PgConnection;
 use owl_rpc::model::exploit::{
     ExploitData, ExploitEditParams, ExploitListParams, ExploitRunParams, ExploitStatusParams,
     ExploitTaskData,
