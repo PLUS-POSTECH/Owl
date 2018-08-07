@@ -7,42 +7,32 @@ pub fn service_command() -> App<'static, 'static> {
     SubCommand::with_name("service")
         .about("CTF service management")
         .setting(AppSettings::SubcommandRequired)
-        .subcommand(
+        .subcommands(vec![
             SubCommand::with_name("add")
                 .about("add service (admin)")
                 .args(&[
                     Arg::from_usage("<name> 'service name'"),
                     Arg::from_usage("[description] 'service description'"),
                 ]),
-        )
-        .subcommand(
             SubCommand::with_name("delete")
                 .about("delete service (admin)")
                 .args(&[Arg::from_usage("<name> 'service name'")]),
-        )
-        .subcommand(
             SubCommand::with_name("enable")
                 .about("enable service (admin)")
                 .args(&[Arg::from_usage("<name> 'service name'")]),
-        )
-        .subcommand(
             SubCommand::with_name("disable")
                 .about("disable service (admin)")
                 .args(&[Arg::from_usage("<name> 'service name'")]),
-        )
-        .subcommand(
             SubCommand::with_name("update")
                 .about("update service (admin)")
                 .args(&[
                     Arg::from_usage("<name> 'service name'"),
                     Arg::from_usage("<description> 'service description'"),
                 ]),
-        )
-        .subcommand(
             SubCommand::with_name("list")
                 .about("list services")
                 .args(&[Arg::from_usage("-a, --all 'include disabled services'")]),
-        )
+        ])
 }
 
 pub fn service_match(matches: &ArgMatches, shared_param: SharedParam) -> Result<String, Error> {

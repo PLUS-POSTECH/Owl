@@ -34,18 +34,11 @@ fn main() {
         .version("0.1")
         .setting(AppSettings::SubcommandRequired)
         .arg(
-            Arg::with_name("config")
-                .short("c")
-                .long("config")
-                .value_name("TOML")
-                .help("Sets a custom config file (default is \"config.toml\"")
-                .takes_value(true),
+            Arg::from_usage("-c, --config [toml] 'custom config file location'")
+                .default_value("config.toml"),
         )
-        .subcommand(team_command())
-        .subcommand(service_command())
+        .subcommands(vec![team_command(), service_command()])
         .get_matches();
-
-    let _config = matches.value_of("config").unwrap_or("config.toml");
 
     // TODO: read connection string from config
     let client = match SyncClient::connect(
