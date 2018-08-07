@@ -20,16 +20,29 @@ extern crate tokio;
 use self::db::models::*;
 use self::db::schema::*;
 use self::db::DbPool;
-use self::error::Error;
+use self::error::Error as DaemonError;
 use diesel::prelude::*;
 use diesel::PgConnection;
-use futures::future;
+use owl_rpc::model::exploit::{
+    ExploitData, ExploitEditParams, ExploitListParams, ExploitRunParams, ExploitStatusParams,
+    ExploitTaskData,
+};
+use owl_rpc::model::service::provider::{
+    ServiceProviderData, ServiceProviderListParams, ServiceProviderUpdateParams,
+};
+use owl_rpc::model::service::variant::{
+    ServiceVariantAttachmentData, ServiceVariantData, ServiceVariantDownloadParams,
+    ServiceVariantEditParams, ServiceVariantListParams,
+};
+use owl_rpc::model::service::{ServiceData, ServiceEditParams, ServiceListParams};
+use owl_rpc::model::team::{TeamData, TeamEditParams};
 use owl_rpc::FutureService;
-use tarpc::util::Never;
+use tarpc::util::Message;
 use tokio::runtime::TaskExecutor;
 
 pub mod db;
 pub mod error;
+pub mod handler;
 
 #[derive(Clone)]
 pub struct OwlDaemon {
@@ -46,17 +59,118 @@ impl OwlDaemon {
     }
 }
 
-impl FutureService for OwlDaemon {
-    type HelloFut = Result<String, Never>;
-    fn hello(&self, name: String) -> Self::HelloFut {
-        let task_executor = self.task_executor.clone();
-        let db_pool = self.db_pool.clone();
-        task_executor.spawn(future::lazy(|| Ok(test_db(db_pool).unwrap())));
-        Ok(format!("Hello, {}!", name))
+fn run_handler<F, R>(f: F, db_pool: DbPool) -> Result<R, Message>
+where
+    F: FnOnce(DbPool) -> Result<R, DaemonError>,
+{
+    match f(db_pool) {
+        Ok(result) => Ok(result),
+        Err(err) => Err(Message(err.to_string())),
     }
 }
 
-fn test_db(db_pool: DbPool) -> Result<(), Error> {
+fn run_handler_with_param<F, P, R>(f: F, db_pool: DbPool, params: P) -> Result<R, Message>
+where
+    F: FnOnce(DbPool, P) -> Result<R, DaemonError>,
+{
+    match f(db_pool, params) {
+        Ok(result) => Ok(result),
+        Err(err) => Err(Message(err.to_string())),
+    }
+}
+
+impl FutureService for OwlDaemon {
+    // Team
+    type EditTeamFut = Result<(), Message>;
+    fn edit_team(&self, cli_token: String, params: TeamEditParams) -> Self::EditTeamFut {
+        run_handler_with_param(handler::team::edit_team, self.db_pool.clone(), params)
+    }
+
+    type ListTeamFut = Result<Vec<TeamData>, Message>;
+    fn list_team(&self, cli_token: String) -> Self::ListTeamFut {
+        run_handler(handler::team::list_team, self.db_pool.clone())
+    }
+
+    // Service
+    type EditServiceFut = Result<(), Message>;
+    fn edit_service(&self, cli_token: String, params: ServiceEditParams) -> Self::EditServiceFut {
+        run_handler_with_param(handler::service::edit_service, self.db_pool.clone(), params)
+    }
+
+    type ListServiceFut = Result<Vec<ServiceData>, Message>;
+    fn list_service(&self, cli_token: String, params: ServiceListParams) -> Self::ListServiceFut {
+        run_handler_with_param(handler::service::list_service, self.db_pool.clone(), params)
+    }
+
+    // Service Variant
+    type DownloadServiceVariantFut = Result<ServiceVariantAttachmentData, Message>;
+    fn download_service_variant(
+        &self,
+        cli_token: String,
+        params: ServiceVariantDownloadParams,
+    ) -> Self::DownloadServiceVariantFut {
+        Err(Message("Not Implemented".to_string()))
+    }
+
+    type EditServiceVariantFut = Result<(), Message>;
+    fn edit_service_variant(
+        &self,
+        cli_token: String,
+        params: ServiceVariantEditParams,
+    ) -> Self::EditServiceVariantFut {
+        Err(Message("Not Implemented".to_string()))
+    }
+
+    type ListServiceVariantFut = Result<Vec<ServiceVariantData>, Message>;
+    fn list_service_variant(
+        &self,
+        cli_token: String,
+        params: ServiceVariantListParams,
+    ) -> Self::ListServiceVariantFut {
+        Err(Message("Not Implemented".to_string()))
+    }
+
+    // Service Provider
+    type ListServiceProviderFut = Result<Vec<ServiceProviderData>, Message>;
+    fn list_service_provider(
+        &self,
+        cli_token: String,
+        params: ServiceProviderListParams,
+    ) -> Self::ListServiceProviderFut {
+        Err(Message("Not Implemented".to_string()))
+    }
+
+    type UpdateServiceProviderFut = Result<(), Message>;
+    fn update_service_provider(
+        &self,
+        cli_token: String,
+        params: ServiceProviderUpdateParams,
+    ) -> Self::UpdateServiceProviderFut {
+        Err(Message("Not Implemented".to_string()))
+    }
+
+    type EditExploitFut = Result<(), Message>;
+    fn edit_exploit(&self, cli_token: String, params: ExploitEditParams) -> Self::EditExploitFut {
+        Err(Message("Not Implemented".to_string()))
+    }
+
+    type ListExploitFut = Result<Vec<ExploitData>, Message>;
+    fn list_exploit(&self, cli_token: String, params: ExploitListParams) -> Self::ListExploitFut {
+        Err(Message("Not Implemented".to_string()))
+    }
+
+    type RunExploitFut = Result<Option<ExploitTaskData>, Message>;
+    fn run_exploit(&self, cli_token: String, params: ExploitRunParams) -> Self::RunExploitFut {
+        Err(Message("Not Implemented".to_string()))
+    }
+
+    type StatExploitFut = Result<ExploitTaskData, Message>;
+    fn stat_exploit(&self, cli_token: String, params: ExploitStatusParams) -> Self::StatExploitFut {
+        Err(Message("Not Implemented".to_string()))
+    }
+}
+
+fn test_db(db_pool: DbPool) -> Result<(), DaemonError> {
     info!("Testing DB...");
     let con: &PgConnection = &*db_pool.get()?;
 

@@ -2,6 +2,7 @@
 extern crate log;
 
 extern crate diesel;
+extern crate dotenv;
 extern crate env_logger;
 extern crate failure;
 extern crate futures;
@@ -15,6 +16,7 @@ extern crate tokio_core;
 
 use std::net::ToSocketAddrs;
 
+use dotenv::dotenv;
 use owl_daemon::db::build_connection_pool;
 use owl_daemon::OwlDaemon;
 use owl_rpc::FutureServiceExt;
@@ -22,11 +24,13 @@ use tarpc::future::server;
 use tokio_core::reactor;
 
 fn main() {
+    dotenv().ok();
     env_logger::init();
-    let mut reactor = reactor::Core::new().unwrap();
+
+    let mut reactor = reactor::Core::new().expect("Failed to initialize tokio reactor");
     let task_executor = reactor.runtime().executor();
     let db_pool = build_connection_pool().expect("Failed to connect to the database");
-    let (_server_handle, server) = OwlDaemon::new(db_pool.clone(), task_executor.clone())
+    let (_server_handle, server) = OwlDaemon::new(db_pool, task_executor)
         .listen(
             "localhost:5959".to_socket_addrs().unwrap().next().unwrap(),
             &reactor.handle(),
