@@ -8,6 +8,13 @@ pub struct Team {
     pub description: String,
 }
 
+#[derive(AsChangeset)]
+#[table_name = "teams"]
+pub struct TeamChangeset {
+    pub name: Option<String>,
+    pub description: Option<String>,
+}
+
 #[derive(Queryable, Identifiable)]
 pub struct Service {
     pub id: i32,

@@ -8,7 +8,7 @@ pub enum Error {
     Io(#[cause] io::Error),
     #[fail(display = "tarpc deserialization error")]
     TarpcDeserialization,
-    #[fail(display = "RPC error: {}", _0)]
+    #[fail(display = "{}", _0)]
     RpcMessage(String),
     #[fail(display = "not implemented")]
     NotImplemented,

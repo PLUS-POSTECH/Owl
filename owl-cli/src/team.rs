@@ -18,7 +18,7 @@ pub fn team_command() -> App<'static, 'static> {
         )
         .subcommand(SubCommand::with_name("update").about("update team").args(&[
             Arg::from_usage("<name> 'team name'"),
-            Arg::from_usage("-d, --description [description] 'team description'"),
+            Arg::from_usage("<description> 'team description'"),
         ]))
         .subcommand(SubCommand::with_name("list").about("list team"))
 }
