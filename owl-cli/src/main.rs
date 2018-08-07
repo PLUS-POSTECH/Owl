@@ -65,12 +65,10 @@ fn main() {
         token: "token".to_string(),
     };
 
-    let result = if let Some(matches) = matches.subcommand_matches("team") {
-        team_match(matches, shared_param)
-    } else if let Some(matches) = matches.subcommand_matches("service") {
-        service_match(matches, shared_param)
-    } else {
-        Ok("It was not a team related command...".to_string())
+    let result = match matches.subcommand() {
+        ("team", Some(matches)) => team_match(matches, shared_param),
+        ("service", Some(matches)) => service_match(matches, shared_param),
+        _ => Err(error::Error::InvalidSubcommand),
     };
 
     match result {

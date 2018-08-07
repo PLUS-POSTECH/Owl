@@ -32,48 +32,56 @@ pub fn team_command() -> App<'static, 'static> {
 }
 
 pub fn team_match(matches: &ArgMatches, shared_param: SharedParam) -> Result<String, Error> {
-    if let Some(matches) = matches.subcommand_matches("add") {
-        shared_param.client.edit_team(
-            shared_param.token,
-            TeamEditParams::Add {
-                name: matches.value_of("name").unwrap().to_string(),
-                description: matches.value_of("description").unwrap_or("").to_string(),
-            },
-        )?;
+    match matches.subcommand() {
+        ("add", Some(matches)) => {
+            shared_param.client.edit_team(
+                shared_param.token,
+                TeamEditParams::Add {
+                    name: matches.value_of("name").unwrap().to_string(),
+                    description: matches.value_of("description").unwrap_or("").to_string(),
+                },
+            )?;
 
-        Ok("Team successfully added".to_string())
-    } else if let Some(matches) = matches.subcommand_matches("delete") {
-        shared_param.client.edit_team(
-            shared_param.token,
-            TeamEditParams::Delete {
-                name: matches.value_of("name").unwrap().to_string(),
-            },
-        )?;
+            Ok("Team successfully added".to_string())
+        },
 
-        Ok("Team successfully deleted".to_string())
-    } else if let Some(matches) = matches.subcommand_matches("update") {
-        shared_param.client.edit_team(
-            shared_param.token,
-            TeamEditParams::Update {
-                name: matches.value_of("name").unwrap().to_string(),
-                description: matches.value_of("description").map(ToString::to_string),
-            },
-        )?;
+        ("delete", Some(matches)) => {
+            shared_param.client.edit_team(
+                shared_param.token,
+                TeamEditParams::Delete {
+                    name: matches.value_of("name").unwrap().to_string(),
+                },
+            )?;
 
-        Ok("Team successfully updated".to_string())
-    } else if let Some(_) = matches.subcommand_matches("list") {
-        let teams = shared_param.client.list_team(shared_param.token)?;
+            Ok("Team successfully deleted".to_string())
+        },
 
-        if teams.is_empty() {
-            Ok("No team registered".to_string())
-        } else {
-            Ok(teams
-                .into_iter()
-                .map(|team| format!("- {:10} | {}", team.name, team.description))
-                .collect::<Vec<_>>()
-                .join("\n"))
-        }
-    } else {
-        Err(Error::InvalidSubcommand)
+        ("update", Some(matches)) => {
+            shared_param.client.edit_team(
+                shared_param.token,
+                TeamEditParams::Update {
+                    name: matches.value_of("name").unwrap().to_string(),
+                    description: matches.value_of("description").map(ToString::to_string),
+                },
+            )?;
+
+            Ok("Team successfully updated".to_string())
+        },
+
+        ("list", Some(matches)) => {
+            let teams = shared_param.client.list_team(shared_param.token)?;
+
+            if teams.is_empty() {
+                Ok("No team registered".to_string())
+            } else {
+                Ok(teams
+                    .into_iter()
+                    .map(|team| format!("- {:10} | {}", team.name, team.description))
+                    .collect::<Vec<_>>()
+                    .join("\n"))
+            }
+        },
+
+        _ => Err(Error::InvalidSubcommand),
     }
 }
