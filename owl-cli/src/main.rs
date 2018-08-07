@@ -1,20 +1,33 @@
+#[macro_use]
+extern crate failure;
+#[macro_use]
+extern crate log;
+
 extern crate clap;
-extern crate futures;
+extern crate dotenv;
+extern crate env_logger;
 extern crate owl_rpc;
 extern crate tarpc;
-extern crate tokio_core;
 
 use self::team::{team_command, team_match};
 use clap::{App, AppSettings, Arg};
-use futures::Future;
-use owl_rpc::FutureClient;
-use tarpc::future::client::{self, ClientExt};
-use tarpc::util::{FirstSocketAddr, Message};
-use tokio_core::reactor;
+use dotenv::dotenv;
+use owl_rpc::SyncClient;
+use tarpc::sync::client::{self, ClientExt};
+use tarpc::util::FirstSocketAddr;
 
+mod error;
 mod team;
 
+pub struct SharedParam {
+    pub client: SyncClient,
+    pub token: String,
+}
+
 fn main() {
+    dotenv().ok();
+    env_logger::init();
+
     let matches = App::new("Owl CLI")
         .version("0.1")
         .setting(AppSettings::SubcommandRequired)
@@ -32,23 +45,32 @@ fn main() {
     let config = matches.value_of("config").unwrap_or("config.toml");
     println!("Value for config: {}", config);
 
-    let mut reactor = reactor::Core::new().expect("Failed to initialize tokio reactor");
-    let options = client::Options::default().handle(reactor.handle());
+    // TODO: read connection string from config
+    let client = match SyncClient::connect(
+        "localhost:5959".first_socket_addr(),
+        client::Options::default(),
+    ) {
+        Ok(client) => client,
+        Err(_) => {
+            error!("Connection failed");
+            return;
+        },
+    };
 
-    let main_future = FutureClient::connect("localhost:5959".first_socket_addr(), options)
-        .map_err(tarpc::Error::from)
-        // TODO: Fix tarpc error handling
-        .map_err(|_e: tarpc::Error<FutureClient>| Message("Some error happened".to_string()))
-        .and_then(|client| -> Result<String, Message> {
-            if let Some(matches) = matches.subcommand_matches("team") {
-                team_match(matches, &client)
-            } else {
-                Ok("It was not a team related command...".to_string())
-            }
-        })
-        .map(|resp| println!("{}", resp));
+    let shared_param = SharedParam {
+        client,
+        // TODO: read token value from config
+        token: "token".to_string(),
+    };
 
-    if let Err(err) = reactor.run(main_future) {
-        eprintln!("Error: {:?}", err)
+    let result = if let Some(matches) = matches.subcommand_matches("team") {
+        team_match(matches, shared_param)
+    } else {
+        Ok("It was not a team related command...".to_string())
+    };
+
+    match result {
+        Ok(str) => println!("{}", str),
+        Err(e) => error!("{}", e.to_string()),
     };
 }
