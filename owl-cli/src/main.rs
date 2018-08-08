@@ -11,8 +11,6 @@ extern crate tarpc;
 extern crate tokio;
 extern crate tokio_core;
 
-use std::net::ToSocketAddrs;
-
 use self::team::{team_command, team_match};
 use clap::{App, AppSettings, Arg, SubCommand};
 use dotenv::dotenv;

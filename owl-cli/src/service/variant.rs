@@ -1,6 +1,10 @@
+use std::fs::File;
+use std::io::{Read, Write};
+
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 use error::Error;
 use owl_rpc::model::service::variant::*;
+use owl_rpc::model::FileEntry;
 use SharedParam;
 
 pub fn service_variant_command() -> App<'static, 'static> {
@@ -58,12 +62,27 @@ pub fn service_variant_match(
 ) -> Result<String, Error> {
     match matches.subcommand() {
         ("add", Some(matches)) => {
+            let files = matches
+                .values_of("file")
+                .unwrap()
+                .map(|filename| {
+                    let mut file = File::open(filename)?;
+                    let mut data = Vec::new();
+                    file.read_to_end(&mut data)?;
+
+                    Ok(FileEntry {
+                        name: filename.to_string(),
+                        data,
+                    })
+                })
+                .collect::<Result<Vec<_>, Error>>()?;
+
             shared_param.client.edit_service_variant(
                 shared_param.token,
                 ServiceVariantEditParams::Add {
                     service_name: matches.value_of("service").unwrap().to_string(),
                     publisher_name: matches.value_of("publisher").unwrap().to_string(),
-                    files: vec![], //Fix
+                    files,
                 },
             )?;
 
@@ -90,7 +109,7 @@ pub fn service_variant_match(
                         Some("true") => Some(Some(true)),
                         Some("false") => Some(Some(false)),
                         Some("none") => Some(None),
-                        _ => None, //Fix!
+                        _ => None,
                     },
                 },
             )?;
@@ -128,7 +147,29 @@ pub fn service_variant_match(
                     .join("\n"))
             }
         },
-        ("download", Some(matches)) => Ok("".to_string()),
+        ("download", Some(matches)) => {
+            println!("Downloading files...");
+            let file_entries = shared_param
+                .client
+                .download_service_variant(
+                    shared_param.token,
+                    ServiceVariantDownloadParams {
+                        name: matches.value_of("name").unwrap().to_string(),
+                    },
+                )?
+                .file_entries;
+
+            for file_entry in &file_entries {
+                let filename = &file_entry.name;
+                let filecontents = &file_entry.data;
+
+                println!("Writing {}...", filename);
+                let mut file = File::create(filename)?;
+                file.write_all(&filecontents[..])?;
+            }
+
+            Ok("Variant successfully downloaded".to_string())
+        },
 
         _ => Err(Error::InvalidSubcommand),
     }
