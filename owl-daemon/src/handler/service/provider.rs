@@ -7,9 +7,7 @@ use diesel::prelude::*;
 use diesel::result::Error as DieselError;
 use diesel::PgConnection;
 use error::Error;
-use owl_rpc::model::service::provider::{
-    ServiceProviderData, ServiceProviderListParams, ServiceProviderUpdateParams,
-};
+use owl_rpc::model::service::provider::*;
 
 pub fn list_service_provider(
     db_pool: DbPool,
@@ -20,32 +18,32 @@ pub fn list_service_provider(
     let filter_teams = params.filter_teams;
     let filter_service_variants = params.filter_service_variants;
 
-    let query = service_providers::table
+    let mut query = service_providers::table
         .inner_join(teams::table)
         .inner_join(service_variants::table.inner_join(services::table))
-        .filter(teams::name.eq_any(filter_teams))
-        .filter(service_variants::name.eq_any(filter_service_variants));
+        .into_boxed();
 
-    let result = if show_all {
-        query
-            .filter(services::enabled.eq(true))
-            .select((
-                teams::name,
-                service_variants::name,
-                service_providers::connection_string,
-                service_providers::published_time,
-            ))
-            .load(conn)
-    } else {
-        query
-            .select((
-                teams::name,
-                service_variants::name,
-                service_providers::connection_string,
-                service_providers::published_time,
-            ))
-            .load(conn)
-    }?.into_iter()
+    if !filter_teams.is_empty() {
+        query = query.filter(teams::name.eq_any(filter_teams));
+    }
+
+    if !filter_service_variants.is_empty() {
+        query = query.filter(service_variants::name.eq_any(filter_service_variants));
+    }
+
+    if show_all {
+        query = query.filter(services::enabled.eq(true))
+    }
+
+    let result = query
+        .select((
+            teams::name,
+            service_variants::name,
+            service_providers::connection_string,
+            service_providers::published_time,
+        ))
+        .load(conn)?
+        .into_iter()
         .map(
             |x: (String, String, String, DateTime<Utc>)| ServiceProviderData {
                 team_name: x.0,
