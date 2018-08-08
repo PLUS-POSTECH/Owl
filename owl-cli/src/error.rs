@@ -1,9 +1,12 @@
 use std::io;
+use std::FromStr;
 use tarpc;
 use tarpc::util::Message;
 
 #[derive(Debug, Fail)]
 pub enum Error {
+    #[fail(display = "FromStr error: {}", _0)]
+    FromStr(#[cause] FromStr::Err),
     #[fail(display = "io error: {}", _0)]
     Io(#[cause] io::Error),
     #[fail(display = "tarpc deserialization error")]
@@ -14,6 +17,12 @@ pub enum Error {
     NotImplemented,
     #[fail(display = "invalid subcommand (assertion failure)")]
     InvalidSubcommand,
+}
+
+impl From<FromStr::Err> for Error {
+    fn from(e: FromStr::Err) -> Self {
+        Error::FromStr(e)
+    }
 }
 
 impl From<io::Error> for Error {

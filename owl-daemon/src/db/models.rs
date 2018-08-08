@@ -104,13 +104,15 @@ pub struct ServiceProviderChangeset {
 }
 
 #[derive(Queryable, Identifiable)]
+#[belongs_to(Service)]
 pub struct Exploit {
     pub id: i32,
+    pub service_id: i32,
     pub name: String,
     pub description: String,
     pub enabled: bool,
-    pub max_retries: i32,
-    pub timeout: i32,
+    pub max_retries: Option<i32>,
+    pub timeout: Option<i32>,
     pub skip_auth: bool,
     pub last_modified_time: DateTime<Utc>,
     pub deleted: bool,

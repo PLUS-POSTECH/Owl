@@ -20,11 +20,12 @@ table! {
 table! {
     exploits (id) {
         id -> Int4,
+        service_id -> Int4,
         name -> Varchar,
         description -> Text,
         enabled -> Bool,
-        max_retries -> Int4,
-        timeout -> Int4,
+        max_retries -> Nullable<Int4>,
+        timeout -> Nullable<Int4>,
         skip_auth -> Bool,
         last_modified_time -> Timestamptz,
         deleted -> Bool,
@@ -101,6 +102,7 @@ table! {
     }
 }
 
+joinable!(exploits -> services (service_id));
 joinable!(exploit_attachments -> exploits (exploit_id));
 joinable!(exploit_targets -> exploits (exploit_id));
 joinable!(exploit_targets -> service_variants (service_variant_id));

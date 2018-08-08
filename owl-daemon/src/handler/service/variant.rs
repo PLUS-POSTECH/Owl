@@ -140,6 +140,8 @@ pub fn edit_service_variant(
                 None => None,
             };
 
+            // TODO: Change service variant name on service change
+
             let rows = diesel::update(
                 service_variants::table.filter(service_variants::name.eq(&param_name)),
             ).set(ServiceVariantChangeset {

@@ -9,15 +9,17 @@ extern crate env_logger;
 extern crate owl_rpc;
 extern crate tarpc;
 
+use self::exploit::{exploit_command, exploit_match};
+use self::service::{service_command, service_match};
 use self::team::{team_command, team_match};
 use clap::{App, AppSettings, Arg, SubCommand};
 use dotenv::dotenv;
 use owl_rpc::SyncClient;
-use service::{service_command, service_match};
 use tarpc::sync::client::{self, ClientExt};
 use tarpc::util::FirstSocketAddr;
 
 mod error;
+mod exploit;
 mod service;
 mod team;
 
@@ -37,7 +39,7 @@ fn main() {
             Arg::from_usage("-c, --config [toml] 'custom config file location'")
                 .default_value("config.toml"),
         )
-        .subcommands(vec![team_command(), service_command()])
+        .subcommands(vec![team_command(), service_command(), exploit_command()])
         .get_matches();
 
     // TODO: read connection string from config
@@ -61,6 +63,7 @@ fn main() {
     let result = match matches.subcommand() {
         ("team", Some(matches)) => team_match(matches, shared_param),
         ("service", Some(matches)) => service_match(matches, shared_param),
+        ("exploit", Some(matches)) => exploit_match(matches, shared_param),
         _ => Err(error::Error::InvalidSubcommand),
     };
 
