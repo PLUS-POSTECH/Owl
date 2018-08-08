@@ -62,7 +62,7 @@ pub fn service_variant_match(
 ) -> Result<String, Error> {
     match matches.subcommand() {
         ("add", Some(matches)) => {
-            let files = matches
+            let file_entries = matches
                 .values_of("file")
                 .unwrap()
                 .map(|filename| {
@@ -82,7 +82,7 @@ pub fn service_variant_match(
                 ServiceVariantEditParams::Add {
                     service_name: matches.value_of("service").unwrap().to_string(),
                     publisher_name: matches.value_of("publisher").unwrap().to_string(),
-                    files,
+                    file_entries,
                 },
             )?;
 

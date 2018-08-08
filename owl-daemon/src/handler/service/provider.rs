@@ -31,7 +31,7 @@ pub fn list_service_provider(
     }
 
     if show_all {
-        query = query.filter(services::enabled.eq(true))
+        query = query.filter(services::enabled.eq(true));
     }
 
     let result = query

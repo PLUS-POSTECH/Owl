@@ -8,12 +8,14 @@ extern crate failure;
 extern crate log;
 
 extern crate chrono;
+extern crate digest;
 extern crate dotenv;
 extern crate futures;
 extern crate owl_exploit;
 extern crate owl_rpc;
 extern crate r2d2;
 extern crate r2d2_diesel;
+extern crate sha3;
 extern crate tarpc;
 extern crate tokio;
 
@@ -97,7 +99,11 @@ impl FutureService for OwlDaemon {
         cli_token: String,
         params: ServiceVariantDownloadParams,
     ) -> Self::DownloadServiceVariantFut {
-        Err(Message("Not Implemented".to_string()))
+        run_handler_with_param(
+            handler::service::variant::download_service_variant,
+            self.db_pool.clone(),
+            params,
+        )
     }
 
     type EditServiceVariantFut = Result<(), Message>;
@@ -106,7 +112,11 @@ impl FutureService for OwlDaemon {
         cli_token: String,
         params: ServiceVariantEditParams,
     ) -> Self::EditServiceVariantFut {
-        Err(Message("Not Implemented".to_string()))
+        run_handler_with_param(
+            handler::service::variant::edit_service_variant,
+            self.db_pool.clone(),
+            params,
+        )
     }
 
     type ListServiceVariantFut = Result<Vec<ServiceVariantData>, Message>;
@@ -115,7 +125,11 @@ impl FutureService for OwlDaemon {
         cli_token: String,
         params: ServiceVariantListParams,
     ) -> Self::ListServiceVariantFut {
-        Err(Message("Not Implemented".to_string()))
+        run_handler_with_param(
+            handler::service::variant::list_service_variant,
+            self.db_pool.clone(),
+            params,
+        )
     }
 
     // Service Provider

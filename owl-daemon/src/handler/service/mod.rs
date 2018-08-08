@@ -7,6 +7,7 @@ use error::Error;
 use owl_rpc::model::service::*;
 
 pub mod provider;
+pub mod variant;
 
 pub fn edit_service(db_pool: DbPool, params: ServiceEditParams) -> Result<(), Error> {
     use db::schema::services::dsl::*;

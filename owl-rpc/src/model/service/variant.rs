@@ -31,7 +31,7 @@ pub enum ServiceVariantEditParams {
     Add {
         service_name: String,
         publisher_name: String,
-        files: Vec<FileEntry>,
+        file_entries: Vec<FileEntry>,
     },
     Delete {
         name: String,
