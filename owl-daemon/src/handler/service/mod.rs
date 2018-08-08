@@ -1,15 +1,15 @@
 use db::models::{Service, ServiceChangeset};
-use db::DbPool;
 use diesel;
 use diesel::prelude::*;
 use diesel::PgConnection;
 use error::Error;
 use owl_rpc::model::service::*;
+use DaemonResource;
 
-pub fn edit_service(db_pool: DbPool, params: ServiceEditParams) -> Result<(), Error> {
+pub fn edit_service(resource: &DaemonResource, params: ServiceEditParams) -> Result<(), Error> {
     use db::schema::services::dsl::*;
 
-    let con: &PgConnection = &*db_pool.get()?;
+    let con: &PgConnection = &*resource.db_pool.get()?;
 
     match params {
         ServiceEditParams::Add {
@@ -59,10 +59,13 @@ pub fn edit_service(db_pool: DbPool, params: ServiceEditParams) -> Result<(), Er
     }
 }
 
-pub fn list_service(db_pool: DbPool, params: ServiceListParams) -> Result<Vec<ServiceData>, Error> {
+pub fn list_service(
+    resource: &DaemonResource,
+    params: ServiceListParams,
+) -> Result<Vec<ServiceData>, Error> {
     use db::schema::services::dsl::*;
 
-    let con: &PgConnection = &*db_pool.get()?;
+    let con: &PgConnection = &*resource.db_pool.get()?;
 
     let fetch = if params.show_all {
         services.load::<Service>(con)?

@@ -1,5 +1,3 @@
-use std::env;
-
 use super::error::Error;
 use diesel::PgConnection;
 use r2d2::{self, Pool};

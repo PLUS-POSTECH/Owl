@@ -1,7 +1,5 @@
 #[macro_use]
 extern crate log;
-#[macro_use]
-extern crate serde_derive;
 
 extern crate diesel;
 extern crate dotenv;
@@ -23,22 +21,12 @@ use std::io::prelude::*;
 use dotenv::dotenv;
 use owl_daemon::db::build_connection_pool;
 use owl_daemon::error::Error;
+use owl_daemon::Config;
 use owl_daemon::OwlDaemon;
 use owl_rpc::FutureServiceExt;
 use tarpc::future::server;
 use tarpc::util::FirstSocketAddr;
 use tokio_core::reactor;
-
-#[derive(Deserialize)]
-struct Config {
-    server: Server,
-}
-
-#[derive(Deserialize)]
-struct Server {
-    connection: String,
-    db: String,
-}
 
 fn read_file_contents(file_name: &str) -> Result<Vec<u8>, Error> {
     let mut file = File::open(file_name)?;
@@ -52,12 +40,13 @@ fn main_wrap() -> Result<(), Error> {
     env_logger::init();
 
     let config: Config = toml::from_slice(&read_file_contents("config.toml")?)?;
+    let connection_string = config.server.connection.clone();
 
     let mut reactor = reactor::Core::new()?;
     let task_executor = reactor.runtime().executor();
     let db_pool = build_connection_pool(config.server.db.clone())?;
-    let (_server_handle, server) = OwlDaemon::new(db_pool, task_executor).listen(
-        config.server.connection.try_first_socket_addr()?,
+    let (_server_handle, server) = OwlDaemon::new(db_pool, task_executor, config).listen(
+        connection_string.try_first_socket_addr()?,
         &reactor.handle(),
         server::Options::default(),
     )?;

@@ -1,15 +1,15 @@
 use db::models::{Team, TeamChangeset};
-use db::DbPool;
 use diesel;
 use diesel::prelude::*;
 use diesel::PgConnection;
 use error::Error;
 use owl_rpc::model::team::*;
+use DaemonResource;
 
-pub fn edit_team(db_pool: DbPool, params: TeamEditParams) -> Result<(), Error> {
+pub fn edit_team(resource: &DaemonResource, params: TeamEditParams) -> Result<(), Error> {
     use db::schema::teams::dsl::*;
 
-    let con: &PgConnection = &*db_pool.get()?;
+    let con: &PgConnection = &*resource.db_pool.get()?;
 
     match params {
         TeamEditParams::Add {
@@ -53,10 +53,10 @@ pub fn edit_team(db_pool: DbPool, params: TeamEditParams) -> Result<(), Error> {
     }
 }
 
-pub fn list_team(db_pool: DbPool) -> Result<Vec<TeamData>, Error> {
+pub fn list_team(resource: &DaemonResource) -> Result<Vec<TeamData>, Error> {
     use db::schema::teams::dsl::*;
 
-    let con: &PgConnection = &*db_pool.get()?;
+    let con: &PgConnection = &*resource.db_pool.get()?;
 
     let fetch = teams.load::<Team>(con)?;
     Ok(fetch

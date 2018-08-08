@@ -4,6 +4,8 @@ extern crate diesel;
 extern crate diesel_derive_enum;
 #[macro_use]
 extern crate failure;
+#[macro_use]
+extern crate serde_derive;
 
 extern crate chrono;
 extern crate dotenv;
@@ -39,36 +41,58 @@ pub mod db;
 pub mod error;
 pub mod handler;
 
+#[derive(Clone, Deserialize)]
+pub struct Config {
+    pub server: Server,
+}
+
+#[derive(Clone, Deserialize)]
+pub struct Server {
+    pub connection: String,
+    pub db: String,
+    pub user_tokens: Vec<String>,
+    pub admin_tokens: Vec<String>,
+}
+
+#[derive(Clone)]
+pub struct DaemonResource {
+    pub db_pool: DbPool,
+    pub task_executor: TaskExecutor,
+    pub config: Config,
+}
+
 #[derive(Clone)]
 pub struct OwlDaemon {
-    db_pool: DbPool,
-    task_executor: TaskExecutor,
+    pub resource: DaemonResource,
 }
 
 impl OwlDaemon {
-    pub fn new(db_pool: DbPool, task_executor: TaskExecutor) -> OwlDaemon {
+    pub fn new(db_pool: DbPool, task_executor: TaskExecutor, config: Config) -> OwlDaemon {
         OwlDaemon {
-            db_pool,
-            task_executor,
+            resource: DaemonResource {
+                db_pool,
+                task_executor,
+                config,
+            },
         }
     }
 }
 
-fn run_handler<F, R>(f: F, db_pool: DbPool) -> Result<R, Message>
+fn run_handler<F, R>(f: F, resource: &DaemonResource) -> Result<R, Message>
 where
-    F: FnOnce(DbPool) -> Result<R, DaemonError>,
+    F: FnOnce(&DaemonResource) -> Result<R, DaemonError>,
 {
-    match f(db_pool) {
+    match f(resource) {
         Ok(result) => Ok(result),
         Err(err) => Err(Message(err.to_string())),
     }
 }
 
-fn run_handler_with_param<F, P, R>(f: F, db_pool: DbPool, params: P) -> Result<R, Message>
+fn run_handler_with_param<F, P, R>(f: F, resource: &DaemonResource, params: P) -> Result<R, Message>
 where
-    F: FnOnce(DbPool, P) -> Result<R, DaemonError>,
+    F: FnOnce(&DaemonResource, P) -> Result<R, DaemonError>,
 {
-    match f(db_pool, params) {
+    match f(resource, params) {
         Ok(result) => Ok(result),
         Err(err) => Err(Message(err.to_string())),
     }
@@ -78,23 +102,23 @@ impl FutureService for OwlDaemon {
     // Team
     type EditTeamFut = Result<(), Message>;
     fn edit_team(&self, cli_token: String, params: TeamEditParams) -> Self::EditTeamFut {
-        run_handler_with_param(handler::team::edit_team, self.db_pool.clone(), params)
+        run_handler_with_param(handler::team::edit_team, &self.resource, params)
     }
 
     type ListTeamFut = Result<Vec<TeamData>, Message>;
     fn list_team(&self, cli_token: String) -> Self::ListTeamFut {
-        run_handler(handler::team::list_team, self.db_pool.clone())
+        run_handler(handler::team::list_team, &self.resource)
     }
 
     // Service
     type EditServiceFut = Result<(), Message>;
     fn edit_service(&self, cli_token: String, params: ServiceEditParams) -> Self::EditServiceFut {
-        run_handler_with_param(handler::service::edit_service, self.db_pool.clone(), params)
+        run_handler_with_param(handler::service::edit_service, &self.resource, params)
     }
 
     type ListServiceFut = Result<Vec<ServiceData>, Message>;
     fn list_service(&self, cli_token: String, params: ServiceListParams) -> Self::ListServiceFut {
-        run_handler_with_param(handler::service::list_service, self.db_pool.clone(), params)
+        run_handler_with_param(handler::service::list_service, &self.resource, params)
     }
 
     // Service Variant
