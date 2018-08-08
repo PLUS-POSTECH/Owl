@@ -17,12 +17,8 @@ extern crate r2d2_diesel;
 extern crate tarpc;
 extern crate tokio;
 
-use self::db::models::*;
-use self::db::schema::*;
 use self::db::DbPool;
 use self::error::Error as DaemonError;
-use diesel::prelude::*;
-use diesel::PgConnection;
 use owl_rpc::model::exploit::*;
 use owl_rpc::model::service::provider::*;
 use owl_rpc::model::service::variant::*;

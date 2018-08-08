@@ -4,7 +4,6 @@ use db::schema::*;
 use db::DbPool;
 use diesel;
 use diesel::prelude::*;
-use diesel::result::Error as DieselError;
 use diesel::PgConnection;
 use error::Error;
 use owl_rpc::model::service::provider::*;
