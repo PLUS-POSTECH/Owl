@@ -1,16 +1,11 @@
 use chrono::{DateTime, Utc};
 use model::FileEntry;
 
-#[derive(Serialize, Deserialize)]
-pub struct ServiceVariantFetchParams {
-    pub name: String,
-}
-
 // Filter conditions are combined using OR within field and combined using AND across fields
 #[derive(Serialize, Deserialize)]
 pub struct ServiceVariantListParams {
     pub show_all: bool,
-    pub filter_providers: Vec<String>,
+    pub filter_teams: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -33,24 +28,18 @@ pub struct ServiceVariantAttachmentData {
 
 #[derive(Serialize, Deserialize)]
 pub enum ServiceVariantEditParams {
-    Add(ServiceVariantAddParams),
-    Delete(ServiceVariantDeleteParams),
-    Update(ServiceVariantUpdateParams),
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct ServiceVariantAddParams {
-    pub service_name: String,
-    pub publisher_name: String,
-    pub files: Vec<FileEntry>,
-}
-
-pub type ServiceVariantDeleteParams = ServiceVariantFetchParams;
-
-#[derive(Serialize, Deserialize)]
-pub struct ServiceVariantUpdateParams {
-    pub name: String,
-    pub service_name: Option<String>,
-    pub publisher_name: Option<String>,
-    pub sla_pass: Option<Option<bool>>,
+    Add {
+        service_name: String,
+        publisher_name: String,
+        file_entries: Vec<FileEntry>,
+    },
+    Delete {
+        name: String,
+    },
+    Update {
+        name: String,
+        service_name: Option<String>,
+        publisher_name: Option<String>,
+        sla_pass: Option<Option<bool>>,
+    },
 }

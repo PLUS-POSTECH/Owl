@@ -44,10 +44,35 @@ pub struct ServiceVariant {
     pub published_time: DateTime<Utc>,
 }
 
+#[derive(Insertable)]
+#[table_name = "service_variants"]
+pub struct ServiceVariantInsertable {
+    pub service_id: i32,
+    pub name: String,
+    pub publisher_id: i32,
+}
+
+#[derive(AsChangeset)]
+#[table_name = "service_variants"]
+pub struct ServiceVariantChangeset {
+    pub service_id: Option<i32>,
+    pub name: Option<String>,
+    pub sla_pass: Option<Option<bool>>,
+    pub publisher_id: Option<i32>,
+}
+
 #[derive(Queryable, Identifiable, Associations)]
 #[belongs_to(ServiceVariant)]
 pub struct ServiceVariantAttachment {
     pub id: i32,
+    pub service_variant_id: i32,
+    pub name: String,
+    pub data: Vec<u8>,
+}
+
+#[derive(Insertable)]
+#[table_name = "service_variant_attachments"]
+pub struct ServiceVariantAttachmentInsertable {
     pub service_variant_id: i32,
     pub name: String,
     pub data: Vec<u8>,
@@ -62,6 +87,20 @@ pub struct ServiceProvider {
     pub service_variant_id: i32,
     pub connection_string: String,
     pub published_time: DateTime<Utc>,
+}
+
+#[derive(Insertable)]
+#[table_name = "service_providers"]
+pub struct ServiceProviderInsertable {
+    pub team_id: i32,
+    pub service_variant_id: i32,
+    pub connection_string: String,
+}
+
+#[derive(AsChangeset)]
+#[table_name = "service_providers"]
+pub struct ServiceProviderChangeset {
+    pub connection_string: Option<String>,
 }
 
 #[derive(Queryable, Identifiable)]

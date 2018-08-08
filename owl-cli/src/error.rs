@@ -16,6 +16,12 @@ pub enum Error {
     InvalidSubcommand,
 }
 
+impl From<io::Error> for Error {
+    fn from(e: io::Error) -> Self {
+        Error::Io(e)
+    }
+}
+
 impl From<tarpc::Error<Message>> for Error {
     fn from(e: tarpc::Error<Message>) -> Self {
         match e {
