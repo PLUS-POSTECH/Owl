@@ -8,8 +8,6 @@ extern crate dotenv;
 extern crate env_logger;
 extern crate owl_rpc;
 extern crate tarpc;
-extern crate tokio;
-extern crate tokio_core;
 
 use self::team::{team_command, team_match};
 use clap::{App, AppSettings, Arg, SubCommand};

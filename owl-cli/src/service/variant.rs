@@ -26,12 +26,12 @@ pub fn service_variant_command() -> App<'static, 'static> {
             SubCommand::with_name("delete")
                 .about("Delete specified service variant (admin)")
                 .args(&[Arg::from_usage(
-                    "<name>... 'Name of the service variant to delete'",
+                    "<name> 'Name of the service variant to delete'",
                 )]),
             SubCommand::with_name("update")
                 .about("Update service variant (admin)")
                 .args(&[
-                    Arg::from_usage("<name>... 'Name of the service variant to update'"),
+                    Arg::from_usage("<name> 'Name of the service variant to update'"),
                     Arg::from_usage(
                         "-s, --service [service_name] 'Classification of the service variant'",
                     ),
@@ -39,19 +39,19 @@ pub fn service_variant_command() -> App<'static, 'static> {
                         "-p, --publisher [team_name] 'Name of the team who published the variant'",
                     ),
                     Arg::from_usage(
-                        "-v, --sla-pass [sla_pass] 'Indicator if the variant passed SLA check'",
+                        "-V, --sla-pass [sla_pass] 'Indicator if the variant passed SLA check'",
                     ).possible_values(&["true", "false", "none"]),
                 ]),
             SubCommand::with_name("list")
                 .about("List available service providers")
                 .args(&[
                     Arg::from_usage("-a, --all 'Shows disabled service also'"),
-                    Arg::from_usage("-t, --filter-team [team_name]... 'Filters variants by team'"),
+                    Arg::from_usage("-T, --filter-team... [team_name] 'Filters variants by team'"),
                 ]),
             SubCommand::with_name("download")
                 .about("Download service variant")
                 .args(&[Arg::from_usage(
-                    "<name>... 'Name of the service variant to download'",
+                    "<name> 'Name of the service variant to download'",
                 )]),
         ])
 }
@@ -88,6 +88,7 @@ pub fn service_variant_match(
 
             Ok("Variant successfully added".to_string())
         },
+
         ("delete", Some(matches)) => {
             shared_param.client.edit_service_variant(
                 shared_param.token,
@@ -98,6 +99,7 @@ pub fn service_variant_match(
 
             Ok("Variant successfully deleted".to_string())
         },
+
         ("update", Some(matches)) => {
             shared_param.client.edit_service_variant(
                 shared_param.token,
@@ -116,6 +118,7 @@ pub fn service_variant_match(
 
             Ok("Variant successfully updated".to_string())
         },
+
         ("list", Some(matches)) => {
             let service_variants = shared_param.client.list_service_variant(
                 shared_param.token,
@@ -124,7 +127,7 @@ pub fn service_variant_match(
                     filter_teams: matches
                         .values_of("filter-team")
                         .unwrap()
-                        .map(|x| x.to_string())
+                        .map(ToString::to_string)
                         .collect(),
                 },
             )?;
@@ -147,6 +150,7 @@ pub fn service_variant_match(
                     .join("\n"))
             }
         },
+
         ("download", Some(matches)) => {
             println!("Downloading files...");
             let file_entries = shared_param
@@ -160,12 +164,12 @@ pub fn service_variant_match(
                 .file_entries;
 
             for file_entry in &file_entries {
-                let filename = &file_entry.name;
-                let filecontents = &file_entry.data;
+                let file_name = &file_entry.name;
+                let file_contents = &file_entry.data;
 
-                println!("Writing {}...", filename);
-                let mut file = File::create(filename)?;
-                file.write_all(&filecontents[..])?;
+                println!("Writing {}...", file_name);
+                let mut file = File::create(file_name)?;
+                file.write_all(&file_contents[..])?;
             }
 
             Ok("Variant successfully downloaded".to_string())

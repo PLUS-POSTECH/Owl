@@ -16,7 +16,7 @@ pub fn list_service_variant(
     db_pool: DbPool,
     params: ServiceVariantListParams,
 ) -> Result<Vec<ServiceVariantData>, Error> {
-    let conn: &PgConnection = &*db_pool.get()?;
+    let con: &PgConnection = &*db_pool.get()?;
     let show_all = params.show_all;
     let filter_teams = params.filter_teams;
 
@@ -40,13 +40,13 @@ pub fn list_service_variant(
             service_variants::publisher_id,
             service_variants::published_time,
         ))
-        .load(conn)?
+        .load(con)?
         .into_iter()
         .map(|x: (String, String, i32, DateTime<Utc>)| {
             Ok(ServiceVariantData {
                 name: x.0,
                 service_name: x.1,
-                publisher_name: teams::table.find(x.2).first::<Team>(conn)?.name,
+                publisher_name: teams::table.find(x.2).first::<Team>(con)?.name,
                 published_time: x.3,
             })
         })
@@ -58,21 +58,21 @@ pub fn edit_service_variant(
     db_pool: DbPool,
     params: ServiceVariantEditParams,
 ) -> Result<(), Error> {
-    let conn: &PgConnection = &*db_pool.get()?;
+    let con: &PgConnection = &*db_pool.get()?;
 
     match params {
         ServiceVariantEditParams::Add {
             service_name: ref param_service_name,
             publisher_name: ref param_publisher_name,
             file_entries: ref param_file_entries,
-        } => conn.transaction::<(), Error, _>(|| {
+        } => con.transaction::<(), Error, _>(|| {
             let service = services::table
                 .filter(services::name.eq(param_service_name))
-                .first::<Service>(conn)?;
+                .first::<Service>(con)?;
 
             let publisher = teams::table
                 .filter(teams::name.eq(param_publisher_name))
-                .first::<Team>(conn)?;
+                .first::<Team>(con)?;
 
             let mut hasher = Sha3_256::default();
             let first_file_content = &param_file_entries[0].data;
@@ -88,7 +88,7 @@ pub fn edit_service_variant(
                     name: format!("{}-{}", service.name, hash_print),
                     publisher_id: publisher.id,
                 })
-                .get_result::<ServiceVariant>(conn)?;
+                .get_result::<ServiceVariant>(con)?;
 
             for file_entry in param_file_entries {
                 diesel::insert_into(service_variant_attachments::table)
@@ -97,7 +97,7 @@ pub fn edit_service_variant(
                         name: file_entry.name.clone(),
                         data: file_entry.data.clone(),
                     })
-                    .execute(conn)?;
+                    .execute(con)?;
             }
             Ok(())
         }),
@@ -106,7 +106,7 @@ pub fn edit_service_variant(
         } => {
             let rows = diesel::delete(
                 service_variants::table.filter(service_variants::name.eq(param_name)),
-            ).execute(conn)?;
+            ).execute(con)?;
 
             if rows == 0 {
                 Err(Error::Message(format!("Service {} not found", param_name)))
@@ -115,16 +115,16 @@ pub fn edit_service_variant(
             }
         },
         ServiceVariantEditParams::Update {
-            name: ref param_name,
-            service_name: ref param_service_name,
-            publisher_name: ref param_publisher_name,
-            sla_pass: ref param_sla_pass,
+            name: param_name,
+            service_name: param_service_name,
+            publisher_name: param_publisher_name,
+            sla_pass: param_sla_pass,
         } => {
             let service_id = match param_service_name {
                 Some(name) => Some(
                     services::table
                         .filter(services::name.eq(name))
-                        .first::<Service>(conn)?
+                        .first::<Service>(con)?
                         .id,
                 ),
                 None => None,
@@ -134,21 +134,21 @@ pub fn edit_service_variant(
                 Some(name) => Some(
                     teams::table
                         .filter(teams::name.eq(name))
-                        .first::<Team>(conn)?
+                        .first::<Team>(con)?
                         .id,
                 ),
                 None => None,
             };
 
             let rows = diesel::update(
-                service_variants::table.filter(service_variants::name.eq(param_name)),
+                service_variants::table.filter(service_variants::name.eq(&param_name)),
             ).set(ServiceVariantChangeset {
                 service_id,
                 name: None,
-                sla_pass: *param_sla_pass,
+                sla_pass: param_sla_pass,
                 publisher_id,
             })
-                .execute(conn)?;
+                .execute(con)?;
 
             if rows == 0 {
                 Err(Error::Message(format!("Service {} not found", param_name)))
@@ -163,16 +163,16 @@ pub fn download_service_variant(
     db_pool: DbPool,
     params: ServiceVariantDownloadParams,
 ) -> Result<ServiceVariantAttachmentData, Error> {
-    let conn: &PgConnection = &*db_pool.get()?;
+    let con: &PgConnection = &*db_pool.get()?;
     let service_variant_name = params.name;
 
     let service_variant = service_variants::table
         .filter(service_variants::name.eq(service_variant_name))
-        .first::<ServiceVariant>(conn)?;
+        .first::<ServiceVariant>(con)?;
 
     let service_variant_attachments = service_variant_attachments::table
         .filter(service_variant_attachments::service_variant_id.eq(service_variant.id))
-        .load::<ServiceVariantAttachment>(conn)?;
+        .load::<ServiceVariantAttachment>(con)?;
 
     let result = ServiceVariantAttachmentData {
         file_entries: service_variant_attachments

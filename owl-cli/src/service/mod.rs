@@ -124,6 +124,7 @@ pub fn service_match(matches: &ArgMatches, shared_param: SharedParam) -> Result<
                     .join("\n"))
             }
         },
+
         ("provider", Some(matches)) => service_provider_match(matches, shared_param),
 
         ("variant", Some(matches)) => service_variant_match(matches, shared_param),

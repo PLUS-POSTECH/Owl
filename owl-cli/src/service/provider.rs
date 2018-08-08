@@ -12,15 +12,15 @@ pub fn service_provider_command() -> App<'static, 'static> {
                 .about("List available service providers")
                 .args(&[
                     Arg::from_usage("-a, --all 'Shows disabled service also'"),
-                    Arg::from_usage("-t, --filter-team [team_name]... 'Filters providers by team'"),
-                    Arg::from_usage("-v, --filter-service-variant [service_variant_name]... 'Filters providers by service variant'"),
+                    Arg::from_usage("-T, --filter-team... [team_name] 'Filters providers by team'"),
+                    Arg::from_usage("-V, --filter-service-variant... [service_variant_name] 'Filters providers by service variant'"),
                 ]),
             SubCommand::with_name("update")
                 .about("Update service provider information (admin)")
                 .args(&[
-                    Arg::from_usage("-t, --team <team_name> 'Name of the team providing service'"),
-                    Arg::from_usage("-v, --service-variant <service_variant_name> 'Name of the service variant being provided'"),
-                    Arg::from_usage("-s, --connection-string <connection_string> 'URI to use when connecting to service'"),
+                    Arg::from_usage("-T, --team <team_name> 'Name of the team providing service'"),
+                    Arg::from_usage("-V, --service-variant <service_variant_name> 'Name of the service variant being provided'"),
+                    Arg::from_usage("-S, --connection-string <connection_string> 'URI to use when connecting to service'"),
                 ]),
         ])
 }
@@ -35,16 +35,24 @@ pub fn service_provider_match(
                 shared_param.token,
                 ServiceProviderListParams {
                     show_all: matches.is_present("all"),
-                    filter_teams: matches
-                        .values_of("filter-team")
-                        .unwrap()
-                        .map(|x| x.to_string())
-                        .collect(),
-                    filter_service_variants: matches
-                        .values_of("filter-service_variant")
-                        .unwrap()
-                        .map(|x| x.to_string())
-                        .collect(),
+                    filter_teams: if matches.is_present("filter-team") {
+                        matches
+                            .values_of("filter-team")
+                            .unwrap()
+                            .map(ToString::to_string)
+                            .collect()
+                    } else {
+                        Vec::new()
+                    },
+                    filter_service_variants: if matches.is_present("filter-service-variant") {
+                        matches
+                            .values_of("filter-service-variant")
+                            .unwrap()
+                            .map(ToString::to_string)
+                            .collect()
+                    } else {
+                        Vec::new()
+                    },
                 },
             )?;
 
