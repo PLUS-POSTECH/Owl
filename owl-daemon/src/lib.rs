@@ -8,31 +8,25 @@ extern crate failure;
 extern crate serde_derive;
 
 extern crate chrono;
+extern crate digest;
 extern crate dotenv;
 extern crate futures;
 extern crate owl_exploit;
 extern crate owl_rpc;
 extern crate r2d2;
 extern crate r2d2_diesel;
+extern crate sha3;
 extern crate tarpc;
 extern crate tokio;
 extern crate toml;
 
 use self::db::DbPool;
 use self::error::Error as DaemonError;
-use owl_rpc::model::exploit::{
-    ExploitData, ExploitEditParams, ExploitListParams, ExploitRunParams, ExploitStatusParams,
-    ExploitTaskData,
-};
-use owl_rpc::model::service::provider::{
-    ServiceProviderData, ServiceProviderListParams, ServiceProviderUpdateParams,
-};
-use owl_rpc::model::service::variant::{
-    ServiceVariantAttachmentData, ServiceVariantData, ServiceVariantDownloadParams,
-    ServiceVariantEditParams, ServiceVariantListParams,
-};
-use owl_rpc::model::service::{ServiceData, ServiceEditParams, ServiceListParams};
-use owl_rpc::model::team::{TeamData, TeamEditParams};
+use owl_rpc::model::exploit::*;
+use owl_rpc::model::service::provider::*;
+use owl_rpc::model::service::variant::*;
+use owl_rpc::model::service::*;
+use owl_rpc::model::team::*;
 use owl_rpc::FutureService;
 use tarpc::util::Message;
 use tokio::runtime::TaskExecutor;
@@ -194,7 +188,13 @@ impl FutureService for OwlDaemon {
         cli_token: String,
         params: ServiceVariantDownloadParams,
     ) -> Self::DownloadServiceVariantFut {
-        Err(Message("Not Implemented".to_string()))
+        run_handler_with_param(
+            Permission::User,
+            cli_token,
+            handler::service::variant::download_service_variant,
+            self.db_pool.clone(),
+            params,
+        )
     }
 
     type EditServiceVariantFut = Result<(), Message>;
@@ -203,7 +203,13 @@ impl FutureService for OwlDaemon {
         cli_token: String,
         params: ServiceVariantEditParams,
     ) -> Self::EditServiceVariantFut {
-        Err(Message("Not Implemented".to_string()))
+        run_handler_with_param(
+            Permission::Admin,
+            cli_token,
+            handler::service::variant::edit_service_variant,
+            self.db_pool.clone(),
+            params,
+        )
     }
 
     type ListServiceVariantFut = Result<Vec<ServiceVariantData>, Message>;
@@ -212,7 +218,13 @@ impl FutureService for OwlDaemon {
         cli_token: String,
         params: ServiceVariantListParams,
     ) -> Self::ListServiceVariantFut {
-        Err(Message("Not Implemented".to_string()))
+        run_handler_with_param(
+            Permission::User,
+            cli_token,
+            handler::service::variant::list_service_variant,
+            self.db_pool.clone(),
+            params,
+        )
     }
 
     // Service Provider
@@ -222,7 +234,13 @@ impl FutureService for OwlDaemon {
         cli_token: String,
         params: ServiceProviderListParams,
     ) -> Self::ListServiceProviderFut {
-        Err(Message("Not Implemented".to_string()))
+        run_handler_with_param(
+            Permission::User,
+            cli_token,
+            handler::service::provider::list_service_provider,
+            self.db_pool.clone(),
+            params,
+        )
     }
 
     type UpdateServiceProviderFut = Result<(), Message>;
@@ -231,7 +249,13 @@ impl FutureService for OwlDaemon {
         cli_token: String,
         params: ServiceProviderUpdateParams,
     ) -> Self::UpdateServiceProviderFut {
-        Err(Message("Not Implemented".to_string()))
+        run_handler_with_param(
+            Permission::Admin,
+            cli_token,
+            handler::service::provider::update_service_provider,
+            self.db_pool.clone(),
+            params,
+        )
     }
 
     type EditExploitFut = Result<(), Message>;

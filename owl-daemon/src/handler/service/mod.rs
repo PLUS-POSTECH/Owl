@@ -6,6 +6,9 @@ use error::Error;
 use owl_rpc::model::service::*;
 use DaemonResource;
 
+pub mod provider;
+pub mod variant;
+
 pub fn edit_service(resource: &DaemonResource, params: ServiceEditParams) -> Result<(), Error> {
     use db::schema::services::dsl::*;
 

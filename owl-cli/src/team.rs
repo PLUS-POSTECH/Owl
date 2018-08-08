@@ -9,21 +9,21 @@ pub fn team_command() -> App<'static, 'static> {
         .setting(AppSettings::SubcommandRequired)
         .subcommands(vec![
             SubCommand::with_name("add")
-                .about("add team (admin)")
+                .about("add new team (admin)")
                 .args(&[
-                    Arg::from_usage("<name> 'team name'"),
-                    Arg::from_usage("[description] 'team description'"),
+                    Arg::from_usage("<name> 'name of the team to add'"),
+                    Arg::from_usage("[description] 'description of the team to add'"),
                 ]),
             SubCommand::with_name("delete")
-                .about("delete team (admin)")
-                .args(&[Arg::from_usage("<name> 'team name'")]),
+                .about("delete specified team (admin)")
+                .args(&[Arg::from_usage("<name> 'name of the team to delete'")]),
             SubCommand::with_name("update")
                 .about("update team (admin)")
                 .args(&[
-                    Arg::from_usage("<name> 'team name'"),
-                    Arg::from_usage("<description> 'team description'"),
+                    Arg::from_usage("<name> 'name of the team to update'"),
+                    Arg::from_usage("<description> 'updated description'"),
                 ]),
-            SubCommand::with_name("list").about("list teams"),
+            SubCommand::with_name("list").about("list registered teams"),
         ])
 }
 

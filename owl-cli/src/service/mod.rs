@@ -1,7 +1,12 @@
+use self::provider::{service_provider_command, service_provider_match};
+use self::variant::{service_variant_command, service_variant_match};
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 use error::Error;
 use owl_rpc::model::service::*;
 use SharedParam;
+
+pub mod provider;
+pub mod variant;
 
 pub fn service_command() -> App<'static, 'static> {
     SubCommand::with_name("service")
@@ -24,14 +29,16 @@ pub fn service_command() -> App<'static, 'static> {
                 .about("disable service (admin)")
                 .args(&[Arg::from_usage("<name> 'service name'")]),
             SubCommand::with_name("update")
-                .about("update service (admin)")
+                .about("update service description (admin)")
                 .args(&[
                     Arg::from_usage("<name> 'service name'"),
                     Arg::from_usage("<description> 'service description'"),
                 ]),
             SubCommand::with_name("list")
-                .about("list services")
+                .about("list running services")
                 .args(&[Arg::from_usage("-a, --all 'include disabled services'")]),
+            service_provider_command(),
+            service_variant_command(),
         ])
 }
 
@@ -117,6 +124,10 @@ pub fn service_match(matches: &ArgMatches, shared_param: SharedParam) -> Result<
                     .join("\n"))
             }
         },
+
+        ("provider", Some(matches)) => service_provider_match(matches, shared_param),
+
+        ("variant", Some(matches)) => service_variant_match(matches, shared_param),
 
         _ => Err(Error::InvalidSubcommand),
     }

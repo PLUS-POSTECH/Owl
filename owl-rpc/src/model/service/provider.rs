@@ -4,12 +4,13 @@ use chrono::{DateTime, Utc};
 #[derive(Serialize, Deserialize)]
 pub struct ServiceProviderListParams {
     pub show_all: bool,
-    pub filter_providers: Vec<String>,
+    pub filter_teams: Vec<String>,
+    pub filter_service_variants: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct ServiceProviderData {
-    pub provider_name: String,
+    pub team_name: String,
     pub service_variant_name: String,
     pub connection_string: String,
     pub published_time: DateTime<Utc>,
@@ -17,7 +18,7 @@ pub struct ServiceProviderData {
 
 #[derive(Serialize, Deserialize)]
 pub struct ServiceProviderUpdateParams {
-    pub provider_name: String,
+    pub team_name: String,
     pub service_variant_name: String,
-    pub connection_string: Option<String>,
+    pub connection_string: String,
 }
