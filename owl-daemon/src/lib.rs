@@ -78,20 +78,63 @@ impl OwlDaemon {
     }
 }
 
-fn run_handler<F, R>(f: F, resource: &DaemonResource) -> Result<R, Message>
+enum Permission {
+    Admin,
+    User,
+}
+
+fn check_permission(
+    permission: Permission,
+    cli_token: String,
+    resource: &DaemonResource,
+) -> Result<(), DaemonError> {
+    match permission {
+        Permission::Admin => if resource.config.server.admin_tokens.contains(&cli_token)
+            || resource.config.server.user_tokens.contains(&cli_token)
+        {
+            Ok(())
+        } else {
+            Err(DaemonError::PermissionError)
+        },
+        Permission::User => if resource.config.server.user_tokens.contains(&cli_token) {
+            Ok(())
+        } else {
+            Err(DaemonError::PermissionError)
+        },
+    }
+}
+
+fn run_handler<F, R>(
+    permission: Permission,
+    cli_token: String,
+    f: F,
+    resource: &DaemonResource,
+) -> Result<R, Message>
 where
     F: FnOnce(&DaemonResource) -> Result<R, DaemonError>,
 {
+    if let Err(err) = check_permission(permission, cli_token, resource) {
+        return Err(Message(err.to_string()));
+    };
     match f(resource) {
         Ok(result) => Ok(result),
         Err(err) => Err(Message(err.to_string())),
     }
 }
 
-fn run_handler_with_param<F, P, R>(f: F, resource: &DaemonResource, params: P) -> Result<R, Message>
+fn run_handler_with_param<F, P, R>(
+    permission: Permission,
+    cli_token: String,
+    f: F,
+    resource: &DaemonResource,
+    params: P,
+) -> Result<R, Message>
 where
     F: FnOnce(&DaemonResource, P) -> Result<R, DaemonError>,
 {
+    if let Err(err) = check_permission(permission, cli_token, resource) {
+        return Err(Message(err.to_string()));
+    };
     match f(resource, params) {
         Ok(result) => Ok(result),
         Err(err) => Err(Message(err.to_string())),
@@ -102,23 +145,46 @@ impl FutureService for OwlDaemon {
     // Team
     type EditTeamFut = Result<(), Message>;
     fn edit_team(&self, cli_token: String, params: TeamEditParams) -> Self::EditTeamFut {
-        run_handler_with_param(handler::team::edit_team, &self.resource, params)
+        run_handler_with_param(
+            Permission::Admin,
+            cli_token,
+            handler::team::edit_team,
+            &self.resource,
+            params,
+        )
     }
 
     type ListTeamFut = Result<Vec<TeamData>, Message>;
     fn list_team(&self, cli_token: String) -> Self::ListTeamFut {
-        run_handler(handler::team::list_team, &self.resource)
+        run_handler(
+            Permission::User,
+            cli_token,
+            handler::team::list_team,
+            &self.resource,
+        )
     }
 
     // Service
     type EditServiceFut = Result<(), Message>;
     fn edit_service(&self, cli_token: String, params: ServiceEditParams) -> Self::EditServiceFut {
-        run_handler_with_param(handler::service::edit_service, &self.resource, params)
+        run_handler_with_param(
+            Permission::Admin,
+            cli_token,
+            handler::service::edit_service,
+            &self.resource,
+            params,
+        )
     }
 
     type ListServiceFut = Result<Vec<ServiceData>, Message>;
     fn list_service(&self, cli_token: String, params: ServiceListParams) -> Self::ListServiceFut {
-        run_handler_with_param(handler::service::list_service, &self.resource, params)
+        run_handler_with_param(
+            Permission::User,
+            cli_token,
+            handler::service::list_service,
+            &self.resource,
+            params,
+        )
     }
 
     // Service Variant
