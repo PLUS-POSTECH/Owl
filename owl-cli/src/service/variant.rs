@@ -126,9 +126,8 @@ pub fn service_variant_match(
                     show_all: matches.is_present("all"),
                     filter_teams: matches
                         .values_of("filter-team")
-                        .unwrap()
-                        .map(ToString::to_string)
-                        .collect(),
+                        .map(|valures| -> Vec<_> { values.map(ToString::to_string).collect() })
+                        .unwrap_or(Vec::new()),
                 },
             )?;
 
