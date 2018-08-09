@@ -36,5 +36,5 @@ service! {
     rpc list_exploit(cli_token: String, params: ExploitListParams) -> Vec<ExploitData> | Message;
     rpc run_exploit(cli_token: String, params: ExploitRunParams) -> Option<Vec<ExploitTaskData>> | Message;
     rpc run_all_exploit(cli_token: String) -> () | Message;
-    rpc stat_exploit(cli_token: String, params: ExploitStatusParams) -> Vec<ExploitTaskData> | Message;
+    rpc status_exploit(cli_token: String, params: ExploitStatusParams) -> Vec<ExploitTaskData> | Message;
 }

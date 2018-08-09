@@ -12,7 +12,7 @@ extern crate tarpc;
 use self::exploit::{exploit_command, exploit_match};
 use self::service::{service_command, service_match};
 use self::team::{team_command, team_match};
-use clap::{App, AppSettings, Arg, SubCommand};
+use clap::{App, AppSettings, Arg};
 use dotenv::dotenv;
 use owl_rpc::SyncClient;
 use tarpc::sync::client::{self, ClientExt};
