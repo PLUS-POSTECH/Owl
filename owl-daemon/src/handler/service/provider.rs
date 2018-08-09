@@ -84,12 +84,14 @@ pub fn update_service_provider(
         if let Ok((record, _)) = result {
             let target = service_providers::table.find(record.id);
 
-            diesel::update(target)
-                .set(ServiceProviderChangeset {
-                    connection_string: Some(connection_string),
-                })
-                .execute(con)?;
-            return Ok(());
+            if (record.team_id, record.service_variant_id) == (team.id, service_variant.id) {
+                diesel::update(target)
+                    .set(ServiceProviderChangeset {
+                        connection_string: Some(connection_string),
+                    })
+                    .execute(con)?;
+                return Ok(());
+            }
         }
 
         diesel::insert_into(service_providers::table)
