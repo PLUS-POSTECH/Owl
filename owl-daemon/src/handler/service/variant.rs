@@ -62,9 +62,9 @@ pub fn edit_service_variant(
 
     match params {
         ServiceVariantEditParams::Add {
-            service_name: ref param_service_name,
-            publisher_name: ref param_publisher_name,
-            file_entries: ref param_file_entries,
+            service_name: param_service_name,
+            publisher_name: param_publisher_name,
+            file_entries: param_file_entries,
         } => con.transaction::<(), Error, _>(|| {
             let service = services::table
                 .filter(services::name.eq(param_service_name))
@@ -74,12 +74,15 @@ pub fn edit_service_variant(
                 .filter(teams::name.eq(param_publisher_name))
                 .first::<Team>(con)?;
 
-            let mut hasher = Sha3_256::default();
-            let first_file_content = &param_file_entries[0].data;
+            let service_variant_hash = {
+                let mut hasher = Sha3_256::default();
+                let first_file_content = &param_file_entries[0].data;
 
-            hasher.process(first_file_content);
-            let out = hasher.result();
-            let mut hash_print = format!("{:x}", out);
+                hasher.process(first_file_content);
+                hasher.result()
+            };
+
+            let mut hash_print = format!("{:x}", service_variant_hash);
             hash_print.truncate(8);
 
             let inserted_variant = diesel::insert_into(service_variants::table)
@@ -94,8 +97,8 @@ pub fn edit_service_variant(
                 diesel::insert_into(service_variant_attachments::table)
                     .values(ServiceVariantAttachmentInsertable {
                         service_variant_id: inserted_variant.id,
-                        name: file_entry.name.clone(),
-                        data: file_entry.data.clone(),
+                        name: file_entry.name,
+                        data: file_entry.data,
                     })
                     .execute(con)?;
             }

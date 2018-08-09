@@ -159,23 +159,45 @@ impl FutureService for OwlDaemon {
         )
     }
 
+    type DownloadExploitFut = Result<ExploitAttachmentData, Message>;
+    fn download_exploit(
+        &self,
+        cli_token: String,
+        params: ExploitDownloadParams,
+    ) -> Self::DownloadExploitFut {
+        run_handler_with_param(
+            handler::exploit::download_exploit,
+            self.db_pool.clone(),
+            params,
+        )
+    }
+
     type EditExploitFut = Result<(), Message>;
     fn edit_exploit(&self, cli_token: String, params: ExploitEditParams) -> Self::EditExploitFut {
-        Err(Message("Not Implemented".to_string()))
+        run_handler_with_param(handler::exploit::edit_exploit, self.db_pool.clone(), params)
     }
 
     type ListExploitFut = Result<Vec<ExploitData>, Message>;
     fn list_exploit(&self, cli_token: String, params: ExploitListParams) -> Self::ListExploitFut {
-        Err(Message("Not Implemented".to_string()))
+        run_handler_with_param(handler::exploit::list_exploit, self.db_pool.clone(), params)
     }
 
-    type RunExploitFut = Result<Option<ExploitTaskData>, Message>;
+    type RunExploitFut = Result<Option<Vec<ExploitTaskData>>, Message>;
     fn run_exploit(&self, cli_token: String, params: ExploitRunParams) -> Self::RunExploitFut {
         Err(Message("Not Implemented".to_string()))
     }
 
-    type StatExploitFut = Result<ExploitTaskData, Message>;
-    fn stat_exploit(&self, cli_token: String, params: ExploitStatusParams) -> Self::StatExploitFut {
+    type RunAllExploitFut = Result<(), Message>;
+    fn run_all_exploit(&self, cli_token: String) -> Self::RunAllExploitFut {
+        Err(Message("Not Implemented".to_string()))
+    }
+
+    type StatusExploitFut = Result<Vec<ExploitTaskData>, Message>;
+    fn status_exploit(
+        &self,
+        cli_token: String,
+        params: ExploitStatusParams,
+    ) -> Self::StatusExploitFut {
         Err(Message("Not Implemented".to_string()))
     }
 }

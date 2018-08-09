@@ -103,7 +103,7 @@ pub struct ServiceProviderChangeset {
     pub connection_string: Option<String>,
 }
 
-#[derive(Queryable, Identifiable)]
+#[derive(Queryable, Identifiable, Associations)]
 #[belongs_to(Service)]
 pub struct Exploit {
     pub id: i32,
@@ -118,10 +118,44 @@ pub struct Exploit {
     pub deleted: bool,
 }
 
+#[derive(Insertable)]
+#[table_name = "exploits"]
+pub struct ExploitInsertable {
+    pub service_id: i32,
+    pub name: String,
+    pub description: String,
+    pub enabled: bool,
+    pub max_retries: Option<i32>,
+    pub timeout: Option<i32>,
+    pub skip_auth: bool,
+    pub deleted: bool,
+}
+
+#[derive(AsChangeset)]
+#[table_name = "exploits"]
+pub struct ExploitChangeset {
+    pub service_id: Option<i32>,
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub enabled: Option<bool>,
+    pub max_retries: Option<Option<i32>>,
+    pub timeout: Option<Option<i32>>,
+    pub skip_auth: Option<bool>,
+    pub deleted: Option<bool>,
+}
+
 #[derive(Queryable, Identifiable, Associations)]
 #[belongs_to(Exploit)]
 pub struct ExploitAttachment {
     pub id: i32,
+    pub exploit_id: i32,
+    pub name: String,
+    pub data: Vec<u8>,
+}
+
+#[derive(Insertable)]
+#[table_name = "exploit_attachments"]
+pub struct ExploitAttachmentInsertable {
     pub exploit_id: i32,
     pub name: String,
     pub data: Vec<u8>,
