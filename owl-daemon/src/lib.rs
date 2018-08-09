@@ -192,7 +192,7 @@ impl FutureService for OwlDaemon {
             Permission::User,
             cli_token,
             handler::service::variant::download_service_variant,
-            self.db_pool.clone(),
+            &self.resource,
             params,
         )
     }
@@ -207,7 +207,7 @@ impl FutureService for OwlDaemon {
             Permission::Admin,
             cli_token,
             handler::service::variant::edit_service_variant,
-            self.db_pool.clone(),
+            &self.resource,
             params,
         )
     }
@@ -222,7 +222,7 @@ impl FutureService for OwlDaemon {
             Permission::User,
             cli_token,
             handler::service::variant::list_service_variant,
-            self.db_pool.clone(),
+            &self.resource,
             params,
         )
     }
@@ -238,7 +238,7 @@ impl FutureService for OwlDaemon {
             Permission::User,
             cli_token,
             handler::service::provider::list_service_provider,
-            self.db_pool.clone(),
+            &self.resource,
             params,
         )
     }
@@ -253,7 +253,7 @@ impl FutureService for OwlDaemon {
             Permission::Admin,
             cli_token,
             handler::service::provider::update_service_provider,
-            self.db_pool.clone(),
+            &self.resource,
             params,
         )
     }

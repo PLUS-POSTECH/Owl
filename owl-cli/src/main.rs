@@ -16,7 +16,7 @@ use std::fs::File;
 use std::io::prelude::*;
 
 use self::team::{team_command, team_match};
-use clap::{App, AppSettings, Arg, SubCommand};
+use clap::{App, AppSettings, Arg};
 use dotenv::dotenv;
 use error::Error;
 use owl_rpc::SyncClient;

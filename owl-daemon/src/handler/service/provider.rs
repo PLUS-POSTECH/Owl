@@ -1,7 +1,6 @@
 use chrono::{DateTime, Utc};
 use db::models::*;
 use db::schema::*;
-use db::DbPool;
 use diesel;
 use diesel::prelude::*;
 use diesel::PgConnection;
@@ -57,7 +56,7 @@ pub fn list_service_provider(
 }
 
 pub fn update_service_provider(
-    resource: DaemonResource,
+    resource: &DaemonResource,
     params: ServiceProviderUpdateParams,
 ) -> Result<(), Error> {
     let con: &PgConnection = &*resource.db_pool.get()?;

@@ -16,39 +16,37 @@ pub fn edit_service(resource: &DaemonResource, params: ServiceEditParams) -> Res
 
     match params {
         ServiceEditParams::Add {
-            name: ref param_name,
-            description: ref param_description,
+            name: param_name,
+            description: param_description,
         } => {
             diesel::insert_into(services)
                 .values((
-                    name.eq(param_name),
-                    description.eq(param_description),
+                    name.eq(&param_name),
+                    description.eq(&param_description),
                     enabled.eq(true),
                 ))
                 .execute(con)?;
 
             Ok(())
         },
-        ServiceEditParams::Delete {
-            name: ref param_name,
-        } => {
-            let rows = diesel::delete(services.filter(name.eq(param_name))).execute(con)?;
+        ServiceEditParams::Delete { name: param_name } => {
+            let rows = diesel::delete(services.filter(name.eq(&param_name))).execute(con)?;
 
             if rows == 0 {
-                Err(Error::Message(format!("Service {} not found", param_name)))
+                Err(Error::Message(format!("Service {} not found", &param_name)))
             } else {
                 Ok(())
             }
         },
         ServiceEditParams::Update {
-            name: ref param_name,
-            description: ref param_description,
+            name: param_name,
+            description: param_description,
             enabled: param_enabled,
         } => {
-            let rows = diesel::update(services.filter(name.eq(param_name)))
+            let rows = diesel::update(services.filter(name.eq(&param_name)))
                 .set(ServiceChangeset {
                     name: None,
-                    description: param_description.clone(),
+                    description: param_description,
                     enabled: param_enabled,
                 })
                 .execute(con)?;

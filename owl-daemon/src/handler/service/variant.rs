@@ -1,10 +1,8 @@
 use chrono::{DateTime, Utc};
 use db::models::*;
 use db::schema::*;
-use db::DbPool;
 use diesel;
 use diesel::prelude::*;
-use diesel::result::Error as DieselError;
 use diesel::PgConnection;
 use digest::Input;
 use error::Error;
@@ -63,16 +61,16 @@ pub fn edit_service_variant(
 
     match params {
         ServiceVariantEditParams::Add {
-            service_name: ref param_service_name,
-            publisher_name: ref param_publisher_name,
+            service_name: param_service_name,
+            publisher_name: param_publisher_name,
             file_entries: param_file_entries,
         } => con.transaction::<(), Error, _>(|| {
             let service = services::table
-                .filter(services::name.eq(param_service_name))
+                .filter(services::name.eq(&param_service_name))
                 .first::<Service>(con)?;
 
             let publisher = teams::table
-                .filter(teams::name.eq(param_publisher_name))
+                .filter(teams::name.eq(&param_publisher_name))
                 .first::<Team>(con)?;
 
             let out = {
@@ -104,15 +102,13 @@ pub fn edit_service_variant(
             }
             Ok(())
         }),
-        ServiceVariantEditParams::Delete {
-            name: ref param_name,
-        } => {
+        ServiceVariantEditParams::Delete { name: param_name } => {
             let rows = diesel::delete(
-                service_variants::table.filter(service_variants::name.eq(param_name)),
+                service_variants::table.filter(service_variants::name.eq(&param_name)),
             ).execute(con)?;
 
             if rows == 0 {
-                Err(Error::Message(format!("Service {} not found", param_name)))
+                Err(Error::Message(format!("Service {} not found", &param_name)))
             } else {
                 Ok(())
             }
