@@ -36,7 +36,7 @@ pub fn list_service_provider(
         query = query.filter(service_variants::name.eq_any(filter_service_variants));
     }
 
-    if show_all {
+    if !show_all {
         query = query.filter(services::enabled.eq(true));
     }
 

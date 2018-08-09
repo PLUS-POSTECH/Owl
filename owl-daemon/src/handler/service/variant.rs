@@ -29,7 +29,7 @@ pub fn list_service_variant(
         query = query.filter(teams::name.eq_any(filter_teams));
     }
 
-    if show_all {
+    if !show_all {
         query = query.filter(services::enabled.eq(true));
     }
 
