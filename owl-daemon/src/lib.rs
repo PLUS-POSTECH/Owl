@@ -202,6 +202,20 @@ impl FutureService for OwlDaemon {
         )
     }
 
+    type AddServiceVariantFut = Result<String, Message>;
+    fn add_service_variant(
+        &self,
+        cli_token: String,
+        params: ServiceVariantAddParams,
+    ) -> Self::AddServiceVariantFut {
+        run_handler_with_param(
+            Permission::Admin,
+            cli_token,
+            handler::service::variant::add_service_variant,
+            &self.resource,
+            params,
+        )
+    }
     // Service Variant
     type DownloadServiceVariantFut = Result<ServiceVariantAttachmentData, Message>;
     fn download_service_variant(

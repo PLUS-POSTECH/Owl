@@ -53,6 +53,54 @@ pub fn list_service_variant(
     Ok(result)
 }
 
+pub fn add_service_variant(
+    resource: &DaemonResource,
+    params: ServiceVariantAddParams,
+) -> Result<String, Error> {
+    let con: &PgConnection = &*resource.db_pool.get()?;
+
+    con.transaction::<String, Error, _>(|| {
+        let service = services::table
+            .filter(services::name.eq(&params.service_name))
+            .first::<Service>(con)?;
+
+        let publisher = teams::table
+            .filter(teams::name.eq(&params.publisher_name))
+            .first::<Team>(con)?;
+
+        let service_variant_hash = {
+            let mut hasher = Sha3_256::default();
+
+            for file_entry in &params.file_entries {
+                hasher.process(&file_entry.data);
+            }
+            hasher.result()
+        };
+
+        let mut hash_print = format!("{:x}", service_variant_hash);
+        hash_print.truncate(8);
+
+        let inserted_variant = diesel::insert_into(service_variants::table)
+            .values(ServiceVariantInsertable {
+                service_id: service.id,
+                name: format!("{}-{}", service.name, hash_print),
+                publisher_id: publisher.id,
+            })
+            .get_result::<ServiceVariant>(con)?;
+
+        for file_entry in params.file_entries {
+            diesel::insert_into(service_variant_attachments::table)
+                .values(ServiceVariantAttachmentInsertable {
+                    service_variant_id: inserted_variant.id,
+                    name: file_entry.name,
+                    data: file_entry.data,
+                })
+                .execute(con)?;
+        }
+        Ok(inserted_variant.name)
+    })
+}
+
 pub fn edit_service_variant(
     resource: &DaemonResource,
     params: ServiceVariantEditParams,
@@ -60,50 +108,6 @@ pub fn edit_service_variant(
     let con: &PgConnection = &*resource.db_pool.get()?;
 
     match params {
-        ServiceVariantEditParams::Add {
-            service_name: param_service_name,
-            publisher_name: param_publisher_name,
-            file_entries: param_file_entries,
-        } => con.transaction::<(), Error, _>(|| {
-            let service = services::table
-                .filter(services::name.eq(&param_service_name))
-                .first::<Service>(con)?;
-
-            let publisher = teams::table
-                .filter(teams::name.eq(&param_publisher_name))
-                .first::<Team>(con)?;
-
-            let service_variant_hash = {
-                let mut hasher = Sha3_256::default();
-
-                for file_entry in &param_file_entries {
-                    hasher.process(&file_entry.data);
-                }
-                hasher.result()
-            };
-
-            let mut hash_print = format!("{:x}", service_variant_hash);
-            hash_print.truncate(8);
-
-            let inserted_variant = diesel::insert_into(service_variants::table)
-                .values(ServiceVariantInsertable {
-                    service_id: service.id,
-                    name: format!("{}-{}", service.name, hash_print),
-                    publisher_id: publisher.id,
-                })
-                .get_result::<ServiceVariant>(con)?;
-
-            for file_entry in param_file_entries {
-                diesel::insert_into(service_variant_attachments::table)
-                    .values(ServiceVariantAttachmentInsertable {
-                        service_variant_id: inserted_variant.id,
-                        name: file_entry.name,
-                        data: file_entry.data,
-                    })
-                    .execute(con)?;
-            }
-            Ok(())
-        }),
         ServiceVariantEditParams::Delete { name: param_name } => {
             let rows = diesel::delete(
                 service_variants::table.filter(service_variants::name.eq(&param_name)),
