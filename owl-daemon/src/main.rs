@@ -13,31 +13,52 @@ extern crate r2d2_diesel;
 extern crate tarpc;
 extern crate tokio;
 extern crate tokio_core;
+extern crate toml;
 
-use std::net::ToSocketAddrs;
+use std::fs::File;
+use std::io::prelude::*;
 
 use dotenv::dotenv;
 use owl_daemon::db::build_connection_pool;
+use owl_daemon::error::Error;
+use owl_daemon::Config;
 use owl_daemon::OwlDaemon;
 use owl_rpc::FutureServiceExt;
 use tarpc::future::server;
+use tarpc::util::FirstSocketAddr;
 use tokio_core::reactor;
 
-fn main() {
+fn read_file_contents(file_name: &str) -> Result<Vec<u8>, Error> {
+    let mut file = File::open(file_name)?;
+    let mut contents = Vec::new();
+    file.read_to_end(&mut contents)?;
+    Ok(contents)
+}
+
+fn main_wrap() -> Result<(), Error> {
     dotenv().ok();
     env_logger::init();
 
-    let mut reactor = reactor::Core::new().expect("Failed to initialize tokio reactor");
+    let config: Config = toml::from_slice(&read_file_contents("config.toml")?)?;
+    let connection_string = config.server.connection.clone();
+
+    let mut reactor = reactor::Core::new()?;
     let task_executor = reactor.runtime().executor();
-    let db_pool = build_connection_pool().expect("Failed to connect to the database");
-    let (_server_handle, server) = OwlDaemon::new(db_pool, task_executor)
-        .listen(
-            "localhost:5959".to_socket_addrs().unwrap().next().unwrap(),
-            &reactor.handle(),
-            server::Options::default(),
-        )
-        .unwrap();
+    let db_pool = build_connection_pool(config.server.db.clone())?;
+    let (_server_handle, server) = OwlDaemon::new(db_pool, task_executor, config).listen(
+        connection_string.try_first_socket_addr()?,
+        &reactor.handle(),
+        server::Options::default(),
+    )?;
 
     info!("Starting Owl Daemon...");
-    reactor.run(server).unwrap();
+    reactor.run(server)?;
+
+    Ok(())
+}
+
+fn main() {
+    if let Err(e) = main_wrap() {
+        error!("{}", e.to_string());
+    }
 }

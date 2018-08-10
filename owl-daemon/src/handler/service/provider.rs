@@ -1,18 +1,18 @@
 use chrono::{DateTime, Utc};
 use db::models::*;
 use db::schema::*;
-use db::DbPool;
 use diesel;
 use diesel::prelude::*;
 use diesel::PgConnection;
 use error::Error;
 use owl_rpc::model::service::provider::*;
+use DaemonResource;
 
 pub fn list_service_provider(
-    db_pool: DbPool,
+    resource: &DaemonResource,
     params: ServiceProviderListParams,
 ) -> Result<Vec<ServiceProviderData>, Error> {
-    let con: &PgConnection = &*db_pool.get()?;
+    let con: &PgConnection = &*resource.db_pool.get()?;
     let show_all = params.show_all;
     let filter_teams = params.filter_teams;
     let filter_service_variants = params.filter_service_variants;
@@ -56,10 +56,10 @@ pub fn list_service_provider(
 }
 
 pub fn update_service_provider(
-    db_pool: DbPool,
+    resource: &DaemonResource,
     params: ServiceProviderUpdateParams,
 ) -> Result<(), Error> {
-    let con: &PgConnection = &*db_pool.get()?;
+    let con: &PgConnection = &*resource.db_pool.get()?;
     let team_name = params.team_name;
     let service_variant_name = params.service_variant_name;
     let connection_string = params.connection_string;

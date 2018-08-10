@@ -1,7 +1,7 @@
 [package]
 name = "owl-rpc"
 version = "0.1.0"
-authors = ["Kangsu Kim <pica744@gmail.com>"]
+authors = ["Kangsu Kim <pica744@gmail.com>", "Yechan Bae <qwazpia@gmail.com>"]
 
 [dependencies]
 chrono = { version = "0.4.5", features = ["serde"] }

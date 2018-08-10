@@ -9,17 +9,17 @@ pub fn service_provider_command() -> App<'static, 'static> {
         .setting(AppSettings::SubcommandRequired)
         .subcommands(vec![
             SubCommand::with_name("list")
-                .about("List available service providers")
+                .about("list available service providers")
                 .args(&[
-                    Arg::from_usage("-a, --all 'Shows disabled service also'"),
-                    Arg::from_usage("-T, --filter-team... [team_name] 'Filters providers by team'"),
-                    Arg::from_usage("-V, --filter-service-variant... [service_variant_name] 'Filters providers by service variant'"),
+                    Arg::from_usage("-a, --all 'shows disabled service also'"),
+                    Arg::from_usage("-T, --filter-team... [team_name] 'filters providers by team'"),
+                    Arg::from_usage("-V, --filter-service-variant... [service_variant_name] 'filters providers by service variant'"),
                 ]),
             SubCommand::with_name("update")
-                .about("Update service provider information (admin)")
+                .about("update service provider information (admin)")
                 .args(&[
-                    Arg::from_usage("-T, --team <team_name> 'Name of the team providing service'"),
-                    Arg::from_usage("-V, --service-variant <service_variant_name> 'Name of the service variant being provided'"),
+                    Arg::from_usage("-T, --team <team_name> 'name of the team providing service'"),
+                    Arg::from_usage("-V, --service-variant <service_variant_name> 'name of the service variant being provided'"),
                     Arg::from_usage("-S, --connection-string <connection_string> 'URI to use when connecting to service'"),
                 ]),
         ])
