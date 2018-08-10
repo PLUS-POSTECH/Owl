@@ -5,6 +5,8 @@ extern crate diesel_derive_enum;
 #[macro_use]
 extern crate failure;
 #[macro_use]
+extern crate log;
+#[macro_use]
 extern crate serde_derive;
 
 extern crate chrono;
@@ -36,9 +38,6 @@ pub mod db;
 pub mod error;
 pub mod exploit;
 pub mod handler;
-
-#[cfg(test)]
-mod tests;
 
 #[derive(Clone, Deserialize)]
 pub struct Config {
