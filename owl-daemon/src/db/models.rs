@@ -170,6 +170,21 @@ pub struct ExploitTarget {
     pub service_variant_id: i32,
 }
 
+#[derive(DbEnum, Debug)]
+pub enum ExploitStatus {
+    Pending,
+    Running,
+    Authenticating,
+    SuccessFlag,
+    DuplicateFlag,
+    AuthError,
+    AuthSkipped,
+    ExploitProcessError,
+    ExploitReturnCodeNotZero,
+    AuthProcessError,
+    AuthReturnCodeNotZero,
+}
+
 #[derive(Queryable, Identifiable, Associations)]
 #[belongs_to(Exploit)]
 #[belongs_to(ServiceProvider)]
@@ -179,6 +194,7 @@ pub struct ExploitTask {
     pub service_provider_id: i32,
     pub retries: i32,
     pub status: ExploitStatus,
+    pub message: String,
     pub published_time: DateTime<Utc>,
     pub last_updated_time: DateTime<Utc>,
 }

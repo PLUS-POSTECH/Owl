@@ -1,13 +1,3 @@
-#[derive(DbEnum, Debug)]
-pub enum ExploitStatus {
-    Pending,
-    Running,
-    Authing,
-    Ok,
-    RunFailed,
-    AuthFailed,
-}
-
 table! {
     exploit_attachments (id) {
         id -> Int4,
@@ -41,7 +31,7 @@ table! {
 
 table! {
     use diesel::sql_types::*;
-    use super::ExploitStatusMapping;
+    use db::models::ExploitStatusMapping;
 
     exploit_tasks (id) {
         id -> Int4,
@@ -49,6 +39,7 @@ table! {
         service_provider_id -> Int4,
         retries -> Int4,
         status -> ExploitStatusMapping,
+        message -> Text,
         published_time -> Timestamptz,
         last_updated_time -> Timestamptz,
     }

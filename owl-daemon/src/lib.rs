@@ -301,12 +301,23 @@ impl FutureService for OwlDaemon {
 
     type RunExploitFut = Result<Option<Vec<ExploitTaskData>>, Message>;
     fn run_exploit(&self, cli_token: String, params: ExploitRunParams) -> Self::RunExploitFut {
-        Err(Message("Not Implemented".to_string()))
+        run_handler_with_param(
+            Permission::Admin,
+            cli_token,
+            handler::exploit::run_exploit,
+            &self.resource,
+            params,
+        )
     }
 
     type RunAllExploitFut = Result<(), Message>;
     fn run_all_exploit(&self, cli_token: String) -> Self::RunAllExploitFut {
-        Err(Message("Not Implemented".to_string()))
+        run_handler(
+            Permission::Admin,
+            cli_token,
+            handler::exploit::run_all_exploit,
+            &self.resource,
+        )
     }
 
     type StatusExploitFut = Result<Vec<ExploitTaskData>, Message>;

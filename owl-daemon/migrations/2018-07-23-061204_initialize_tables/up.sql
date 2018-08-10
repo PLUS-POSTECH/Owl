@@ -62,7 +62,19 @@ CREATE TABLE exploit_targets (
     CONSTRAINT exploit_targets_pk PRIMARY KEY (exploit_id, service_variant_id)
 );
 
-CREATE TYPE exploit_status AS ENUM ('pending', 'running', 'authing', 'ok', 'run_failed', 'auth_failed');
+CREATE TYPE exploit_status AS ENUM (
+    'pending',
+    'running',
+    'authenticating',
+    'success_flag',
+    'duplicate_flag',
+    'auth_error',
+    'auth_skipped',
+    'exploit_process_error',
+    'exploit_return_code_not_zero',
+    'auth_process_error',
+    'auth_return_code_not_zero'
+);
 
 CREATE TABLE exploit_tasks (
     id serial PRIMARY KEY,
@@ -70,6 +82,7 @@ CREATE TABLE exploit_tasks (
     service_provider_id serial REFERENCES service_providers ON DELETE RESTRICT,
     retries integer NOT NULL,
     status exploit_status NOT NULL,
+    message text NOT NULL,
     published_time timestamp with time zone NOT NULL DEFAULT NOW(),
     last_updated_time timestamp with time zone NOT NULL DEFAULT NOW()
 );
