@@ -58,6 +58,8 @@ pub struct Server {
 pub struct ExploitConfig {
     pub root_directory: String,
     pub auth_command: String,
+    pub default_retries: i32,
+    pub default_timeout: i32,
 }
 
 #[derive(Clone)]
