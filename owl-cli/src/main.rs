@@ -85,7 +85,8 @@ fn main_wrap() -> Result<String, Error> {
         ("service", Some(matches)) => service_match(matches, shared_param),
         ("exploit", Some(matches)) => exploit_match(matches, shared_param),
         _ => Err(error::Error::InvalidSubcommand),
-    };
+    }
+}
 
 fn main() {
     match main_wrap() {
