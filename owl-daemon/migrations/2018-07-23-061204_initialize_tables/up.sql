@@ -68,12 +68,13 @@ CREATE TYPE exploit_status AS ENUM (
     'authenticating',
     'success_flag',
     'duplicate_flag',
-    'auth_error',
+    'wrong_flag',
     'auth_skipped',
     'exploit_process_error',
     'exploit_return_code_not_zero',
     'auth_process_error',
-    'auth_return_code_not_zero'
+    'auth_return_code_not_zero',
+    'unknown_failure'
 );
 
 CREATE TABLE exploit_tasks (

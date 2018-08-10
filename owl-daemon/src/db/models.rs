@@ -177,12 +177,13 @@ pub enum ExploitStatus {
     Authenticating,
     SuccessFlag,
     DuplicateFlag,
-    AuthError,
+    WrongFlag,
     AuthSkipped,
     ExploitProcessError,
     ExploitReturnCodeNotZero,
     AuthProcessError,
     AuthReturnCodeNotZero,
+    UnknownFailure,
 }
 
 #[derive(Queryable, Identifiable, Associations)]
