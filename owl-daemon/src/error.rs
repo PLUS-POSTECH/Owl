@@ -1,6 +1,7 @@
 use std::io;
 
 use diesel;
+use exploit::ExploitError;
 use r2d2;
 use toml;
 
@@ -10,10 +11,12 @@ pub enum Error {
     R2D2(#[cause] r2d2::Error),
     #[fail(display = "diesel error: {}", _0)]
     Diesel(#[cause] diesel::result::Error),
-    #[fail(display = "IO error: {}", _0)]
+    #[fail(display = "I/O error: {}", _0)]
     Io(#[cause] io::Error),
     #[fail(display = "Toml deserialization error: {}", _0)]
     TomlDe(#[cause] toml::de::Error),
+    #[fail(display = "exploit error: {}", _0)]
+    ExploitError(ExploitError),
     #[fail(display = "Permission error, check your token")]
     PermissionError,
     #[fail(display = "Unknown error")]
@@ -47,7 +50,7 @@ impl From<toml::de::Error> for Error {
 }
 
 impl From<()> for Error {
-    fn from(_e: ()) -> Self {
+    fn from(_: ()) -> Self {
         Error::Unknown
     }
 }

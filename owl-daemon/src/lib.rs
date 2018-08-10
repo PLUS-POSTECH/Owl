@@ -5,19 +5,22 @@ extern crate diesel_derive_enum;
 #[macro_use]
 extern crate failure;
 #[macro_use]
+extern crate log;
+#[macro_use]
 extern crate serde_derive;
 
 extern crate chrono;
 extern crate digest;
 extern crate dotenv;
 extern crate futures;
-extern crate owl_exploit;
 extern crate owl_rpc;
 extern crate r2d2;
 extern crate r2d2_diesel;
 extern crate sha3;
+extern crate shell_escape;
 extern crate tarpc;
 extern crate tokio;
+extern crate tokio_process;
 extern crate toml;
 
 use self::db::DbPool;
@@ -33,6 +36,7 @@ use tokio::runtime::TaskExecutor;
 
 pub mod db;
 pub mod error;
+pub mod exploit;
 pub mod handler;
 
 #[derive(Clone, Deserialize)]
