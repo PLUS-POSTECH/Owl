@@ -1,0 +1,20 @@
+[client]
+connection = 'localhost:5959'
+token = 'GodKangSu'
+
+[server]
+connection = 'localhost:5959'
+db = 'postgres://owl:password@localhost/owl_dev'
+user_tokens = [
+    'CoolKangSu',
+    'KingKangSu',
+]
+admin_tokens = [
+    'GodKangSu',
+]
+
+[exploit_config]
+root_directory = "owl-exploit"
+auth_command = "python auth.py"
+default_retries = 4
+default_timeout = 60
