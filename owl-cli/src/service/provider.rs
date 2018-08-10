@@ -11,7 +11,7 @@ pub fn service_provider_command() -> App<'static, 'static> {
             SubCommand::with_name("list")
                 .about("list available service providers")
                 .args(&[
-                    Arg::from_usage("-a, --all 'shows disabled service also'"),
+                    Arg::from_usage("-a, --all 'shows disabled service too'"),
                     Arg::from_usage("-T, --filter-team... [team_name] 'filters providers by team'"),
                     Arg::from_usage("-V, --filter-service-variant... [service_variant_name] 'filters providers by service variant'"),
                 ]),

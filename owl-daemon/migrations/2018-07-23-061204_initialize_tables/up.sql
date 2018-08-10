@@ -38,11 +38,12 @@ CREATE TABLE service_providers (
 
 CREATE TABLE exploits (
     id serial PRIMARY KEY,
+    service_id serial REFERENCES services ON DELETE RESTRICT,
     name varchar NOT NULL UNIQUE,
     description text NOT NULL,
     enabled boolean NOT NULL,
-    max_retries integer NOT NULL,
-    timeout integer NOT NULL,
+    max_retries integer,
+    timeout integer,
     skip_auth boolean NOT NULL,
     last_modified_time timestamp with time zone NOT NULL DEFAULT NOW(),
     deleted boolean NOT NULL

@@ -31,8 +31,10 @@ service! {
     rpc list_service_provider(cli_token: String, params: ServiceProviderListParams) -> Vec<ServiceProviderData> | Message;
     rpc update_service_provider(cli_token: String, params: ServiceProviderUpdateParams) -> () | Message;
 
+    rpc download_exploit(cli_token: String, params: ExploitDownloadParams) -> ExploitAttachmentData | Message;
     rpc edit_exploit(cli_token: String, params: ExploitEditParams) -> () | Message;
     rpc list_exploit(cli_token: String, params: ExploitListParams) -> Vec<ExploitData> | Message;
-    rpc run_exploit(cli_token: String, params: ExploitRunParams) -> Option<ExploitTaskData> | Message;
-    rpc stat_exploit(cli_token: String, params: ExploitStatusParams) -> ExploitTaskData | Message;
+    rpc run_exploit(cli_token: String, params: ExploitRunParams) -> Option<Vec<ExploitTaskData>> | Message;
+    rpc run_all_exploit(cli_token: String) -> () | Message;
+    rpc status_exploit(cli_token: String, params: ExploitStatusParams) -> Vec<ExploitTaskData> | Message;
 }

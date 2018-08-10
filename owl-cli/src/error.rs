@@ -1,10 +1,13 @@
 use std::io;
+use std::num;
 use tarpc;
 use tarpc::util::Message;
 use toml;
 
 #[derive(Debug, Fail)]
 pub enum Error {
+    #[fail(display = "ParseInt error: {}", _0)]
+    ParseInt(#[cause] num::ParseIntError),
     #[fail(display = "io error: {}", _0)]
     Io(#[cause] io::Error),
     #[fail(display = "TOML deserialization error: {}", _0)]
@@ -17,6 +20,12 @@ pub enum Error {
     NotImplemented,
     #[fail(display = "invalid subcommand (assertion failure)")]
     InvalidSubcommand,
+}
+
+impl From<num::ParseIntError> for Error {
+    fn from(e: num::ParseIntError) -> Self {
+        Error::ParseInt(e)
+    }
 }
 
 impl From<io::Error> for Error {

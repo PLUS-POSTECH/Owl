@@ -45,7 +45,7 @@ pub fn service_variant_command() -> App<'static, 'static> {
             SubCommand::with_name("list")
                 .about("list available service providers")
                 .args(&[
-                    Arg::from_usage("-a, --all 'shows disabled service also'"),
+                    Arg::from_usage("-a, --all 'shows disabled service too'"),
                     Arg::from_usage("-T, --filter-team... [team_name] 'filters variants by team'"),
                 ]),
             SubCommand::with_name("download")
@@ -126,9 +126,8 @@ pub fn service_variant_match(
                     show_all: matches.is_present("all"),
                     filter_teams: matches
                         .values_of("filter-team")
-                        .unwrap()
-                        .map(ToString::to_string)
-                        .collect(),
+                        .map(|values| -> Vec<_> { values.map(ToString::to_string).collect() })
+                        .unwrap_or(Vec::new()),
                 },
             )?;
 

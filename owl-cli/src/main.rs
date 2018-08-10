@@ -15,16 +15,18 @@ extern crate toml;
 use std::fs::File;
 use std::io::prelude::*;
 
+use self::exploit::{exploit_command, exploit_match};
+use self::service::{service_command, service_match};
 use self::team::{team_command, team_match};
 use clap::{App, AppSettings, Arg};
 use dotenv::dotenv;
 use error::Error;
 use owl_rpc::SyncClient;
-use service::{service_command, service_match};
 use tarpc::sync::client::{self, ClientExt};
 use tarpc::util::FirstSocketAddr;
 
 mod error;
+mod exploit;
 mod service;
 mod team;
 
@@ -62,7 +64,7 @@ fn main_wrap() -> Result<String, Error> {
             Arg::from_usage("-c, --config [toml] 'custom config file location'")
                 .default_value("config.toml"),
         )
-        .subcommands(vec![team_command(), service_command()])
+        .subcommands(vec![team_command(), service_command(), exploit_command()])
         .get_matches();
 
     let config: Config =
@@ -81,7 +83,8 @@ fn main_wrap() -> Result<String, Error> {
     match matches.subcommand() {
         ("team", Some(matches)) => team_match(matches, shared_param),
         ("service", Some(matches)) => service_match(matches, shared_param),
-        _ => Err(Error::InvalidSubcommand),
+        ("exploit", Some(matches)) => exploit_match(matches, shared_param),
+        _ => Err(error::Error::InvalidSubcommand),
     }
 }
 

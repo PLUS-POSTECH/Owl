@@ -20,6 +20,12 @@ pub fn list_service_provider(
     let mut query = service_providers::table
         .inner_join(teams::table)
         .inner_join(service_variants::table.inner_join(services::table))
+        .order_by((
+            service_providers::team_id,
+            service_variants::service_id,
+            service_providers::published_time.desc(),
+        ))
+        .distinct_on((service_providers::team_id, service_variants::service_id))
         .into_boxed();
 
     if !filter_teams.is_empty() {
@@ -30,7 +36,7 @@ pub fn list_service_provider(
         query = query.filter(service_variants::name.eq_any(filter_service_variants));
     }
 
-    if show_all {
+    if !show_all {
         query = query.filter(services::enabled.eq(true));
     }
 
