@@ -311,6 +311,12 @@ impl FutureService for OwlDaemon {
         cli_token: String,
         params: ExploitStatusParams,
     ) -> Self::StatusExploitFut {
-        Err(Message("Not Implemented".to_string()))
+        run_handler_with_param(
+            Permission::User,
+            cli_token,
+            handler::exploit::status_exploit,
+            &self.resource,
+            params,
+        )
     }
 }
