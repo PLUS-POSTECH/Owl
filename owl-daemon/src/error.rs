@@ -47,7 +47,7 @@ impl From<toml::de::Error> for Error {
 }
 
 impl From<()> for Error {
-    fn from(e: ()) -> Self {
+    fn from(_e: ()) -> Self {
         Error::Unknown
     }
 }

@@ -265,20 +265,34 @@ impl FutureService for OwlDaemon {
         params: ExploitDownloadParams,
     ) -> Self::DownloadExploitFut {
         run_handler_with_param(
+            Permission::User,
+            cli_token,
             handler::exploit::download_exploit,
-            self.db_pool.clone(),
+            &self.resource,
             params,
         )
     }
 
     type EditExploitFut = Result<(), Message>;
     fn edit_exploit(&self, cli_token: String, params: ExploitEditParams) -> Self::EditExploitFut {
-        run_handler_with_param(handler::exploit::edit_exploit, self.db_pool.clone(), params)
+        run_handler_with_param(
+            Permission::User,
+            cli_token,
+            handler::exploit::edit_exploit,
+            &self.resource,
+            params,
+        )
     }
 
     type ListExploitFut = Result<Vec<ExploitData>, Message>;
     fn list_exploit(&self, cli_token: String, params: ExploitListParams) -> Self::ListExploitFut {
-        run_handler_with_param(handler::exploit::list_exploit, self.db_pool.clone(), params)
+        run_handler_with_param(
+            Permission::User,
+            cli_token,
+            handler::exploit::list_exploit,
+            &self.resource,
+            params,
+        )
     }
 
     type RunExploitFut = Result<Option<Vec<ExploitTaskData>>, Message>;
