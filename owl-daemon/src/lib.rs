@@ -294,6 +294,17 @@ impl FutureService for OwlDaemon {
         )
     }
 
+    type AddExploitFut = Result<String, Message>;
+    fn add_exploit(&self, cli_token: String, params: ExploitAddParams) -> Self::AddExploitFut {
+        run_handler_with_param(
+            Permission::User,
+            cli_token,
+            handler::exploit::add_exploit,
+            &self.resource,
+            params,
+        )
+    }
+
     type EditExploitFut = Result<(), Message>;
     fn edit_exploit(&self, cli_token: String, params: ExploitEditParams) -> Self::EditExploitFut {
         run_handler_with_param(
