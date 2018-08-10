@@ -11,7 +11,7 @@ pub enum Error {
     TomlDe(#[cause] toml::de::Error),
     #[fail(display = "tarpc deserialization error")]
     TarpcDeserialization,
-    #[fail(display = "{}", _0)]
+    #[fail(display = "(server) {}", _0)]
     RpcMessage(String),
     #[fail(display = "not implemented")]
     NotImplemented,
