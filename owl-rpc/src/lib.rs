@@ -25,6 +25,7 @@ service! {
     rpc list_service(cli_token: String, params: ServiceListParams) -> Vec<ServiceData> | Message;
 
     rpc download_service_variant(cli_token: String, params: ServiceVariantDownloadParams) -> ServiceVariantAttachmentData | Message;
+    rpc add_service_variant(cli_token: String, params: ServiceVariantAddParams) -> String | Message;
     rpc edit_service_variant(cli_token: String, params: ServiceVariantEditParams) -> () | Message;
     rpc list_service_variant(cli_token: String, params: ServiceVariantListParams) -> Vec<ServiceVariantData> | Message;
 

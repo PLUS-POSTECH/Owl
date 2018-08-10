@@ -77,16 +77,19 @@ pub fn service_variant_match(
                 })
                 .collect::<Result<Vec<_>, Error>>()?;
 
-            shared_param.client.edit_service_variant(
+            let service_variant_name = shared_param.client.add_service_variant(
                 shared_param.token,
-                ServiceVariantEditParams::Add {
+                ServiceVariantAddParams {
                     service_name: matches.value_of("service").unwrap().to_string(),
                     publisher_name: matches.value_of("publisher").unwrap().to_string(),
                     file_entries,
                 },
             )?;
 
-            Ok("Variant successfully added".to_string())
+            Ok(format!(
+                "Variant successfully added: {}",
+                service_variant_name
+            ))
         },
 
         ("delete", Some(matches)) => {

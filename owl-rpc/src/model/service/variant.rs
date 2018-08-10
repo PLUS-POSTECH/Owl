@@ -27,12 +27,14 @@ pub struct ServiceVariantAttachmentData {
 }
 
 #[derive(Serialize, Deserialize)]
+pub struct ServiceVariantAddParams {
+    pub service_name: String,
+    pub publisher_name: String,
+    pub file_entries: Vec<FileEntry>,
+}
+
+#[derive(Serialize, Deserialize)]
 pub enum ServiceVariantEditParams {
-    Add {
-        service_name: String,
-        publisher_name: String,
-        file_entries: Vec<FileEntry>,
-    },
     Delete {
         name: String,
     },
