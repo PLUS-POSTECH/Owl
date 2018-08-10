@@ -25,6 +25,7 @@ extern crate toml;
 
 use self::db::DbPool;
 use self::error::Error as DaemonError;
+use exploit::ExploitRunner;
 use owl_rpc::model::exploit::*;
 use owl_rpc::model::service::provider::*;
 use owl_rpc::model::service::variant::*;
@@ -42,6 +43,7 @@ pub mod handler;
 #[derive(Clone, Deserialize)]
 pub struct Config {
     pub server: Server,
+    pub exploit_config: ExploitConfig,
 }
 
 #[derive(Clone, Deserialize)]
@@ -52,11 +54,18 @@ pub struct Server {
     pub admin_tokens: Vec<String>,
 }
 
+#[derive(Clone, Deserialize)]
+pub struct ExploitConfig {
+    pub root_directory: String,
+    pub auth_command: String,
+}
+
 #[derive(Clone)]
 pub struct DaemonResource {
     pub db_pool: DbPool,
     pub task_executor: TaskExecutor,
     pub config: Config,
+    pub exploit_runner: ExploitRunner,
 }
 
 #[derive(Clone)]
@@ -66,11 +75,17 @@ pub struct OwlDaemon {
 
 impl OwlDaemon {
     pub fn new(db_pool: DbPool, task_executor: TaskExecutor, config: Config) -> OwlDaemon {
+        let exploit_runner = ExploitRunner::new(
+            config.exploit_config.root_directory.clone(),
+            config.exploit_config.auth_command.clone(),
+        );
+
         OwlDaemon {
             resource: DaemonResource {
                 db_pool,
                 task_executor,
                 config,
+                exploit_runner,
             },
         }
     }
@@ -87,14 +102,14 @@ fn check_permission(
     resource: &DaemonResource,
 ) -> Result<(), DaemonError> {
     match permission {
-        Permission::Admin => if resource.config.server.admin_tokens.contains(&cli_token)
-            || resource.config.server.user_tokens.contains(&cli_token)
-        {
+        Permission::Admin => if resource.config.server.admin_tokens.contains(&cli_token) {
             Ok(())
         } else {
             Err(DaemonError::PermissionError)
         },
-        Permission::User => if resource.config.server.user_tokens.contains(&cli_token) {
+        Permission::User => if resource.config.server.admin_tokens.contains(&cli_token)
+            || resource.config.server.user_tokens.contains(&cli_token)
+        {
             Ok(())
         } else {
             Err(DaemonError::PermissionError)
