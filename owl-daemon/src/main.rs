@@ -48,7 +48,7 @@ fn main_wrap() -> Result<(), Error> {
     let (_server_handle, server) = OwlDaemon::new(db_pool, task_executor, config).listen(
         connection_string.try_first_socket_addr()?,
         &reactor.handle(),
-        server::Options::default(),
+        server::Options::default().max_payload_size(32_000_000),
     )?;
 
     info!("Starting Owl Daemon...");

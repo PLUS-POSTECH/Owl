@@ -72,7 +72,7 @@ fn main_wrap() -> Result<String, Error> {
 
     let client = SyncClient::connect(
         config.client.connection.try_first_socket_addr()?,
-        client::Options::default(),
+        client::Options::default().max_payload_size(32_000_000),
     )?;
 
     let shared_param = SharedParam {
