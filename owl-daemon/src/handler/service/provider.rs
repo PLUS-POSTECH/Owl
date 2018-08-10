@@ -21,11 +21,11 @@ pub fn list_service_provider(
         .inner_join(teams::table)
         .inner_join(service_variants::table.inner_join(services::table))
         .order_by((
-            service_providers::team_id,
             service_variants::service_id,
+            service_providers::team_id,
             service_providers::published_time.desc(),
         ))
-        .distinct_on((service_providers::team_id, service_variants::service_id))
+        .distinct_on((service_variants::service_id, service_providers::team_id))
         .into_boxed();
 
     if !filter_teams.is_empty() {

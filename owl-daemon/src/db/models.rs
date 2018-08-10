@@ -198,3 +198,13 @@ pub struct ExploitTask {
     pub published_time: DateTime<Utc>,
     pub last_updated_time: DateTime<Utc>,
 }
+
+#[derive(Insertable)]
+#[table_name = "exploit_tasks"]
+pub struct ExploitTaskInsertable {
+    pub exploit_id: i32,
+    pub service_provider_id: i32,
+    pub retries: i32,
+    pub status: ExploitStatus,
+    pub message: String,
+}

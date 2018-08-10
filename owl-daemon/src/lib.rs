@@ -25,7 +25,7 @@ extern crate toml;
 
 use self::db::DbPool;
 use self::error::Error as DaemonError;
-use exploit::ExploitRunner;
+use exploit::ExploitManager;
 use owl_rpc::model::exploit::*;
 use owl_rpc::model::service::provider::*;
 use owl_rpc::model::service::variant::*;
@@ -65,7 +65,7 @@ pub struct DaemonResource {
     pub db_pool: DbPool,
     pub task_executor: TaskExecutor,
     pub config: Config,
-    pub exploit_runner: ExploitRunner,
+    pub exploit_manager: ExploitManager,
 }
 
 #[derive(Clone)]
@@ -75,7 +75,7 @@ pub struct OwlDaemon {
 
 impl OwlDaemon {
     pub fn new(db_pool: DbPool, task_executor: TaskExecutor, config: Config) -> OwlDaemon {
-        let exploit_runner = ExploitRunner::new(
+        let exploit_manager = ExploitManager::new(
             config.exploit_config.root_directory.clone(),
             config.exploit_config.auth_command.clone(),
         );
@@ -85,7 +85,7 @@ impl OwlDaemon {
                 db_pool,
                 task_executor,
                 config,
-                exploit_runner,
+                exploit_manager,
             },
         }
     }
