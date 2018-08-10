@@ -20,8 +20,11 @@ sha3 = "0.7.3"
 tarpc = "0.12.0"
 tokio = "0.1.7"
 tokio-core = "0.1.17"
+toml = "0.4"
 r2d2 = "0.8.2"
 r2d2-diesel = "1.0.0"
+serde = "1.0.70"
+serde_derive = "1.0.70"
 
 [lib]
 name = "owl_daemon"

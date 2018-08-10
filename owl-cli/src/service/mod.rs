@@ -29,13 +29,13 @@ pub fn service_command() -> App<'static, 'static> {
                 .about("disable service (admin)")
                 .args(&[Arg::from_usage("<name> 'service name'")]),
             SubCommand::with_name("update")
-                .about("update service (admin)")
+                .about("update service description (admin)")
                 .args(&[
                     Arg::from_usage("<name> 'service name'"),
                     Arg::from_usage("<description> 'service description'"),
                 ]),
             SubCommand::with_name("list")
-                .about("list services")
+                .about("list running services")
                 .args(&[Arg::from_usage("-a, --all 'include disabled services'")]),
             service_provider_command(),
             service_variant_command(),

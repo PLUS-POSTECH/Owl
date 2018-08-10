@@ -13,45 +13,45 @@ pub fn service_variant_command() -> App<'static, 'static> {
         .setting(AppSettings::SubcommandRequired)
         .subcommands(vec![
             SubCommand::with_name("add")
-                .about("Add new service variant (admin)")
+                .about("add new service variant (admin)")
                 .args(&[
-                    Arg::from_usage("<file>... 'Binary file representing service variant'"),
+                    Arg::from_usage("<file>... 'binary file(s) representing service variant'"),
                     Arg::from_usage(
-                        "-s, --service <service_name> 'Classification of the service variant'",
+                        "-s, --service <service_name> 'classification of the service variant'",
                     ),
                     Arg::from_usage(
-                        "-p, --publisher <team_name> 'Name of the team who published the variant'",
+                        "-p, --publisher <team_name> 'name of the team who published the variant'",
                     ),
                 ]),
             SubCommand::with_name("delete")
-                .about("Delete specified service variant (admin)")
+                .about("delete specified service variant (admin)")
                 .args(&[Arg::from_usage(
-                    "<name> 'Name of the service variant to delete'",
+                    "<name> 'name of the service variant to delete'",
                 )]),
             SubCommand::with_name("update")
-                .about("Update service variant (admin)")
+                .about("update service variant (admin)")
                 .args(&[
-                    Arg::from_usage("<name> 'Name of the service variant to update'"),
+                    Arg::from_usage("<name> 'name of the service variant to update'"),
                     Arg::from_usage(
-                        "-s, --service [service_name] 'Classification of the service variant'",
+                        "-s, --service [service_name] 'classification of the service variant'",
                     ),
                     Arg::from_usage(
-                        "-p, --publisher [team_name] 'Name of the team who published the variant'",
+                        "-p, --publisher [team_name] 'name of the team who published the variant'",
                     ),
                     Arg::from_usage(
-                        "-V, --sla-pass [sla_pass] 'Indicator if the variant passed SLA check'",
+                        "-V, --sla-pass [sla_pass] 'indicator whether the variant passed SLA check'",
                     ).possible_values(&["true", "false", "none"]),
                 ]),
             SubCommand::with_name("list")
-                .about("List available service providers")
+                .about("list available service providers")
                 .args(&[
-                    Arg::from_usage("-a, --all 'Shows disabled service also'"),
-                    Arg::from_usage("-T, --filter-team... [team_name] 'Filters variants by team'"),
+                    Arg::from_usage("-a, --all 'shows disabled service also'"),
+                    Arg::from_usage("-T, --filter-team... [team_name] 'filters variants by team'"),
                 ]),
             SubCommand::with_name("download")
-                .about("Download service variant")
+                .about("download service variant")
                 .args(&[Arg::from_usage(
-                    "<name> 'Name of the service variant to download'",
+                    "<name> 'name of the service variant to download'",
                 )]),
         ])
 }

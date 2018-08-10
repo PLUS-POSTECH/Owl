@@ -1,22 +1,21 @@
 use chrono::{DateTime, Utc};
 use db::models::*;
 use db::schema::*;
-use db::DbPool;
 use diesel;
 use diesel::prelude::*;
-use diesel::result::Error as DieselError;
 use diesel::PgConnection;
 use digest::Input;
 use error::Error;
 use owl_rpc::model::service::variant::*;
 use owl_rpc::model::FileEntry;
 use sha3::{Digest, Sha3_256};
+use DaemonResource;
 
 pub fn list_service_variant(
-    db_pool: DbPool,
+    resource: &DaemonResource,
     params: ServiceVariantListParams,
 ) -> Result<Vec<ServiceVariantData>, Error> {
-    let con: &PgConnection = &*db_pool.get()?;
+    let con: &PgConnection = &*resource.db_pool.get()?;
     let show_all = params.show_all;
     let filter_teams = params.filter_teams;
 
@@ -55,10 +54,10 @@ pub fn list_service_variant(
 }
 
 pub fn edit_service_variant(
-    db_pool: DbPool,
+    resource: &DaemonResource,
     params: ServiceVariantEditParams,
 ) -> Result<(), Error> {
-    let con: &PgConnection = &*db_pool.get()?;
+    let con: &PgConnection = &*resource.db_pool.get()?;
 
     match params {
         ServiceVariantEditParams::Add {
@@ -67,11 +66,11 @@ pub fn edit_service_variant(
             file_entries: param_file_entries,
         } => con.transaction::<(), Error, _>(|| {
             let service = services::table
-                .filter(services::name.eq(param_service_name))
+                .filter(services::name.eq(&param_service_name))
                 .first::<Service>(con)?;
 
             let publisher = teams::table
-                .filter(teams::name.eq(param_publisher_name))
+                .filter(teams::name.eq(&param_publisher_name))
                 .first::<Team>(con)?;
 
             let service_variant_hash = {
@@ -104,15 +103,13 @@ pub fn edit_service_variant(
             }
             Ok(())
         }),
-        ServiceVariantEditParams::Delete {
-            name: ref param_name,
-        } => {
+        ServiceVariantEditParams::Delete { name: param_name } => {
             let rows = diesel::delete(
-                service_variants::table.filter(service_variants::name.eq(param_name)),
+                service_variants::table.filter(service_variants::name.eq(&param_name)),
             ).execute(con)?;
 
             if rows == 0 {
-                Err(Error::Message(format!("Service {} not found", param_name)))
+                Err(Error::Message(format!("Service {} not found", &param_name)))
             } else {
                 Ok(())
             }
@@ -165,10 +162,10 @@ pub fn edit_service_variant(
 }
 
 pub fn download_service_variant(
-    db_pool: DbPool,
+    resource: &DaemonResource,
     params: ServiceVariantDownloadParams,
 ) -> Result<ServiceVariantAttachmentData, Error> {
-    let con: &PgConnection = &*db_pool.get()?;
+    let con: &PgConnection = &*resource.db_pool.get()?;
     let service_variant_name = params.name;
 
     let service_variant = service_variants::table
