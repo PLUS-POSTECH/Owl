@@ -28,7 +28,7 @@ pub fn list_service_variant(
         query = query.filter(teams::name.eq_any(filter_teams));
     }
 
-    if show_all {
+    if !show_all {
         query = query.filter(services::enabled.eq(true));
     }
 
@@ -73,14 +73,15 @@ pub fn edit_service_variant(
                 .filter(teams::name.eq(&param_publisher_name))
                 .first::<Team>(con)?;
 
-            let out = {
+            let service_variant_hash = {
                 let mut hasher = Sha3_256::default();
                 let first_file_content = &param_file_entries[0].data;
+
                 hasher.process(first_file_content);
                 hasher.result()
             };
 
-            let mut hash_print = format!("{:x}", out);
+            let mut hash_print = format!("{:x}", service_variant_hash);
             hash_print.truncate(8);
 
             let inserted_variant = diesel::insert_into(service_variants::table)
@@ -138,6 +139,8 @@ pub fn edit_service_variant(
                 ),
                 None => None,
             };
+
+            // TODO: Change service variant name on service change
 
             let rows = diesel::update(
                 service_variants::table.filter(service_variants::name.eq(&param_name)),
