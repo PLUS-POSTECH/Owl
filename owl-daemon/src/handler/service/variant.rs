@@ -75,9 +75,10 @@ pub fn edit_service_variant(
 
             let service_variant_hash = {
                 let mut hasher = Sha3_256::default();
-                let first_file_content = &param_file_entries[0].data;
 
-                hasher.process(first_file_content);
+                for file_entry in &param_file_entries {
+                    hasher.process(&file_entry.data);
+                }
                 hasher.result()
             };
 
