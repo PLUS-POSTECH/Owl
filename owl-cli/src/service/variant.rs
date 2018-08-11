@@ -74,7 +74,7 @@ pub fn service_variant_match(
                     let file_name = Path::new(param_file_name).file_name();
                     match file_name {
                         Some(file_name) => Ok(FileEntry {
-                            name: file_name.to_string(),
+                            name: file_name.to_string_lossy().to_string(),
                             data,
                         }),
                         None => Err(Error::FileNotFoundError(param_file_name.to_string())),
