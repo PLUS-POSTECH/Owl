@@ -119,7 +119,7 @@ pub fn service_match(matches: &ArgMatches, shared_param: SharedParam) -> Result<
             } else {
                 Ok(services
                     .into_iter()
-                    .map(|service| format!("- {:10} | {}", service.name, service.description))
+                    .map(|service| format!("- {:20} | {}", service.name, service.description))
                     .collect::<Vec<_>>()
                     .join("\n"))
             }

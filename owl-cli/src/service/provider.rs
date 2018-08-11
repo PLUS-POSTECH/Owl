@@ -63,7 +63,7 @@ pub fn service_provider_match(
                     .into_iter()
                     .map(|service_provider| {
                         format!(
-                            "- {:10} | {:10} | {}",
+                            "- {:20} | {} | {}",
                             service_provider.team_name,
                             service_provider.service_variant_name,
                             service_provider.connection_string
