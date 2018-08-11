@@ -72,7 +72,7 @@ pub fn team_match(matches: &ArgMatches, shared_param: SharedParam) -> Result<Str
             } else {
                 Ok(teams
                     .into_iter()
-                    .map(|team| format!("- {:10} | {}", team.name, team.description))
+                    .map(|team| format!("- {:20} | {}", team.name, team.description))
                     .collect::<Vec<_>>()
                     .join("\n"))
             }

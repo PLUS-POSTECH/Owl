@@ -146,7 +146,7 @@ pub fn service_variant_match(
                     .into_iter()
                     .map(|service_variant| {
                         format!(
-                            "- {:10} | {:10} | {:10} | {}",
+                            "- {} | {:20} | {:20} | {}",
                             service_variant.name,
                             service_variant.service_name,
                             service_variant.publisher_name,
