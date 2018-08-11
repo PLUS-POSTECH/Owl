@@ -87,3 +87,22 @@ CREATE TABLE exploit_tasks (
     published_time timestamp with time zone NOT NULL DEFAULT NOW(),
     last_updated_time timestamp with time zone NOT NULL DEFAULT NOW()
 );
+
+CREATE FUNCTION update_last_updated_time_at_column() RETURNS trigger AS $$
+BEGIN
+    NEW.last_updated_time = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION update_last_modified_time_at_column() RETURNS trigger AS $$
+BEGIN
+    NEW.last_modified_time = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER exploits_update_timestamp BEFORE UPDATE
+    ON exploits FOR EACH ROW EXECUTE PROCEDURE update_last_modified_time_at_column();
+CREATE TRIGGER exploit_tasks_update_timestamp BEFORE UPDATE
+    ON exploit_tasks FOR EACH ROW EXECUTE PROCEDURE update_last_updated_time_at_column();
