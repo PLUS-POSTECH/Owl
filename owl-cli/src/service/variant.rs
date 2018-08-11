@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::{Read, Write};
+use std::path::Path;
 
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 use error::Error;
@@ -65,15 +66,19 @@ pub fn service_variant_match(
             let file_entries = matches
                 .values_of("file")
                 .unwrap()
-                .map(|filename| {
-                    let mut file = File::open(filename)?;
+                .map(|param_file_name| {
+                    let mut file = File::open(param_file_name)?;
                     let mut data = Vec::new();
                     file.read_to_end(&mut data)?;
 
-                    Ok(FileEntry {
-                        name: filename.to_string(),
-                        data,
-                    })
+                    let file_name = Path::new(param_file_name).file_name();
+                    match file_name {
+                        Some(file_name) => Ok(FileEntry {
+                            name: file_name.to_string_lossy().to_string(),
+                            data,
+                        }),
+                        None => Err(Error::FileNotFoundError(param_file_name.to_string())),
+                    }
                 })
                 .collect::<Result<Vec<_>, Error>>()?;
 

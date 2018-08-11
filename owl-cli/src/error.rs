@@ -8,7 +8,7 @@ use toml;
 pub enum Error {
     #[fail(display = "ParseInt error: {}", _0)]
     ParseInt(#[cause] num::ParseIntError),
-    #[fail(display = "io error: {}", _0)]
+    #[fail(display = "I/O error: {}", _0)]
     Io(#[cause] io::Error),
     #[fail(display = "TOML deserialization error: {}", _0)]
     TomlDe(#[cause] toml::de::Error),
@@ -20,6 +20,8 @@ pub enum Error {
     NotImplemented,
     #[fail(display = "invalid subcommand (assertion failure)")]
     InvalidSubcommand,
+    #[fail(display = "file not found: {}", _0)]
+    FileNotFoundError(String),
 }
 
 impl From<num::ParseIntError> for Error {
