@@ -168,6 +168,7 @@ pub struct ExploitAttachmentInsertable {
 pub struct ExploitTarget {
     pub exploit_id: i32,
     pub service_variant_id: i32,
+    pub consecutive_failure: i32,
 }
 
 #[derive(DbEnum, Debug)]
