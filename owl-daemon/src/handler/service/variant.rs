@@ -88,14 +88,17 @@ pub fn add_service_variant(
             })
             .get_result::<ServiceVariant>(con)?;
 
+        info!(target: "db", "[ServiceVariant] Insert record: {}", &inserted_variant.name);
+
         for file_entry in params.file_entries {
             diesel::insert_into(service_variant_attachments::table)
                 .values(ServiceVariantAttachmentInsertable {
                     service_variant_id: inserted_variant.id,
-                    name: file_entry.name,
+                    name: file_entry.name.clone(),
                     data: file_entry.data,
                 })
                 .execute(con)?;
+            info!(target: "db", "[ServiceVariant] Insert record attachment: {} in {}", &file_entry.name, &inserted_variant.name);
         }
         Ok(inserted_variant.name)
     })
@@ -116,6 +119,7 @@ pub fn edit_service_variant(
             if rows == 0 {
                 Err(Error::Message(format!("Service {} not found", &param_name)))
             } else {
+                info!(target: "db", "[ServiceVariant] Delete record: {}", &param_name);
                 Ok(())
             }
         },
@@ -160,6 +164,7 @@ pub fn edit_service_variant(
             if rows == 0 {
                 Err(Error::Message(format!("Service {} not found", param_name)))
             } else {
+                info!(target: "db", "[ServiceVariant] Update record: {}", &param_name);
                 Ok(())
             }
         },

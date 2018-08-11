@@ -26,6 +26,7 @@ pub fn edit_service(resource: &DaemonResource, params: ServiceEditParams) -> Res
                     enabled.eq(true),
                 ))
                 .execute(con)?;
+            info!(target: "db", "[Service] Insert record: {}", &param_name);
 
             Ok(())
         },
@@ -33,8 +34,9 @@ pub fn edit_service(resource: &DaemonResource, params: ServiceEditParams) -> Res
             let rows = diesel::delete(services.filter(name.eq(&param_name))).execute(con)?;
 
             if rows == 0 {
-                Err(Error::Message(format!("Service {} not found", &param_name)))
+                Err(Error::Message(format!("Service {} not found", param_name)))
             } else {
+                info!(target: "db", "[Service] Delete record: {}", &param_name);
                 Ok(())
             }
         },
@@ -54,6 +56,7 @@ pub fn edit_service(resource: &DaemonResource, params: ServiceEditParams) -> Res
             if rows == 0 {
                 Err(Error::Message(format!("Service {} not found", param_name)))
             } else {
+                info!(target: "db", "[Service] Update record: {}", &param_name);
                 Ok(())
             }
         },

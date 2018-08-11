@@ -72,11 +72,11 @@ pub fn update_service_provider(
 
     con.transaction::<(), Error, _>(|| {
         let service_variant = service_variants::table
-            .filter(service_variants::name.eq(service_variant_name))
+            .filter(service_variants::name.eq(&service_variant_name))
             .first::<ServiceVariant>(con)?;
 
         let team = teams::table
-            .filter(teams::name.eq(team_name))
+            .filter(teams::name.eq(&team_name))
             .first::<Team>(con)?;
 
         let result = service_providers::table
@@ -95,6 +95,8 @@ pub fn update_service_provider(
                         connection_string: Some(connection_string),
                     })
                     .execute(con)?;
+
+                info!(target: "db", "[ServiceProvider] Insert record: {}, {}", service_variant_name, team_name);
                 return Ok(());
             }
         }
@@ -106,6 +108,7 @@ pub fn update_service_provider(
                 connection_string,
             })
             .execute(con)?;
+        info!(target: "db", "[ServiceProvider] Update record: {}, {}", service_variant_name, team_name);
 
         Ok(())
     })
