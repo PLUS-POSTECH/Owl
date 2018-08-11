@@ -53,6 +53,7 @@ fn main_wrap() -> Result<(), Error> {
 
     info!("Starting Owl Daemon...");
     reactor.run(server)?;
+    info!("Shutting down...");
 
     Ok(())
 }

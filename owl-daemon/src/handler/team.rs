@@ -20,6 +20,7 @@ pub fn edit_team(resource: &DaemonResource, params: TeamEditParams) -> Result<()
                 .values((name.eq(&param_name), description.eq(&param_description)))
                 .execute(con)?;
 
+            info!("[Team] Insert record: {}", &param_name);
             Ok(())
         },
         TeamEditParams::Delete { name: param_name } => {
@@ -28,6 +29,7 @@ pub fn edit_team(resource: &DaemonResource, params: TeamEditParams) -> Result<()
             if rows == 0 {
                 Err(Error::Message(format!("Team {} not found", &param_name)))
             } else {
+                info!("[Team] Delete record: {}", &param_name);
                 Ok(())
             }
         },
@@ -45,6 +47,7 @@ pub fn edit_team(resource: &DaemonResource, params: TeamEditParams) -> Result<()
             if rows == 0 {
                 Err(Error::Message(format!("Team {} not found", &param_name)))
             } else {
+                info!("[Team] Update record: {}", &param_name);
                 Ok(())
             }
         },

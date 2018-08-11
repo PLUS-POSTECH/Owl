@@ -93,6 +93,7 @@ impl OwlDaemon {
     }
 }
 
+#[derive(Debug)]
 enum Permission {
     Admin,
     User,
@@ -107,6 +108,7 @@ fn check_permission(
         Permission::Admin => if resource.config.server.admin_tokens.contains(&cli_token) {
             Ok(())
         } else {
+            warn!("Authentication Failed: required admin privileges");
             Err(DaemonError::PermissionError)
         },
         Permission::User => if resource.config.server.admin_tokens.contains(&cli_token)
@@ -114,6 +116,7 @@ fn check_permission(
         {
             Ok(())
         } else {
+            warn!("Authentication Failed: required user privileges");
             Err(DaemonError::PermissionError)
         },
     }
