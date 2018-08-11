@@ -15,7 +15,7 @@ pub enum Error {
     Io(#[cause] io::Error),
     #[fail(display = "Toml deserialization error: {}", _0)]
     TomlDe(#[cause] toml::de::Error),
-    #[fail(display = "exploit error: {}", _0)]
+    #[fail(display = "Exploit error: {}", _0)]
     ExploitError(ExploitError),
     #[fail(display = "Permission error, check your token")]
     PermissionError,
