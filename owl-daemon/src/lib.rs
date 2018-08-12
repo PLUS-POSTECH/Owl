@@ -61,6 +61,7 @@ pub struct ExploitConfig {
     pub default_retries: i32,
     pub default_timeout: i32,
     pub failure_threshold: i32,
+    pub max_running_exploit_task: i32,
 }
 
 #[derive(Clone)]
