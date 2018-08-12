@@ -171,6 +171,14 @@ pub struct ExploitTarget {
     pub consecutive_failure: i32,
 }
 
+#[derive(Insertable)]
+#[table_name = "exploit_targets"]
+pub struct ExploitTargetInsertable {
+    pub exploit_id: i32,
+    pub service_variant_id: i32,
+    pub consecutive_failure: i32,
+}
+
 #[derive(DbEnum, Debug)]
 pub enum ExploitStatus {
     Pending,
