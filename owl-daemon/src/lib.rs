@@ -335,6 +335,21 @@ impl FutureService for OwlDaemon {
         )
     }
 
+    type FailureExploitFut = Result<(), Message>;
+    fn failure_exploit(
+        &self,
+        cli_token: String,
+        params: ExploitFailureParams,
+    ) -> Self::FailureExploitFut {
+        run_handler_with_param(
+            Permission::Admin,
+            cli_token,
+            handler::exploit::failure_exploit,
+            &self.resource,
+            params,
+        )
+    }
+
     type ListExploitFut = Result<Vec<ExploitData>, Message>;
     fn list_exploit(&self, cli_token: String, params: ExploitListParams) -> Self::ListExploitFut {
         run_handler_with_param(

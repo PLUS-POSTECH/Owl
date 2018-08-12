@@ -179,6 +179,12 @@ pub struct ExploitTargetInsertable {
     pub consecutive_failure: i32,
 }
 
+#[derive(AsChangeset)]
+#[table_name = "exploit_targets"]
+pub struct ExploitTargetChangeset {
+    pub consecutive_failure: Option<i32>,
+}
+
 #[derive(DbEnum, Debug)]
 pub enum ExploitStatus {
     Pending,
