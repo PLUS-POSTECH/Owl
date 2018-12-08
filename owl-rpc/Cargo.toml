@@ -1,0 +1,11 @@
+[package]
+name = "owl-rpc"
+version = "0.1.0"
+authors = ["Kangsu Kim <pica744@gmail.com>", "Yechan Bae <qwazpia@gmail.com>"]
+
+[dependencies]
+chrono = { version = "0.4.5", features = ["serde"] }
+tarpc = { git = "https://github.com/PLUS-POSTECH/tarpc.git" }
+tarpc-plugins = "0.4.0"
+serde = "1.0.71"
+serde_derive = "1.0.71"

@@ -1,0 +1,10 @@
+owl-cli team add PLUS "good team!"
+owl-cli team add MINUS "bad team..."
+owl-cli service add 123 "can you guess 123?"
+owl-cli service variant add 123-0 -p PLUS -s 123
+owl-cli service variant add 123-1 -p PLUS -s 123
+
+owl-cli service provider update -S 123 -V 123-7fc65e8a -T PLUS
+owl-cli service provider update -S 123 -V 123-bc4bb29c -T MINUS
+
+owl-cli exploit submit run.bat exploit.py --target 123 -d "hopefully this works"

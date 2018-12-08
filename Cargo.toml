@@ -1,5 +1,7 @@
 [workspace]
 
 members = [
-    "owl",
+    "owl-cli",
+    "owl-daemon",
+    "owl-rpc",
 ]
