@@ -7,10 +7,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Update dependencies
-          command: |
-            cargo install-update -a
-      - run:
           name: Setup database
           command: |
             dockerize -wait tcp://localhost:5432 -timeout 1m
@@ -32,10 +28,6 @@ jobs:
       - restore_cache:
           keys:
             - deps-{{ .Branch }}
-      - run:
-          name: Update dependencies
-          command: |
-            cargo install-update -a
       - save_cache:
           key: deps-{{ .Branch }}-{{ epoch }}
           paths:
