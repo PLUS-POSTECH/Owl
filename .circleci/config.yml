@@ -11,7 +11,7 @@ jobs:
           command: |
             dockerize -wait tcp://localhost:5432 -timeout 1m
             cd owl-daemon
-            echo "DATABASE_URL=postgres://root:circle_test@localhost/owl_daemon" > .env
+            echo "DATABASE_URL=postgres://postgres@localhost/owl_daemon" > .env
             diesel database setup
       - run:
           name: Build
@@ -37,7 +37,7 @@ jobs:
           command: |
             dockerize -wait tcp://localhost:5432 -timeout 1m
             cd owl-daemon
-            echo "DATABASE_URL=postgres://root:circle_test@localhost/owl_daemon" > .env
+            echo "DATABASE_URL=postgres://postgres@localhost/owl_daemon" > .env
             diesel database setup
       - restore_cache:
           keys:
