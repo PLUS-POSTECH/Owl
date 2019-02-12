@@ -59,10 +59,9 @@ fn main_wrap() -> Result<(), Error> {
         server::Options::default().max_payload_size(32_000_000),
     )?;
 
-    info!("Starting Owl Daemon...");
+    info!("Starting Owl daemon...");
     reactor.run(server)?;
-    info!("RPC shut down...");
-    info!("Waiting exploits...");
+    info!("RPC server has shut down. Waiting for running exploits...");
     runtime.shutdown_on_idle().wait()?;
     info!("Shutting down...");
 
