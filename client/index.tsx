@@ -25,12 +25,12 @@ const App = () => {
   if (isLoading) {
     return <p>Loading...</p>;
   } else {
-    return <div>
+    return <>
       <h1>User List</h1>
       <ul>{
         userList.map((user) => <li key={user.id}>{user.name} ({user.id})</li>)
       }</ul>
-    </div>;
+    </>;
   }
 };
 
