@@ -1,36 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Container,
-  Header,
-  List,
-  Loader,
   Menu,
   Icon,
 } from "semantic-ui-react"
 import ReactDOM from "react-dom";
-import { prisma, Team } from "./generated/prisma-client"
+
+import Team from "./team"
+import User from "./user"
+
+const panes = [
+  { name: 'Teams', render: () => <Team /> },
+  { name: 'Users', render: () => <User /> },
+];
 
 const App = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [teamList, setTeamList] = useState<Team[]>([]);
+  const [active, setActive] = useState(panes[0].name);
 
-  useEffect(() => {
-    let canceled = false;
+  const menu = panes.map((pane) => (
+    <Menu.Item key={pane.name} as="a" active={pane.name == active} onClick={() => setActive(pane.name)}>
+      {pane.name}
+    </Menu.Item>));
 
-    const fetchData = async () => {
-      const teams = await prisma.teams({
-        orderBy: "score_DESC"
-      });
-      if (!canceled) {
-        setIsLoading(false);
-        setTeamList(teams);
-      }
-    };
-
-    fetchData();
-
-    return () => { canceled = true; };
-  }, []);
+  const content = panes.filter((pane) => pane.name == active)
+    .map((pane) => pane.render())[0];
 
   return <div>
     <Menu fixed="top" inverted>
@@ -43,18 +36,12 @@ const App = () => {
           </Icon.Group>
           Owl
         </Menu.Item>
-        <Menu.Item active as="a">Teams</Menu.Item>
+        {menu}
       </Container>
     </Menu>
 
     <Container text style={{ paddingTop: "7em" }}>
-      {isLoading ? <Loader active inline="centered" />
-      : <>
-        <Header as="h1">Team List ({teamList.length} teams)</Header>
-        <List divided relaxed size="large">
-          {teamList.map((team) => <List.Item key={team.id}>{team.name} ({team.score})</List.Item>)}
-        </List>
-      </>}
+      {content}
     </Container>
   </div>;
 };
