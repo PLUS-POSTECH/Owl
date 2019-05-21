@@ -1,0 +1,29 @@
+# This compose file is ONLY FOR DEVELOPMENT
+# Production example coming soon
+version: '3'
+services:
+  prisma:
+    image: prismagraphql/prisma:1.33
+    restart: always
+    ports:
+      - '4466:4466'
+    environment:
+      PRISMA_CONFIG: |
+        port: 4466
+        databases:
+          default:
+            connector: postgres
+            host: postgres
+            port: 5432
+            user: owl
+            password: Owl is a very cute animal
+  postgres:
+    image: postgres:10.3
+    restart: always
+    environment:
+      POSTGRES_USER: owl
+      POSTGRES_PASSWORD: Owl is a very cute animal
+    volumes:
+      - postgres:/var/lib/postgresql/data
+volumes:
+  postgres: ~

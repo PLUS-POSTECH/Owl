@@ -2,6 +2,10 @@
 
 Management tool for Attack and Defense CTFs
 
+## Development Guide
+
+Check [DEV.md](DEV.md)
+
 ## License
 
 Licensed under either of

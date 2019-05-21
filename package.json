@@ -1,0 +1,16 @@
+{
+  "name": "owl",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:PLUS-POSTECH/Owl.git",
+  "author": "Yechan Bae <qwazpia@gmail.com>",
+  "license": "(Apache-2.0 OR MIT)",
+  "scripts": {
+    "build": "prisma deploy",
+    "watch": "parcel client/index.html"
+  },
+  "dependencies": {
+    "prisma-client-lib": "^1.33.0",
+    "typescript": "^3.4.5"
+  }
+}
