@@ -6,10 +6,10 @@
   "author": "Yechan Bae <qwazpia@gmail.com>",
   "license": "(Apache-2.0 OR MIT)",
   "scripts": {
-    "build": "prisma deploy",
-    "watch": "parcel client/index.html"
+    "watch": "parcel --no-source-maps client/index.html"
   },
   "dependencies": {
+    "graphql": "^14.3.0",
     "prisma-client-lib": "^1.33.0",
     "typescript": "^3.4.5"
   }

@@ -51,8 +51,8 @@ Now Prisma admin server runs at [http://localhost:4466/_admin](http://localhost:
 ### Update
 
 ```bash
-# Build client code (run this after changing owl.prisma file)
-yarn build
+# Update Prisma schema (run this after changing owl.prisma file)
+prisma deploy
 
 # Start watch server
 yarn watch
@@ -84,8 +84,8 @@ docker-compose up -d
 # Override Prisma setup with production setting
 cp prisma.production.yml prisma.yml
 
-# Build client code
-yarn build
+# Update Prisma schema
+prisma deploy
 
 # Now how should we run the client code? Docker?
 echo "WIP"
