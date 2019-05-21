@@ -3,6 +3,3 @@ datamodel: owl.prisma
 generate:
   - generator: typescript-client
     output: ./client/generated/prisma-client/
-hooks:
-  post-deploy:
-    - prisma generate

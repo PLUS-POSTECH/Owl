@@ -2,3 +2,9 @@ type User {
   id: ID! @id
   name: String!
 }
+
+type Team {
+  id: ID! @id
+  name: String! @unique
+  score: Int!
+}
