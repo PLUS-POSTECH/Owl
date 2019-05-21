@@ -9,8 +9,12 @@
     "watch": "parcel --no-source-maps client/index.html"
   },
   "dependencies": {
+    "@types/react": "^16.8.18",
+    "@types/react-dom": "^16.8.4",
     "graphql": "^14.3.0",
     "prisma-client-lib": "^1.33.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
     "typescript": "^3.4.5"
   }
 }
