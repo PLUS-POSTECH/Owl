@@ -11,10 +11,12 @@
   "dependencies": {
     "@types/react": "^16.8.18",
     "@types/react-dom": "^16.8.4",
+    "@types/react-router-dom": "^4.3.3",
     "graphql": "^14.3.0",
     "prisma-client-lib": "^1.33.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-router-dom": "^5.0.0",
     "semantic-ui-react": "^0.87.1",
     "typescript": "^3.4.5"
   }
