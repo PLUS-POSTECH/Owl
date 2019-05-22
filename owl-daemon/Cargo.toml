@@ -20,6 +20,7 @@ shell-escape = "0.1.4"
 tarpc = { git = "https://github.com/PLUS-POSTECH/tarpc.git" }
 tokio = "0.1.7"
 tokio-core = "0.1.17"
+tokio-threadpool = "0.1.5"
 toml = "0.4"
 r2d2 = "0.8.2"
 r2d2-diesel = "1.0.0"

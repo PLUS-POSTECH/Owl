@@ -18,3 +18,5 @@ root_directory = "owl-exploit"
 auth_command = "python auth.py"
 default_retries = 4
 default_timeout = 60
+failure_threshold = 9
+max_running_exploit_task = 8

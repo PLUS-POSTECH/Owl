@@ -26,6 +26,7 @@ table! {
     exploit_targets (exploit_id, service_variant_id) {
         exploit_id -> Int4,
         service_variant_id -> Int4,
+        consecutive_failure -> Int4,
     }
 }
 

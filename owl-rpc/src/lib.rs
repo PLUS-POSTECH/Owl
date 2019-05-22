@@ -35,6 +35,7 @@ service! {
     rpc download_exploit(cli_token: String, params: ExploitDownloadParams) -> ExploitAttachmentData | Message;
     rpc add_exploit(cli_token: String, params: ExploitAddParams) -> String | Message;
     rpc edit_exploit(cli_token: String, params: ExploitEditParams) -> () | Message;
+    rpc failure_exploit(cli_token: String, params: ExploitFailureParams) -> () | Message;
     rpc list_exploit(cli_token: String, params: ExploitListParams) -> Vec<ExploitData> | Message;
     rpc run_exploit(cli_token: String, params: ExploitRunParams) -> Option<Vec<ExploitTaskData>> | Message;
     rpc run_all_exploit(cli_token: String) -> () | Message;

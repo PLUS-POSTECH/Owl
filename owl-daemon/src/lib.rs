@@ -60,6 +60,8 @@ pub struct ExploitConfig {
     pub auth_command: String,
     pub default_retries: i32,
     pub default_timeout: i32,
+    pub failure_threshold: i32,
+    pub max_running_exploit_task: i32,
 }
 
 #[derive(Clone)]
@@ -328,6 +330,21 @@ impl FutureService for OwlDaemon {
             Permission::User,
             cli_token,
             handler::exploit::edit_exploit,
+            &self.resource,
+            params,
+        )
+    }
+
+    type FailureExploitFut = Result<(), Message>;
+    fn failure_exploit(
+        &self,
+        cli_token: String,
+        params: ExploitFailureParams,
+    ) -> Self::FailureExploitFut {
+        run_handler_with_param(
+            Permission::Admin,
+            cli_token,
+            handler::exploit::failure_exploit,
             &self.resource,
             params,
         )
