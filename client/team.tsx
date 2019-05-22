@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
-import {
-  Header,
-  List,
-  Loader,
-} from "semantic-ui-react"
-import { prisma, Team } from "./generated/prisma-client"
+import { Header, List } from "semantic-ui-react";
+import { prisma, Team } from "./generated/prisma-client";
 
-const Team = () => {
+import Loader from "./loader";
+
+const Team: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [teamList, setTeamList] = useState<Team[]>([]);
 
@@ -25,19 +23,23 @@ const Team = () => {
 
     fetchData();
 
-    return () => { canceled = true; };
+    return () => {
+      canceled = true;
+    };
   }, []);
 
-  if (isLoading) {
-    return <Loader active inline="centered" />;
-  } else {
-    return <>
+  return (
+    <Loader isLoading={isLoading}>
       <Header as="h1">Team List ({teamList.length} teams)</Header>
       <List divided relaxed size="large">
-        {teamList.map((team) => <List.Item key={team.id}>{team.name} ({team.score})</List.Item>)}
+        {teamList.map(team => (
+          <List.Item key={team.id}>
+            {team.name} ({team.score})
+          </List.Item>
+        ))}
       </List>
-    </>;
-  }
+    </Loader>
+  );
 };
 
 export = Team;
