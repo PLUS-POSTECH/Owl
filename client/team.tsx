@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Header, List } from "semantic-ui-react";
-import { prisma, Team } from "./generated/prisma-client";
+import { prisma, Team as TeamObj } from "./generated/prisma-client";
 
 import Loader from "./loader";
 
-const Team: React.FC = () => {
+export const Team: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [teamList, setTeamList] = useState<Team[]>([]);
+  const [teamList, setTeamList] = useState<TeamObj[]>([]);
 
   useEffect(() => {
     let canceled = false;
@@ -41,5 +41,3 @@ const Team: React.FC = () => {
     </Loader>
   );
 };
-
-export = Team;

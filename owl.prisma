@@ -7,4 +7,22 @@ type Team {
   id: ID! @id
   name: String! @unique
   score: Int!
+  endpoints: [Endpoint!]!
+}
+
+type Service {
+  id: ID! @id
+  createdAt: DateTime! @createdAt
+  name: String! @unique
+  description: String! @default(value: "")
+  enabled: Boolean! @default(value: true)
+  endpoints: [Endpoint!]!
+}
+
+type Endpoint {
+  id: ID! @id
+  team: Team!
+  service: Service!
+  createdAt: DateTime! @createdAt
+  connectionString: String!
 }

@@ -1,21 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { Header, List } from "semantic-ui-react";
-import { prisma, User as UserObj } from "./generated/prisma-client";
+import { prisma, Service as ServiceObj } from "./generated/prisma-client";
 
 import Loader from "./loader";
 
-export const User: React.FC = () => {
+export const Service: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [userList, setUserList] = useState<UserObj[]>([]);
+  const [serviceList, setServiceList] = useState<ServiceObj[]>([]);
 
   useEffect(() => {
     let canceled = false;
 
     const fetchData = async () => {
-      const users = await prisma.users();
+      const services = await prisma.services({
+        orderBy: "createdAt_DESC"
+      });
       if (!canceled) {
         setIsLoading(false);
-        setUserList(users);
+        setServiceList(services);
       }
     };
 
@@ -28,12 +30,10 @@ export const User: React.FC = () => {
 
   return (
     <Loader isLoading={isLoading}>
-      <Header as="h1">User List ({userList.length} users)</Header>
+      <Header as="h1">Service List ({serviceList.length} services)</Header>
       <List divided relaxed size="large">
-        {userList.map(user => (
-          <List.Item key={user.id}>
-            {user.name} ({user.id})
-          </List.Item>
+        {serviceList.map(service => (
+          <List.Item key={service.id}>{service.name}</List.Item>
         ))}
       </List>
     </Loader>

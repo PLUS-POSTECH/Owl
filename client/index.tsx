@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { Container, Menu, Icon } from "semantic-ui-react";
+import React from "react";
 import ReactDOM from "react-dom";
 import {
   BrowserRouter as Router,
@@ -8,14 +7,30 @@ import {
   Redirect,
   withRouter
 } from "react-router-dom";
+import { Container, Menu, Icon } from "semantic-ui-react";
 
-import Team from "./team";
-import User from "./user";
+import { Team } from "./team";
+import { User } from "./user";
+import { Service } from "./service";
 
 const panes = [
   { text: "Teams", url: "/teams", component: Team },
+  { text: "Services", url: "/services", component: Service },
   { text: "Users", url: "/users", component: User }
 ];
+
+const LogoIcon = () => (
+  <Icon.Group size="big" style={{ marginRight: "0.5em", textAlign: "center" }}>
+    <Icon color="yellow" size="large" name="circle" />
+    <Icon
+      color="black"
+      size="large"
+      name="circle"
+      style={{ marginLeft: "0.1em" }}
+    />
+    <Icon circular name="user secret" style={{ marginLeft: "0.2em" }} />
+  </Icon.Group>
+);
 
 const App = () => {
   const menu = panes.map(pane => {
@@ -42,23 +57,7 @@ const App = () => {
         <Menu fixed="top" inverted>
           <Container>
             <Menu.Item header>
-              <Icon.Group
-                size="big"
-                style={{ marginRight: "0.5em", textAlign: "center" }}
-              >
-                <Icon color="yellow" size="large" name="circle" />
-                <Icon
-                  color="black"
-                  size="large"
-                  name="circle"
-                  style={{ marginLeft: "0.1em" }}
-                />
-                <Icon
-                  circular
-                  name="user secret"
-                  style={{ marginLeft: "0.2em" }}
-                />
-              </Icon.Group>
+              <LogoIcon />
               Owl
             </Menu.Item>
             {menu}
