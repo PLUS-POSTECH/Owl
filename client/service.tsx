@@ -84,7 +84,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ match }) => {
             <Header as="h1">{service.name}</Header>
             <p>{service.description}</p>
           </Segment>
-          <Table basic="very" celled>
+          <Table celled>
             <Table.Header>
               <Table.Row>
                 <Table.HeaderCell>Team</Table.HeaderCell>
