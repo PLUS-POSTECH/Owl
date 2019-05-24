@@ -38,10 +38,10 @@ const ServiceList: React.FC<RouteChildrenProps> = ({ match }) => {
 };
 
 interface EndpointWithTeam {
-  id: String;
-  connectionString: String;
+  id: string;
+  connectionString: string;
   team: {
-    name: String;
+    name: string;
   };
 }
 
