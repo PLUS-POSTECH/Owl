@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Header, List } from "semantic-ui-react";
+import { Header, Menu } from "semantic-ui-react";
 import { prisma, Team as TeamObj } from "./generated/prisma-client";
 
-import Loader from "./loader";
+import { Loader } from "./common";
 
 export const Team: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -31,13 +31,13 @@ export const Team: React.FC = () => {
   return (
     <Loader isLoading={isLoading}>
       <Header as="h1">Team List ({teamList.length} teams)</Header>
-      <List divided relaxed size="large">
+      <Menu size="large" fluid vertical>
         {teamList.map(team => (
-          <List.Item key={team.id}>
+          <Menu.Item key={team.id}>
             {team.name} ({team.score})
-          </List.Item>
+          </Menu.Item>
         ))}
-      </List>
+      </Menu>
     </Loader>
   );
 };

@@ -5,13 +5,15 @@ import {
   Route,
   Link,
   Redirect,
-  withRouter
+  withRouter,
+  Switch
 } from "react-router-dom";
 import { Container, Menu, Icon } from "semantic-ui-react";
 
 import { Team } from "./team";
 import { User } from "./user";
 import { Service } from "./service";
+import { AccessFailure } from "./common";
 
 const panes = [
   { text: "Teams", url: "/teams", component: Team },
@@ -65,12 +67,15 @@ const App = () => {
         </Menu>
 
         <Container text style={{ paddingTop: "7em" }}>
-          <Route
-            path="/"
-            exact
-            component={() => <Redirect to={panes[0].url} />}
-          />
-          {content}
+          <Switch>
+            <Route
+              path="/"
+              exact
+              component={() => <Redirect to={panes[0].url} />}
+            />
+            {content}
+            <Route component={AccessFailure} />
+          </Switch>
         </Container>
       </div>
     </Router>
