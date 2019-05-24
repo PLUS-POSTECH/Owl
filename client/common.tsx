@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Loader as SemanticLoader,
   Segment,
@@ -6,26 +6,24 @@ import {
   Icon
 } from "semantic-ui-react";
 
-interface LoaderProps {
-  isLoading: boolean;
-  isError?: boolean;
-  render?: () => React.ReactNode;
+interface LoaderProps<T> {
+  status: AsyncStatus<T>;
+  render?: (arg0: T) => React.ReactElement | null;
 }
 
-export const Loader: React.FC<LoaderProps> = props => {
-  if (props.isLoading) {
+export function Loader<T>(props: LoaderProps<T>): React.ReactElement | null {
+  if (props.status.pending) {
     return <SemanticLoader active inline="centered" />;
-  } else if (!!props.isError) {
+  } else if (props.status.error) {
     return <AccessFailure />;
   } else {
-    return (
-      <>
-        {props.render !== undefined && props.render()}
-        {props.children}
-      </>
-    );
+    if (props.render !== undefined) {
+      return props.render(props.status.result);
+    } else {
+      return null;
+    }
   }
-};
+}
 
 export const AccessFailure: React.FC = () => {
   return (
@@ -38,3 +36,76 @@ export const AccessFailure: React.FC = () => {
     </Segment>
   );
 };
+
+type AsyncStatus<T> =
+  | {
+      pending: true;
+    }
+  | {
+      pending: false;
+      error: true;
+    }
+  | {
+      pending: false;
+      error: false;
+      result: T;
+    };
+
+export function useAwait<T>(async: () => T | PromiseLike<T>): AsyncStatus<T>;
+
+export function useAwait<T>(
+  async: (() => T | PromiseLike<T>)[]
+): AsyncStatus<T[]>;
+
+export function useAwait<T1, T2>(
+  async: [() => T1 | PromiseLike<T1>, () => T2 | PromiseLike<T2>]
+): AsyncStatus<[T1, T2]>;
+
+export function useAwait<T1, T2, T3>(
+  async: [
+    () => T1 | PromiseLike<T1>,
+    () => T2 | PromiseLike<T2>,
+    () => T3 | PromiseLike<T3>
+  ]
+): AsyncStatus<[T1, T2, T3]>;
+
+export function useAwait(async: any): AsyncStatus<any> {
+  const [result, setResult] = useState<AsyncStatus<any>>({
+    pending: true
+  });
+
+  useEffect(() => {
+    let canceled = false;
+
+    const fetchData = async () => {
+      try {
+        const result = Array.isArray(async)
+          ? await Promise.all(async.map(fn => fn()))
+          : await async();
+        if (!canceled) {
+          setResult({
+            pending: false,
+            error: false,
+            result: result
+          });
+        }
+      } catch (e) {
+        console.error(e);
+        if (!canceled) {
+          setResult({
+            pending: false,
+            error: true
+          });
+        }
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      canceled = true;
+    };
+  }, []);
+
+  return result;
+}

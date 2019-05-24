@@ -1,87 +1,105 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Route, RouteChildrenProps } from "react-router";
 import { Link } from "react-router-dom";
-import { Header, Menu } from "semantic-ui-react";
-import { prisma, Service as ServiceObj } from "./generated/prisma-client";
+import { Header, Menu, Table, Segment, Divider } from "semantic-ui-react";
+import { prisma } from "./generated/prisma-client";
 
-import { Loader } from "./common";
+import { Loader, useAwait } from "./common";
 
 const ServiceList: React.FC<RouteChildrenProps> = ({ match }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [serviceList, setServiceList] = useState<ServiceObj[]>([]);
-
-  useEffect(() => {
-    let canceled = false;
-
-    const fetchData = async () => {
-      const services = await prisma.services({
+  const status = useAwait(
+    async () =>
+      await prisma.services({
         orderBy: "createdAt_DESC"
-      });
-      if (!canceled) {
-        setIsLoading(false);
-        setServiceList(services);
-      }
-    };
-
-    fetchData();
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
+      })
+  );
 
   return (
-    <Loader isLoading={isLoading}>
-      <Header as="h1">Service List ({serviceList.length} services)</Header>
-      <Menu size="large" fluid vertical>
-        {serviceList.map(service => (
-          <Menu.Item
-            key={service.id}
-            as={Link}
-            to={`${match!.url}/${service.id}`}
-          >
-            {service.name}
-          </Menu.Item>
-        ))}
-      </Menu>
-    </Loader>
+    <Loader
+      status={status}
+      render={serviceList => (
+        <>
+          <Header as="h1">Service List ({serviceList.length} services)</Header>
+          <Menu size="large" fluid vertical>
+            {serviceList.map(service => (
+              <Menu.Item
+                key={service.id}
+                as={Link}
+                to={`${match!.url}/${service.id}`}
+              >
+                {service.name}
+              </Menu.Item>
+            ))}
+          </Menu>
+        </>
+      )}
+    />
   );
 };
+
+interface EndpointWithTeam {
+  connectionString: String;
+  team: {
+    name: String;
+  };
+}
 
 type ServiceDetailProps = RouteChildrenProps<{ id: string }>;
 
 const ServiceDetail: React.FC<ServiceDetailProps> = ({ match }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [service, setService] = useState<ServiceObj | null>(null);
+  const fetchService = async () => {
+    const result = await prisma.service({
+      id: match!.params.id
+    });
+    if (result === null) {
+      throw `Service "${match!.params.id}" not found`;
+    }
+    return result;
+  };
 
-  useEffect(() => {
-    let canceled = false;
-
-    const fetchData = async () => {
-      const service = await prisma.service({
-        id: match!.params.id
-      });
-      if (!canceled) {
-        setIsLoading(false);
-        setService(service);
+  const fetchEndpoints = async (): Promise<EndpointWithTeam[]> =>
+    await prisma.endpoints({
+      where: {
+        service: {
+          id: match!.params.id
+        }
       }
-    };
+    }).$fragment(`
+      fragment EndpointWithTeam on Endpoint {
+        connectionString
+        team {
+          name
+        }
+      }
+    `);
 
-    fetchData();
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
+  const status = useAwait([fetchService, fetchEndpoints]);
 
   return (
     <Loader
-      isLoading={isLoading}
-      isError={service === null}
-      render={() => (
+      status={status}
+      render={([service, endpoints]) => (
         <>
-          <Header as="h1">{service!.name}</Header>
-          <p>{service!.description}</p>
+          <Segment>
+            <Header as="h1">{service.name}</Header>
+            <p>{service.description}</p>
+          </Segment>
+          <Table basic="very" celled>
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell>Team</Table.HeaderCell>
+                <Table.HeaderCell>Connection</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {endpoints.map(endpoint => (
+                <Table.Row>
+                  <Table.Cell>{endpoint.team.name}</Table.Cell>
+                  <Table.Cell>{endpoint.connectionString}</Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
         </>
       )}
     />
