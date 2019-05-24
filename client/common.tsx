@@ -51,14 +51,19 @@ type AsyncStatus<T> =
       result: T;
     };
 
-export function useAwait<T>(async: () => T | PromiseLike<T>): AsyncStatus<T>;
+export function useAwait<T>(
+  async: () => T | PromiseLike<T>,
+  deps?: React.DependencyList
+): AsyncStatus<T>;
 
 export function useAwait<T>(
-  async: (() => T | PromiseLike<T>)[]
+  async: (() => T | PromiseLike<T>)[],
+  deps?: React.DependencyList
 ): AsyncStatus<T[]>;
 
 export function useAwait<T1, T2>(
-  async: [() => T1 | PromiseLike<T1>, () => T2 | PromiseLike<T2>]
+  async: [() => T1 | PromiseLike<T1>, () => T2 | PromiseLike<T2>],
+  deps?: React.DependencyList
 ): AsyncStatus<[T1, T2]>;
 
 export function useAwait<T1, T2, T3>(
@@ -66,13 +71,19 @@ export function useAwait<T1, T2, T3>(
     () => T1 | PromiseLike<T1>,
     () => T2 | PromiseLike<T2>,
     () => T3 | PromiseLike<T3>
-  ]
+  ],
+  deps?: React.DependencyList
 ): AsyncStatus<[T1, T2, T3]>;
 
-export function useAwait(async: any): AsyncStatus<any> {
+export function useAwait(
+  async: any,
+  deps?: React.DependencyList
+): AsyncStatus<any> {
   const [result, setResult] = useState<AsyncStatus<any>>({
     pending: true
   });
+
+  deps = deps || [];
 
   useEffect(() => {
     let canceled = false;
@@ -105,7 +116,7 @@ export function useAwait(async: any): AsyncStatus<any> {
     return () => {
       canceled = true;
     };
-  }, []);
+  }, deps);
 
   return result;
 }

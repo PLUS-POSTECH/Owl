@@ -1,7 +1,7 @@
 import React from "react";
 import { Route, RouteChildrenProps } from "react-router";
 import { Link } from "react-router-dom";
-import { Header, Menu, Table, Segment, Divider } from "semantic-ui-react";
+import { Header, Menu, Table, Segment } from "semantic-ui-react";
 import { prisma } from "./generated/prisma-client";
 
 import { Loader, useAwait } from "./common";
@@ -75,7 +75,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ match }) => {
       }
     `);
 
-  const status = useAwait([fetchService, fetchEndpoints]);
+  const status = useAwait([fetchService, fetchEndpoints], [match]);
 
   return (
     <Loader
