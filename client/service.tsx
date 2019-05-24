@@ -38,6 +38,7 @@ const ServiceList: React.FC<RouteChildrenProps> = ({ match }) => {
 };
 
 interface EndpointWithTeam {
+  id: String;
   connectionString: String;
   team: {
     name: String;
@@ -66,6 +67,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ match }) => {
       }
     }).$fragment(`
       fragment EndpointWithTeam on Endpoint {
+        id
         connectionString
         team {
           name
@@ -93,7 +95,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ match }) => {
             </Table.Header>
             <Table.Body>
               {endpoints.map(endpoint => (
-                <Table.Row>
+                <Table.Row key={endpoint.id}>
                   <Table.Cell>{endpoint.team.name}</Table.Cell>
                   <Table.Cell>{endpoint.connectionString}</Table.Cell>
                 </Table.Row>
