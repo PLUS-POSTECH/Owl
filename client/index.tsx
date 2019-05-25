@@ -10,14 +10,16 @@ import {
 } from "react-router-dom";
 import { Container, Menu, Icon } from "semantic-ui-react";
 
+import { AccessFailure } from "./common";
+import { Endpoint, EndpointPath } from "./endpoint";
 import { Team, TeamPath } from "./team";
 import { User, UserPath } from "./user";
 import { Service, ServicePath } from "./service";
-import { AccessFailure } from "./common";
 
 const panes = [
   { text: "Teams", path: TeamPath, component: Team },
   { text: "Services", path: ServicePath, component: Service },
+  { text: "Endpoints", path: EndpointPath, component: Endpoint },
   { text: "Users", path: UserPath, component: User }
 ];
 
@@ -66,7 +68,7 @@ const App = () => {
           </Container>
         </Menu>
 
-        <Container text style={{ paddingTop: "7em" }}>
+        <Container fluid style={{ paddingTop: "7em" }}>
           <Switch>
             <Route
               path="/"

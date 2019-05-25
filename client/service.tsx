@@ -1,9 +1,9 @@
 import React from "react";
 import { Route, RouteChildrenProps } from "react-router";
 import { Link } from "react-router-dom";
-import { Header, Menu, Table, Segment } from "semantic-ui-react";
-import { prisma } from "./generated/prisma-client";
+import { Header, Menu, Table, Segment, Container } from "semantic-ui-react";
 
+import { prisma } from "./generated/prisma-client";
 import { Loader, useAwait } from "./common";
 
 export const ServicePath = "/service/";
@@ -54,7 +54,7 @@ type ServiceDetailProps = RouteChildrenProps<{ id: string }>;
 const ServiceDetail: React.FC<ServiceDetailProps> = props => {
   const match = props.match!;
 
-  const fetchService = async () => {
+  const fetchServices = async () => {
     const result = await prisma.service({
       id: match.params.id
     });
@@ -78,10 +78,9 @@ const ServiceDetail: React.FC<ServiceDetailProps> = props => {
         team {
           name
         }
-      }
-    `);
+      }`);
 
-  const status = useAwait([fetchService, fetchEndpoints], [match.params.id]);
+  const status = useAwait([fetchServices, fetchEndpoints], [match.params.id]);
 
   return (
     <>
@@ -120,9 +119,9 @@ const ServiceDetail: React.FC<ServiceDetailProps> = props => {
 export const Service: React.FC<RouteChildrenProps> = props => {
   const match = props.match!;
   return (
-    <>
+    <Container text>
       <Route path={match.path} exact component={ServiceList} />
       <Route path={`${match.path}:id`} component={ServiceDetail} />
-    </>
+    </Container>
   );
 };

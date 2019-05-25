@@ -1,7 +1,7 @@
 import React from "react";
-import { Header, Menu } from "semantic-ui-react";
-import { prisma } from "./generated/prisma-client";
+import { Header, Menu, Container } from "semantic-ui-react";
 
+import { prisma } from "./generated/prisma-client";
 import { Loader, useAwait } from "./common";
 
 export const TeamPath = "/team/";
@@ -18,7 +18,7 @@ export const Team: React.FC = () => {
     <Loader
       status={status}
       render={teamList => (
-        <>
+        <Container text>
           <Header as="h1">Team List ({teamList.length} teams)</Header>
           <Menu size="large" fluid vertical>
             {teamList.map(team => (
@@ -27,7 +27,7 @@ export const Team: React.FC = () => {
               </Menu.Item>
             ))}
           </Menu>
-        </>
+        </Container>
       )}
     />
   );
