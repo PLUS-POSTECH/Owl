@@ -10,15 +10,15 @@ import {
 } from "react-router-dom";
 import { Container, Menu, Icon } from "semantic-ui-react";
 
-import { Team } from "./team";
-import { User } from "./user";
-import { Service } from "./service";
+import { Team, TeamPath } from "./team";
+import { User, UserPath } from "./user";
+import { Service, ServicePath } from "./service";
 import { AccessFailure } from "./common";
 
 const panes = [
-  { text: "Teams", url: "/teams", component: Team },
-  { text: "Services", url: "/services", component: Service },
-  { text: "Users", url: "/users", component: User }
+  { text: "Teams", path: TeamPath, component: Team },
+  { text: "Services", path: ServicePath, component: Service },
+  { text: "Users", path: UserPath, component: User }
 ];
 
 const LogoIcon = () => (
@@ -39,8 +39,8 @@ const App = () => {
     const Component = withRouter(props => (
       <Menu.Item
         as={Link}
-        active={props.location.pathname.startsWith(pane.url)}
-        to={pane.url}
+        active={props.location.pathname.startsWith(pane.path)}
+        to={pane.path}
       >
         {pane.text}
       </Menu.Item>
@@ -50,7 +50,7 @@ const App = () => {
   });
 
   const content = panes.map(pane => (
-    <Route key={pane.text} path={pane.url} component={pane.component} />
+    <Route key={pane.text} path={pane.path} component={pane.component} />
   ));
 
   return (
@@ -71,7 +71,7 @@ const App = () => {
             <Route
               path="/"
               exact
-              component={() => <Redirect to={panes[0].url} />}
+              component={() => <Redirect to={panes[0].path} />}
             />
             {content}
             <Route component={AccessFailure} />

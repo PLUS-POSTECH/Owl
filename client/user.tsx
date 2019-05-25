@@ -4,6 +4,8 @@ import { prisma } from "./generated/prisma-client";
 
 import { Loader, useAwait } from "./common";
 
+export const UserPath = "/user/";
+
 export const User: React.FC = () => {
   const status = useAwait(async () => await prisma.users());
 

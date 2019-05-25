@@ -4,6 +4,8 @@ import { prisma } from "./generated/prisma-client";
 
 import { Loader, useAwait } from "./common";
 
+export const TeamPath = "/team/";
+
 export const Team: React.FC = () => {
   const status = useAwait(
     async () =>

@@ -6,7 +6,11 @@ import { prisma } from "./generated/prisma-client";
 
 import { Loader, useAwait } from "./common";
 
-const ServiceList: React.FC<RouteChildrenProps> = ({ match }) => {
+export const ServicePath = "/service/";
+
+const ServiceList: React.FC<RouteChildrenProps> = props => {
+  const match = props.match!;
+
   const status = useAwait(
     async () =>
       await prisma.services({
@@ -25,7 +29,7 @@ const ServiceList: React.FC<RouteChildrenProps> = ({ match }) => {
               <Menu.Item
                 key={service.id}
                 as={Link}
-                to={`${match!.url}/${service.id}`}
+                to={`${match.url}${service.id}`}
               >
                 {service.name}
               </Menu.Item>
@@ -47,13 +51,15 @@ interface EndpointWithTeam {
 
 type ServiceDetailProps = RouteChildrenProps<{ id: string }>;
 
-const ServiceDetail: React.FC<ServiceDetailProps> = ({ match }) => {
+const ServiceDetail: React.FC<ServiceDetailProps> = props => {
+  const match = props.match!;
+
   const fetchService = async () => {
     const result = await prisma.service({
-      id: match!.params.id
+      id: match.params.id
     });
     if (result === null) {
-      throw `Service "${match!.params.id}" not found`;
+      throw `Service "${match.params.id}" not found`;
     }
     return result;
   };
@@ -75,44 +81,48 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ match }) => {
       }
     `);
 
-  const status = useAwait([fetchService, fetchEndpoints], [match]);
+  const status = useAwait([fetchService, fetchEndpoints], [match.params.id]);
 
   return (
-    <Loader
-      status={status}
-      render={([service, endpoints]) => (
-        <>
-          <Segment>
-            <Header as="h1">{service.name}</Header>
-            <p>{service.description}</p>
-          </Segment>
-          <Table celled>
-            <Table.Header>
-              <Table.Row>
-                <Table.HeaderCell>Team</Table.HeaderCell>
-                <Table.HeaderCell>Connection</Table.HeaderCell>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {endpoints.map(endpoint => (
-                <Table.Row key={endpoint.id}>
-                  <Table.Cell>{endpoint.team.name}</Table.Cell>
-                  <Table.Cell>{endpoint.connectionString}</Table.Cell>
+    <>
+      <Link to={ServicePath}>&lt; back to service list</Link>
+      <Loader
+        status={status}
+        render={([service, endpoints]) => (
+          <>
+            <Segment>
+              <Header as="h1">{service.name}</Header>
+              <p>{service.description}</p>
+            </Segment>
+            <Table celled>
+              <Table.Header>
+                <Table.Row>
+                  <Table.HeaderCell>Team</Table.HeaderCell>
+                  <Table.HeaderCell>Connection</Table.HeaderCell>
                 </Table.Row>
-              ))}
-            </Table.Body>
-          </Table>
-        </>
-      )}
-    />
+              </Table.Header>
+              <Table.Body>
+                {endpoints.map(endpoint => (
+                  <Table.Row key={endpoint.id}>
+                    <Table.Cell>{endpoint.team.name}</Table.Cell>
+                    <Table.Cell>{endpoint.connectionString}</Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table>
+          </>
+        )}
+      />
+    </>
   );
 };
 
-export const Service: React.FC<RouteChildrenProps> = ({ match }) => {
+export const Service: React.FC<RouteChildrenProps> = props => {
+  const match = props.match!;
   return (
     <>
-      <Route path={match!.url} exact component={ServiceList} />
-      <Route path={`${match!.url}/:id`} component={ServiceDetail} />
+      <Route path={match.path} exact component={ServiceList} />
+      <Route path={`${match.path}:id`} component={ServiceDetail} />
     </>
   );
 };
