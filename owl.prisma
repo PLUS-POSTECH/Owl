@@ -18,6 +18,8 @@ type Service {
 type ServiceVariant {
   id: Int! @id
   service: Service!
+  createdAt: DateTime! @createdAt
+  createdBy: Team
   hash: String @unique
   attachment: String
 }
@@ -44,4 +46,34 @@ type Day {
   startTime: DateTime!
   endTime: DateTime!
   roundDurationInSeconds: Int!
+}
+
+type Exploit {
+  id: ID! @id
+  target: Service!
+  lastModified: DateTime! @updatedAt
+  name: String! @unique
+}
+
+enum TaskStatus {
+  PENDING
+  RUNNING
+  ERROR
+  DONE
+}
+
+type Task {
+  id: ID! @id
+  exploit: Exploit!
+  endpoint: Endpoint!
+  runner: TaskRunner
+  createdAt: DateTime! @createdAt
+  lastModified: DateTime! @updatedAt
+  status: TaskStatus! @default(value: PENDING)
+  log: String
+}
+
+type TaskRunner {
+  id: ID! @id
+  name: String!
 }
