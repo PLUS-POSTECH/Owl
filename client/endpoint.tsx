@@ -25,7 +25,10 @@ export const Endpoint: React.FC = () => {
 
   const fetchServices = async () =>
     await prisma.services({
-      orderBy: "createdAt_DESC"
+      orderBy: "createdAt_DESC",
+      where: {
+        enabled: true
+      }
     });
 
   const fetchEndpoints = async (): Promise<EndpointWithTeamService[]> =>

@@ -26,3 +26,11 @@ type Endpoint {
   createdAt: DateTime! @createdAt
   connectionString: String!
 }
+
+type Day {
+  id: Int! @id
+  name: String!
+  startTime: DateTime!
+  endTime: DateTime!
+  roundDurationInSeconds: Int!
+}

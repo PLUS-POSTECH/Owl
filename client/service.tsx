@@ -14,7 +14,10 @@ const ServiceList: React.FC<RouteChildrenProps> = props => {
   const status = useAwait(
     async () =>
       await prisma.services({
-        orderBy: "createdAt_DESC"
+        orderBy: "createdAt_DESC",
+        where: {
+          enabled: true
+        }
       })
   );
 
