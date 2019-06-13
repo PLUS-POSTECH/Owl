@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "lib": ["es2016"],
+    "lib": ["es2016", "esnext.asynciterable"],
     "sourceMap": true,
     "removeComments": true,
 

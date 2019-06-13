@@ -51,7 +51,7 @@ type Day {
 type Exploit {
   id: ID! @id
   target: Service!
-  lastModified: DateTime! @updatedAt
+  updatedAt: DateTime! @updatedAt
   name: String! @unique
 }
 
@@ -68,7 +68,7 @@ type Task {
   endpoint: Endpoint!
   runner: TaskRunner
   createdAt: DateTime! @createdAt
-  lastModified: DateTime! @updatedAt
+  updatedAt: DateTime! @updatedAt
   status: TaskStatus! @default(value: PENDING)
   log: String
 }
@@ -76,4 +76,8 @@ type Task {
 type TaskRunner {
   id: ID! @id
   name: String!
+  idle: Boolean! @default(value: true)
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+  tasks: [Task!]!
 }
