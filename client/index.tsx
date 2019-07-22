@@ -14,13 +14,11 @@ import { AccessFailure } from "./common";
 import { Overview, OverviewPath } from "./overview";
 import { Service, ServicePath } from "./service";
 import { Endpoint, EndpointPath } from "./endpoint";
-import { User, UserPath } from "./user";
 
 const panes = [
   { text: "Overview", path: OverviewPath, component: Overview },
   { text: "Services", path: ServicePath, component: Service },
-  { text: "Endpoints", path: EndpointPath, component: Endpoint },
-  { text: "Users", path: UserPath, component: User }
+  { text: "Endpoints", path: EndpointPath, component: Endpoint }
 ];
 
 const LogoIcon = () => (

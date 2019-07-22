@@ -2,7 +2,7 @@
     "private": true,
     "scripts": {
       "watch": "yarn workspace owl watch",
-      "test_db_setup": "yarn workspace owl-snippet test_db_setup"
+      "setup_test_db": "yarn workspace owl-snippet setup_test_db"
     },
     "workspaces": ["client", "snippets"]
 }
