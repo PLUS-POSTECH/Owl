@@ -2,4 +2,4 @@ endpoint: http://localhost:4466
 datamodel: owl.prisma
 generate:
   - generator: typescript-client
-    output: ./client/generated/prisma-client/
+    output: ./generated/prisma-client/

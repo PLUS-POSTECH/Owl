@@ -9,6 +9,7 @@
     "watch": "parcel --no-source-maps index.html"
   },
   "dependencies": {
+    "@types/graphql": "^14.2.2",
     "@types/react": "^16.8.18",
     "@types/react-dom": "^16.8.4",
     "@types/react-router-dom": "^4.3.3",

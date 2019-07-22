@@ -6,7 +6,7 @@
 node_modules/
 
 # Prisma
-client/generated/
+generated/
 
 # Parcel
 .cache/

@@ -10,7 +10,6 @@ import {
 } from "react-router-dom";
 import { Container, Menu, Icon } from "semantic-ui-react";
 
-import { prisma } from "./generated/prisma-client";
 import { AccessFailure } from "./common";
 import { Overview, OverviewPath } from "./overview";
 import { Service, ServicePath } from "./service";
@@ -85,36 +84,4 @@ const App = () => {
   );
 };
 
-// Creates a fake days data, should be removed in production
-const setupTestDays = async () => {
-  await prisma.deleteManyDays();
-
-  const startHour = 10; // 10 AM in the morning
-  const endHour = 28; // 4 AM in the night
-  const roundDuration = 10 * 60; // 10 minutes
-  const totalDays = 4;
-  const todayIndex = 2;
-
-  let firstDayStart = new Date();
-  firstDayStart.setHours(startHour, 0, 0, 0);
-  firstDayStart.setDate(firstDayStart.getDate() - (todayIndex - 1));
-
-  for (let i = 0; i < totalDays; i++) {
-    let startTime = new Date(firstDayStart);
-    startTime.setDate(startTime.getDate() + i);
-
-    let endTime = new Date(startTime);
-    endTime.setHours(endTime.getHours() + (endHour - startHour));
-
-    await prisma.createDay({
-      name: `Day ${i + 1}`,
-      startTime: startTime,
-      endTime: endTime,
-      roundDurationInSeconds: roundDuration
-    });
-  }
-};
-
-setupTestDays().then(() => {
-  ReactDOM.render(<App />, document.getElementById("root"));
-});
+ReactDOM.render(<App />, document.getElementById("root"));

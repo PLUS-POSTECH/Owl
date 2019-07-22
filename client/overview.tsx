@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import moment from "moment";
 import { Header, Container, List } from "semantic-ui-react";
 
-import { prisma } from "./generated/prisma-client";
+import { prisma } from "../generated/prisma-client";
 import { Loader, useAwait } from "./common";
 
 export const OverviewPath = "/overview";

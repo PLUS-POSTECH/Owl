@@ -1,7 +1,7 @@
 import React from "react";
 import { Header, Table, Container, Icon } from "semantic-ui-react";
 
-import { prisma } from "./generated/prisma-client";
+import { prisma } from "../generated/prisma-client";
 import { Loader, useAwait } from "./common";
 
 export const EndpointPath = "/endpoint/";

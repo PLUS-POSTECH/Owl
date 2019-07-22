@@ -3,7 +3,7 @@ import { Route, RouteChildrenProps } from "react-router";
 import { Link } from "react-router-dom";
 import { Header, Menu, Table, Segment, Container } from "semantic-ui-react";
 
-import { prisma } from "./generated/prisma-client";
+import { prisma } from "../generated/prisma-client";
 import { Loader, useAwait } from "./common";
 
 export const ServicePath = "/service/";
@@ -71,7 +71,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = props => {
     await prisma.endpoints({
       where: {
         service: {
-          id: match!.params.id
+          id: match.params.id
         }
       }
     }).$fragment(`

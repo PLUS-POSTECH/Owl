@@ -1,7 +1,7 @@
 import React from "react";
 import { Header, Menu, Container } from "semantic-ui-react";
 
-import { prisma } from "./generated/prisma-client";
+import { prisma } from "../generated/prisma-client";
 import { Loader, useAwait } from "./common";
 
 export const UserPath = "/user/";

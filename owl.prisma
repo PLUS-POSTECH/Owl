@@ -16,7 +16,22 @@ type Service {
   name: String! @unique
   description: String! @default(value: "")
   enabled: Boolean! @default(value: true)
+  variants: [ServiceVariant!]!
   endpoints: [Endpoint!]!
+}
+
+type ServiceVariant {
+  id: Int! @id
+  service: Service!
+  hash: String @unique
+  attachment: String
+}
+
+type ServiceUpdateLog {
+  id: Int! @id
+  endpoint: Endpoint!
+  variant: ServiceVariant!
+  createdAt: DateTime! @createdAt
 }
 
 type Endpoint {
@@ -25,6 +40,7 @@ type Endpoint {
   service: Service!
   createdAt: DateTime! @createdAt
   connectionString: String!
+  serviceUpdateLogs: [ServiceUpdateLog!]!
 }
 
 type Day {

@@ -1,4 +1,8 @@
 {
     "private": true,
-    "workspaces": ["client"]
+    "scripts": {
+      "watch": "yarn workspace owl watch",
+      "test_db_setup": "yarn workspace owl-snippet test_db_setup"
+    },
+    "workspaces": ["client", "snippets"]
 }
