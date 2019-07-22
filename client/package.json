@@ -18,7 +18,9 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-router-dom": "^5.0.0",
-    "semantic-ui-react": "^0.87.1",
-    "typescript": "^3.4.5"
+    "semantic-ui-react": "^0.87.1"
+  },
+  "devDependencies": {
+    "typescript": "^3.5.3"
   }
 }
