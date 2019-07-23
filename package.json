@@ -1,12 +1,12 @@
 {
-    "private": true,
-    "scripts": {
-      "watch": "yarn workspace owl watch",
-      "setup_test_db": "yarn workspace owl-snippet setup_test_db"
-    },
-    "workspaces": [
-        "client",
-        "scheduler",
-        "snippets"
-    ]
+  "private": true,
+  "scripts": {
+    "watch": "yarn workspace owl watch",
+    "setup_test_db": "yarn workspace owl-snippet setup_test_db"
+  },
+  "workspaces": [
+    "client",
+    "scheduler",
+    "snippets"
+  ]
 }
