@@ -6,11 +6,7 @@
 node_modules/
 
 # Prisma
-<<<<<<< HEAD
 generated/
-=======
-**/generated/
->>>>>>> Make git ignore all generated directories
 
 # Parcel
 .cache/

@@ -1,5 +1,5 @@
 import { synchdFn } from 'synchd';
-import { prisma, Task, TaskRunner } from "./generated/prisma-client";
+import { prisma, Task, TaskRunner } from "../generated/prisma-client";
 
 const oneMinute = 60 * 1000;
 
