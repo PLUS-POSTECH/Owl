@@ -51,6 +51,7 @@ type Exploit {
   target: Service!
   updatedAt: DateTime! @updatedAt
   name: String! @unique
+  attachment: String
 }
 
 enum TaskStatus {
