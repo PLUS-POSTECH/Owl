@@ -1,7 +1,7 @@
 import { synchdFn } from 'synchd';
 import { prisma, Task, TaskRunner } from "../generated/prisma-client";
 
-const oneMinute = 60 * 1000;
+const oneMinuteInMilliseconds = 60 * 1000;
 
 async function schedule() {
   const unscheduledTasks: Task[] = await prisma
@@ -52,4 +52,4 @@ const scheduleLock = {};
 const exclusiveSchedule = synchdFn(scheduleLock, schedule);
 
 // Maybe use subscribe?
-setInterval(exclusiveSchedule, oneMinute);
+setInterval(exclusiveSchedule, oneMinuteInMilliseconds);
