@@ -18,8 +18,6 @@ type Service {
 type ServiceVariant {
   id: Int! @id
   service: Service!
-  createdAt: DateTime! @createdAt
-  createdBy: Team
   hash: String @unique
   attachment: String
 }
