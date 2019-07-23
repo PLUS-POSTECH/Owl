@@ -62,7 +62,7 @@ enum TaskStatus {
 }
 
 type Task {
-  id: ID! @id
+  id: Int! @id
   exploit: Exploit!
   endpoint: Endpoint!
   runner: TaskRunner
