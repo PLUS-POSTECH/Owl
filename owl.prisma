@@ -74,6 +74,7 @@ type Task {
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
   status: TaskStatus! @default(value: PENDING)
-  statusMessage: String
-  log: String
+  statusMessage: String! @default(value: "")
+  stdout: String! @default(value: "")
+  stderr: String! @default(value: "")
 }
