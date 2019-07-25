@@ -45,3 +45,35 @@ type Day {
   endTime: DateTime!
   roundDurationInSeconds: Int!
 }
+
+type Exploit {
+  id: ID! @id
+  target: Service!
+  updatedAt: DateTime! @updatedAt
+  name: String! @unique
+  attachment: String
+}
+
+enum TaskStatus {
+  PENDING
+  RUNNING
+  AUTHENTICATING
+  SUCCESS
+  EXPLOIT_ERROR
+  EXPLOIT_FAILURE
+  AUTH_ERROR
+  AUTH_FAILURE
+  AUTH_SKIPPED
+  UNKNOWN_ERROR
+}
+
+type Task {
+  id: Int! @id
+  exploit: Exploit!
+  endpoint: Endpoint!
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+  status: TaskStatus! @default(value: PENDING)
+  statusMessage: String
+  log: String
+}
