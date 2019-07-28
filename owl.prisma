@@ -76,6 +76,8 @@ type Task {
   status: TaskStatus! @default(value: PENDING)
   statusMessage: String! @default(value: "")
   flag: String
-  stdout: String! @default(value: "")
-  stderr: String! @default(value: "")
+  exploitStdout: String! @default(value: "")
+  exploitStderr: String! @default(value: "")
+  authStdout: String! @default(value: "")
+  authStderr: String! @default(value: "")
 }
