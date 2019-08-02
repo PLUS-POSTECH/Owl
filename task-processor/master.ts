@@ -12,9 +12,7 @@ async function fetchTask() {
       orderBy: "createdAt_ASC"
     });
 
-  if (unscheduledTasks.length == 0) {
-    return null
-  }
+  if (unscheduledTasks.length === 0) return null
 
   const targetTask = unscheduledTasks[0]
   await prisma.updateTask({
@@ -34,7 +32,7 @@ const exclusiveTaskFetch = synchdFn(fetchLock, fetchTask);
 
 async function assignWorker(worker: cluster.Worker) {
   const taskId = await exclusiveTaskFetch()
-  if (taskId == null) {
+  if (taskId === null) {
     worker.send(new Message(MessageType.Sleep, null))
   } else {
     worker.send(new Message(MessageType.TaskPush, taskId))
