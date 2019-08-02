@@ -1,5 +1,5 @@
-import * as cluster from 'cluster'
-import { synchdFn } from 'synchd'
+import * as cluster from "cluster"
+import { synchdFn } from "synchd"
 import { prisma, Task } from "../generated/prisma-client"
 import { Message, MessageType } from "./types"
 
@@ -57,9 +57,9 @@ export async function run() {
   const workers = cluster.workers
   for (const id in workers) {
     const worker = workers[id]!
-    worker.on('message', (_) => assignWorker(worker))
+    worker.on("message", (_) => assignWorker(worker))
   }
 
-  const newTaskIterator = await prisma.$subscribe.task({ mutation_in: ['CREATED'] }).node()
+  const newTaskIterator = await prisma.$subscribe.task({ mutation_in: ["CREATED"] }).node()
   watchTasks(newTaskIterator)
 }

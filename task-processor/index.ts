@@ -1,7 +1,7 @@
-import * as cluster from 'cluster'
-import { cpus } from 'os'
-import { run as runMaster } from './master'
-import { run as runWorker } from './worker'
+import * as cluster from "cluster"
+import { cpus } from "os"
+import { run as runMaster } from "./master"
+import { run as runWorker } from "./worker"
 
 
 if (cluster.isMaster) {
