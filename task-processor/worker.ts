@@ -1,6 +1,7 @@
-import * as fs from "mz/fs"
+import execa, { ExecaError, ExecaReturnValue } from "execa"
+import * as fs from "fs-extra"
 import * as path from "path"
-import { execFile } from "mz/child_process"
+import { EOL } from "os"
 import { dir as tmpdir } from "tmp-promise"
 import { toByteArray } from "base64-js"
 import { prisma, Task, TaskStatus } from "../generated/prisma-client"
@@ -9,7 +10,27 @@ import { Message, MessageType } from "./types"
 
 let isIdle = false
 
-async function updateStatus(taskId: number, status: TaskStatus, message: string) {
+async function updateExploitOutputs(taskId: number, stdout: string, stderr: string) {
+  await prisma.updateTask({
+    data: {
+      exploitStdout: stdout,
+      exploitStderr: stderr
+    },
+    where: { id: taskId }
+  })
+}
+
+async function updateSubmitOutputs(taskId: number, stdout: string, stderr: string) {
+  await prisma.updateTask({
+    data: {
+      submitStdout: stdout,
+      submitStderr: stderr
+    },
+    where: { id: taskId }
+  })
+}
+
+async function updateStatus(taskId: number, status: TaskStatus, message = "") {
   await prisma.updateTask({
     data: {
       status: status,
@@ -19,15 +40,64 @@ async function updateStatus(taskId: number, status: TaskStatus, message: string)
   })
 }
 
-async function finalizeExploit(taskId: number, stdout: string, stderr: string) {
+async function finalizeExploit(taskId: number, result: ExecaReturnValue) {
+  const stdout = result.stdout
+  const stderr = result.stderr
+  await updateExploitOutputs(taskId, stdout, stderr)
+
+  const flag = stderr.split(EOL).pop()
   await prisma.updateTask({
     data: {
       status: "SUBMITTING",
-      exploitStdout: stdout,
-      exploitStderr: stderr
+      flag: flag
     },
     where: { id: taskId }
   })
+  return flag
+}
+
+async function finalizeExploitError(taskId: number, result: ExecaError) {
+  const exitCode = result.exitCode
+  const timedOut = result.timedOut
+  const incompatible = exitCode === 64
+
+  const message = result.message
+  const stdout = result.stdout
+  const stderr = result.stderr
+  await updateExploitOutputs(taskId, stdout, stderr)
+
+  if (incompatible) {
+    await updateStatus(taskId, "EXPLOIT_INCOMPATIBLE")
+  } else if (timedOut) {
+    await updateStatus(taskId, "EXPLOIT_TIMEOUT")
+  } else {
+    await updateStatus(taskId, "EXPLOIT_ERROR", message)
+  }
+}
+
+async function finalizeSubmit(taskId: number, result: ExecaReturnValue) {
+  const stdout = result.stdout
+  const stderr = result.stderr
+  await updateSubmitOutputs(taskId, stdout, stderr)
+
+  const submitResult = stderr.split(EOL).pop()
+  if (submitResult === "CORRECT") {
+    await updateStatus(taskId, "SUBMIT_CORRECT")
+  } else if (submitResult === "WRONG") {
+    await updateStatus(taskId, "SUBMIT_WRONG")
+  } else if (submitResult === "DUPLICATE") {
+    await updateStatus(taskId, "SUBMIT_DUPLICATE")
+  } else {
+    await updateStatus(taskId, "SUBMIT_ERROR", `Incompatible status output: ${submitResult}`)
+  }
+}
+
+async function finalizeSubmitError(taskId: number, result: ExecaError) {
+  const message = result.message
+  const stdout = result.stdout
+  const stderr = result.stderr
+  await updateSubmitOutputs(taskId, stdout, stderr)
+  await updateStatus(taskId, "SUBMIT_ERROR", message)
 }
 
 async function runExploit(task: Task) {
@@ -48,25 +118,59 @@ async function runExploit(task: Task) {
   await fs.writeFile(exploitPath, Buffer.from(decodedAttachment))
   await fs.chmod(exploitPath, 0o644)
 
-  const [exploitStdout, exploitStderr] = await execFile("python", [exploitPath, endpoint.connectionString])
-  await finalizeExploit(task.id, exploitStdout, exploitStderr)
+  const exploitExecOptions = { timeout: 0 }
+  let exploitResult: ExecaReturnValue
 
-  // TODO: Implement submit and handle errors
-
-  await exploitDir.cleanup()
+  try {
+    exploitResult = await execa("python", [exploitPath, endpoint.connectionString], exploitExecOptions)
+  } catch (error) {
+    await finalizeExploitError(task.id, error)
+    return
+  } finally {
+    await exploitDir.cleanup()
+  }
+  await finalizeExploit(task.id, exploitResult)
 }
 
 async function runSubmit(task: Task) {
+  const submitName = "submit.py"
+  const submitPath = path.join(process.cwd(), submitName)
+  const flag = task.flag
 
+  if (flag === undefined) {
+    return
+  } else if (flag === "SKIP_SUBMIT") {
+    await updateStatus(task.id, "SUBMIT_SKIPPED")
+    return
+  }
+
+  await fs.chmod(submitPath, 0o644)
+
+  let submitResult: ExecaReturnValue
+  try {
+    submitResult = await execa("python", [submitPath, flag])
+  } catch (error) {
+    await finalizeSubmitError(task.id, error)
+    return
+  }
+
+  await finalizeSubmit(task.id, submitResult)
 }
 
 async function runTask(taskId: number) {
-  const taskOption = await prisma.task({ id: taskId })
-  if (taskOption === null) return
+  try {
+    const taskOption = await prisma.task({ id: taskId })
+    if (taskOption === null) return
+    const task = taskOption!
+    await runExploit(task)
 
-  const task = taskOption!
-  await runExploit(task)
-  await runSubmit(task)
+    const updatedTaskOption = await prisma.task({ id: taskId })
+    if (updatedTaskOption === null) return
+    const updatedTask = updatedTaskOption!
+    await runSubmit(updatedTask)
+  } catch (error) {
+    await updateStatus(taskId, "UNKNOWN_ERROR", error.message)
+  }
 }
 
 async function handleMessage(message: Message) {
