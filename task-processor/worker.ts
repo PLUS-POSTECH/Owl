@@ -7,6 +7,8 @@ import { prisma, Task, TaskStatus } from "../generated/prisma-client"
 import { Message, MessageType } from "./types"
 
 
+let isIdle = false
+
 async function updateStatus(taskId: number, status: TaskStatus, message: string) {
   await prisma.updateTask({
     data: {
@@ -69,13 +71,18 @@ async function runTask(taskId: number) {
 
 async function handleMessage(message: Message) {
   switch (message.type) {
-    case MessageType.Sleep: { }
+    case MessageType.Sleep: {
+      isIdle = true
+    }
     case MessageType.TaskPush: {
       await runTask(message.message as number)
       process.send!(new Message(MessageType.TaskRequest, null))
     }
     case MessageType.Wakeup: {
-      process.send!(new Message(MessageType.TaskRequest, null))
+      if (isIdle === true) {
+        isIdle = false
+        process.send!(new Message(MessageType.TaskRequest, null))
+      }
     }
   }
 }
