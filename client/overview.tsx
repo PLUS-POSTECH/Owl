@@ -132,10 +132,6 @@ const ScoreTimeline: React.FC = () => {
       }`);
 
   const status = useAwait([
-    async () =>
-      await prisma.days({
-        orderBy: "endTime_ASC"
-      }),
     async () => await prisma.teams(),
     fetchScoreUpdateLogs
   ]);
@@ -143,7 +139,7 @@ const ScoreTimeline: React.FC = () => {
   return (
     <Loader
       status={status}
-      render={([dayList, teams, scoreUpdateLogs]) => {
+      render={([teams, scoreUpdateLogs]) => {
         interface TeamItem {
           team: Team;
           data: Array<{ x: Date; y: number }>;
