@@ -2,14 +2,17 @@ import { prisma } from "../generated/prisma-client";
 import child_process, { ExecSyncOptions } from "child_process";
 import slugify from "slugify";
 
+const teams = ["PLUS", "KoreanBadass", "r00timentary", "PPP"];
+
+const startHour = 10; // 10 AM in the morning
+const endHour = 28; // 4 AM in the night
+const roundDuration = 10 * 60; // 10 minutes
+
 function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 const setupDays = async () => {
-  const startHour = 10; // 10 AM in the morning
-  const endHour = 28; // 4 AM in the night
-  const roundDuration = 10 * 60; // 10 minutes
   const totalDays = 4;
   const todayIndex = 2;
 
@@ -34,25 +37,34 @@ const setupDays = async () => {
 };
 
 const setupTeams = async () => {
-  await prisma.createTeam({
-    name: "PLUS",
-    score: 500
-  });
+  for (const teamName of teams) {
+    await prisma.createTeam({
+      name: teamName
+    });
+  }
+};
 
-  await prisma.createTeam({
-    name: "KoreanBadass",
-    score: 200
-  });
+const setupScores = async () => {
+  const startDate = new Date();
+  startDate.setHours(startHour, 0, 0, 0);
 
-  await prisma.createTeam({
-    name: "r00timentary",
-    score: 400
-  });
+  const endDate = new Date();
+  endDate.setHours(endHour, 0, 0, 0);
 
-  await prisma.createTeam({
-    name: "PPP",
-    score: 666
-  });
+  for (let i = 0; i < 20; i++) {
+    let teamIndex = Math.floor(Math.random() * teams.length);
+    await prisma.createScoreUpdateLog({
+      team: {
+        connect: {
+          name: teams[teamIndex]
+        }
+      },
+      score: Math.floor(Math.random() * 1000),
+      time: new Date(
+        +startDate + Math.random() * (endDate.valueOf() - startDate.valueOf())
+      )
+    });
+  }
 };
 
 const setupServices = async () => {
@@ -123,6 +135,7 @@ async function main() {
   child_process.execSync("prisma deploy", INHERIT_STDIO);
   await setupDays();
   await setupTeams();
+  await setupScores();
   await setupServices();
   await setupEndpoints();
 }

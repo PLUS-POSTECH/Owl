@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import moment from "moment";
-import { Header, Container, List } from "semantic-ui-react";
+import { Header, Container } from "semantic-ui-react";
 import { Line } from "react-chartjs-2";
 
-import { prisma } from "../generated/prisma-client";
+import { prisma, Team } from "../generated/prisma-client";
 import { Loader, useAwait } from "./common";
 
 export const OverviewPath = "/overview";
@@ -99,83 +99,115 @@ const RoundDisplay: React.FC = () => {
   );
 };
 
-const Scoreboard: React.FC = () => {
-  const status = useAwait(
+const ScoreTimeline: React.FC = () => {
+  interface ScoreUpdateLogWithTeam {
+    id: string;
+    score: number;
+    time: Date;
+    team: {
+      id: string;
+      name: string;
+    };
+  }
+
+  const fetchScoreUpdateLogs = async (): Promise<ScoreUpdateLogWithTeam[]> =>
+    await prisma.scoreUpdateLogs({
+      orderBy: "time_ASC"
+    }).$fragment(`
+      fragment ScoreUpdateLogWithTeam on ScoreUpdateLog {
+        id
+        score
+        time
+        team {
+          id
+          name
+        }
+      }`);
+
+  const status = useAwait([
     async () =>
-      await prisma.teams({
-        orderBy: "score_DESC"
-      })
-  );
+      await prisma.days({
+        orderBy: "endTime_ASC"
+      }),
+    async () => await prisma.teams(),
+    fetchScoreUpdateLogs
+  ]);
 
   return (
     <Loader
       status={status}
-      render={teamList => (
-        <Container>
-          <List divided relaxed ordered>
-            {teamList.map(team => (
-              <List.Item key={team.id}>
-                {team.name} ({team.score})
-              </List.Item>
-            ))}
-          </List>
-        </Container>
-      )}
+      render={([dayList, teams, scoreUpdateLogs]) => {
+        interface TeamItem {
+          team: Team;
+          data: Array<{ x: Date; y: number }>;
+        }
+
+        let teamDict: { [id: string]: TeamItem } = {};
+        for (const team of teams) {
+          teamDict[team.id] = {
+            team: team,
+            data: []
+          };
+        }
+
+        for (const scoreLog of scoreUpdateLogs) {
+          console.log(scoreLog.time);
+          teamDict[scoreLog.team.id].data.push({
+            x: scoreLog.time,
+            y: scoreLog.score
+          });
+        }
+
+        let randomColorGenerator = function() {
+          const red = Math.floor(Math.random() * 256);
+          const green = Math.floor(Math.random() * 256);
+          const blue = Math.floor(Math.random() * 256);
+          return [
+            `rgba(${red},${green},${blue},0.7)`,
+            `rgba(${red},${green},${blue},0.3)`
+          ];
+        };
+
+        let teamData = [];
+        for (const teamId in teamDict) {
+          const team = teamDict[teamId];
+          let color = randomColorGenerator();
+          teamData.push({
+            label: team.team.name,
+            fill: false,
+            tension: 0.07,
+            borderColor: color[0],
+            backgroundColor: color[1],
+            data: team.data
+          });
+        }
+
+        return (
+          <Container>
+            <Line
+              data={{
+                datasets: teamData
+              }}
+              options={{
+                scales: {
+                  xAxes: [
+                    {
+                      type: "time"
+                    }
+                  ]
+                }
+              }}
+            />
+          </Container>
+        );
+      }}
     />
-  );
-};
-
-const ScoreTimeline: React.FC = () => {
-  const tension = 0.07;
-
-  let randomColorGenerator = function() {
-    const red = Math.floor(Math.random() * 256);
-    const green = Math.floor(Math.random() * 256);
-    const blue = Math.floor(Math.random() * 256);
-    return [
-      `rgba(${red},${green},${blue},0.7)`,
-      `rgba(${red},${green},${blue},0.3)`
-    ];
-  };
-
-  const colors = [];
-  for (let i = 0; i < 10; i++) {
-    colors.push(randomColorGenerator());
-  }
-
-  const data = {
-    labels: ["17:00", "17:05", "17:10"],
-    datasets: [
-      {
-        label: "PPP",
-        fill: false,
-        tension: tension,
-        borderColor: colors[0][0],
-        backgroundColor: colors[0][1],
-        data: [100, 150, 400]
-      },
-      {
-        label: "r00timentary",
-        fill: false,
-        tension: tension,
-        borderColor: colors[1][0],
-        backgroundColor: colors[1][1],
-        data: [200, 300, 270]
-      }
-    ]
-  };
-
-  return (
-    <Container>
-      <Line data={data} />
-    </Container>
   );
 };
 
 export const Overview: React.FC = () => (
   <>
     <RoundDisplay />
-    <Scoreboard />
     <ScoreTimeline />
   </>
 );
