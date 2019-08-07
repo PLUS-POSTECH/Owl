@@ -1,8 +1,14 @@
 type Team {
   id: ID! @id
   name: String! @unique
-  score: Int!
   endpoints: [Endpoint!]!
+}
+
+type ScoreUpdateLog {
+  id: Int! @id
+  team: Team!
+  score: Int!
+  time: DateTime!
 }
 
 type Service {

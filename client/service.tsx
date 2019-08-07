@@ -44,14 +44,6 @@ const ServiceList: React.FC<RouteChildrenProps> = props => {
   );
 };
 
-interface EndpointWithTeam {
-  id: string;
-  connectionString: string;
-  team: {
-    name: string;
-  };
-}
-
 type ServiceDetailProps = RouteChildrenProps<{ id: string }>;
 
 const ServiceDetail: React.FC<ServiceDetailProps> = props => {
@@ -66,6 +58,14 @@ const ServiceDetail: React.FC<ServiceDetailProps> = props => {
     }
     return result;
   };
+
+  interface EndpointWithTeam {
+    id: string;
+    connectionString: string;
+    team: {
+      name: string;
+    };
+  }
 
   const fetchEndpoints = async (): Promise<EndpointWithTeam[]> =>
     await prisma.endpoints({
