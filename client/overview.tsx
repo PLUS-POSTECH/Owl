@@ -6,13 +6,150 @@ import {
   format,
   distanceInWordsToNow
 } from "date-fns";
-import { Header, Container } from "semantic-ui-react";
+import { Header, Container, Table, Icon } from "semantic-ui-react";
 import { Line } from "react-chartjs-2";
 
-import { prisma, Team } from "../generated/prisma-client";
+import { prisma, Team, TaskStatus } from "../generated/prisma-client";
 import { Loader, useAwait } from "./common";
 
 export const OverviewPath = "/overview";
+
+interface AttackBoardProps {
+  startTime: Date;
+  endTime: Date;
+}
+
+const AttackBoard: React.FC<AttackBoardProps> = ({ startTime, endTime }) => {
+  const fetchTasks = async () => {
+    const teamList: Team[] = await prisma.teams({
+      orderBy: "id_ASC"
+    });
+
+    const serviceList: Service[] = await prisma.services({
+      orderBy: "createdAt_DESC",
+      where: {
+        enabled: true
+      }
+    });
+
+    interface TaskDetail {
+      id: string;
+      exploit: {
+        id: string;
+      };
+      endpoint: {
+        team: {
+          id: string;
+        };
+        service: {
+          id: string;
+          enabled: boolean;
+        };
+      };
+      status: TaskStatus;
+    }
+
+    const taskMap: {
+      [teamId: string]: { [serviceId: string]: TaskDetail[] };
+    } = {};
+
+    for (const team of teamList) {
+      taskMap[team.id] = {};
+      for (const service of serviceList) {
+        taskMap[team.id][service.id] = [];
+      }
+    }
+
+    const tasks: TaskDetail[] = await prisma.tasks({
+      where: {
+        AND: {
+          lastUpdate_gte: startTime,
+          lastUpdate_lte: endTime
+        }
+      }
+    }).$fragment(`
+      fragment TaskDetail on Task {
+        id
+        exploit {
+          id
+        }
+        endpoint {
+          team {
+            id
+          }
+          service {
+            id
+            enabled
+          }
+        }
+        status
+        flag
+      }
+    `);
+
+    for (const task of tasks) {
+      if (task.endpoint.service.enabled) {
+        taskMap[task.endpoint.team.id][task.endpoint.service.id].push(task);
+      }
+    }
+
+    const cellContent = (teamId: string, serviceId: string) => {
+      let taskArray = taskMap[teamId][serviceId];
+      if (taskArray.length == 0) {
+        return "-";
+      }
+      if (taskArray.some(task => task.status == "SUBMIT_CORRECT")) {
+        return <Icon name="checkmark" color="green" />;
+      }
+      if (
+        taskArray.some(
+          task =>
+            task.status == "EXPLOITING" ||
+            task.status == "PENDING" ||
+            task.status == "SUBMITTING"
+        )
+      ) {
+        return <Icon loading name="spinner" />;
+      }
+      return <Icon name="x" color="red" />;
+    };
+
+    return (
+      <>
+        <Table celled basic="very">
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell />
+              {serviceList.map(service => (
+                <Table.HeaderCell key={service.id} textAlign="center">
+                  {service.name}
+                </Table.HeaderCell>
+              ))}
+            </Table.Row>
+          </Table.Header>
+
+          <Table.Body>
+            {teamList.map(team => (
+              <Table.Row key={team.id}>
+                <Table.Cell textAlign="right">{team.name}</Table.Cell>
+                {serviceList.map(service => {
+                  return (
+                    <Table.Cell key={service.id} selectable textAlign="center">
+                      {cellContent(team.id, service.id)}
+                    </Table.Cell>
+                  );
+                })}
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      </>
+    );
+  };
+
+  const status = useAwait(fetchTasks);
+  return <Loader status={status} render={component => component} />;
+};
 
 const RoundDisplay: React.FC = () => {
   const status = useAwait(
@@ -58,14 +195,17 @@ const RoundDisplay: React.FC = () => {
             let roundEnd = addSeconds(roundStart, today.roundDurationInSeconds);
 
             return (
-              <Header as="h1" textAlign="center">
-                {today.name} - Round {roundNumber}
-                <Header.Subheader>
-                  {format(roundStart, "HH:mm:ss")} ~{" "}
-                  {format(roundEnd, "HH:mm:ss")} (
-                  {distanceInWordsToNow(roundEnd, displayOption)})
-                </Header.Subheader>
-              </Header>
+              <>
+                <Header as="h1" textAlign="center">
+                  {today.name} - Round {roundNumber}
+                  <Header.Subheader>
+                    {format(roundStart, "HH:mm:ss")} ~{" "}
+                    {format(roundEnd, "HH:mm:ss")} (
+                    {distanceInWordsToNow(roundEnd, displayOption)})
+                  </Header.Subheader>
+                </Header>
+                <AttackBoard startTime={roundStart} endTime={roundEnd} />
+              </>
             );
           }
         }
@@ -185,22 +325,20 @@ const ScoreTimeline: React.FC = () => {
         }
 
         return (
-          <Container>
-            <Line
-              data={{
-                datasets: teamData
-              }}
-              options={{
-                scales: {
-                  xAxes: [
-                    {
-                      type: "time"
-                    }
-                  ]
-                }
-              }}
-            />
-          </Container>
+          <Line
+            data={{
+              datasets: teamData
+            }}
+            options={{
+              scales: {
+                xAxes: [
+                  {
+                    type: "time"
+                  }
+                ]
+              }
+            }}
+          />
         );
       }}
     />
@@ -208,8 +346,13 @@ const ScoreTimeline: React.FC = () => {
 };
 
 export const Overview: React.FC = () => (
-  <>
+  <div
+    style={{
+      marginLeft: 40,
+      marginRight: 40
+    }}
+  >
     <RoundDisplay />
     <ScoreTimeline />
-  </>
+  </div>
 );

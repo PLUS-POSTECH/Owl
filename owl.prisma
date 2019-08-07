@@ -84,7 +84,7 @@ type Task {
   exploit: Exploit!
   endpoint: Endpoint!
   createdAt: DateTime! @createdAt
-  updatedAt: DateTime! @updatedAt
+  lastUpdate: DateTime!
   status: TaskStatus! @default(value: PENDING)
   statusMessage: String! @default(value: "")
   flag: String

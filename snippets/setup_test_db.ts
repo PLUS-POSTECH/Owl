@@ -1,7 +1,16 @@
-import { prisma } from "../generated/prisma-client";
+import { prisma, TaskStatus } from "../generated/prisma-client";
 import child_process, { ExecSyncOptions } from "child_process";
-import { subDays, addDays, addHours } from "date-fns";
+import {
+  subDays,
+  addDays,
+  addHours,
+  addMilliseconds,
+  differenceInMilliseconds
+} from "date-fns";
 import slugify from "slugify";
+
+const NUM_SCORE_UPDATES = 30;
+const NUM_TASK_PER_ENDPOINT = 50;
 
 const teams = ["PLUS", "KoreanBadass", "r00timentary", "PPP"];
 
@@ -50,7 +59,7 @@ const setupScores = async () => {
   const endDate = new Date();
   endDate.setHours(endHour, 0, 0, 0);
 
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < NUM_SCORE_UPDATES; i++) {
     let teamIndex = Math.floor(Math.random() * teams.length);
     await prisma.createScoreUpdateLog({
       team: {
@@ -59,8 +68,9 @@ const setupScores = async () => {
         }
       },
       score: Math.floor(Math.random() * 1000),
-      time: new Date(
-        +startDate + Math.random() * (endDate.valueOf() - startDate.valueOf())
+      time: addMilliseconds(
+        startDate,
+        Math.random() * differenceInMilliseconds(endDate, startDate)
       )
     });
   }
@@ -98,26 +108,99 @@ const setupEndpoints = async () => {
 
   for (const team of teams) {
     for (const service of services) {
-      if (Math.random() < 0.5) {
-        // create endpoints
-        await prisma.createEndpoint({
-          team: {
-            connect: {
+      await prisma.createEndpoint({
+        team: {
+          connect: {
+            id: team.id
+          }
+        },
+        service: {
+          connect: {
+            id: service.id
+          }
+        },
+        connectionString: `${slugify(service.name, {
+          lower: true
+        })}.${slugify(team.name, { lower: true })}.defconctf.team`
+      });
+    }
+  }
+};
+
+const setupTasks = async () => {
+  const teams = await prisma.teams();
+  const services = await prisma.services();
+
+  const startDate = new Date();
+  startDate.setHours(startHour, 0, 0, 0);
+
+  const endDate = new Date();
+  endDate.setHours(endHour, 0, 0, 0);
+
+  const exploit = await prisma.createExploit({
+    target: {
+      connect: {
+        id: services[0].id
+      }
+    },
+    name: "test_exploit"
+  });
+
+  const statusCandidates: TaskStatus[] = [
+    "SUBMITTING",
+    "SUBMIT_CORRECT",
+    "SUBMIT_WRONG",
+    "EXPLOIT_ERROR"
+  ];
+
+  let promises = [];
+  for (const team of teams) {
+    for (const service of services) {
+      for (let i = 0; i < NUM_TASK_PER_ENDPOINT; i++) {
+        const endpointArray = await prisma.endpoints({
+          where: {
+            team: {
               id: team.id
-            }
-          },
-          service: {
-            connect: {
+            },
+            service: {
               id: service.id
             }
-          },
-          connectionString: `${slugify(service.name, {
-            lower: true
-          })}.${slugify(team.name, { lower: true })}.defconctf.team`
+          }
         });
+
+        if (endpointArray.length == 0) {
+          continue;
+        }
+
+        const endpoint = endpointArray[0];
+        const randomDate = addMilliseconds(
+          startDate,
+          Math.random() * differenceInMilliseconds(endDate, startDate)
+        );
+        const randomStatus: TaskStatus =
+          statusCandidates[Math.floor(Math.random() * statusCandidates.length)];
+
+        promises.push(
+          prisma.createTask({
+            exploit: {
+              connect: {
+                id: exploit.id
+              }
+            },
+            endpoint: {
+              connect: {
+                id: endpoint.id
+              }
+            },
+            lastUpdate: randomDate,
+            status: randomStatus
+          })
+        );
       }
     }
   }
+
+  await Promise.all(promises).catch(error => console.log(error));
 };
 
 const INHERIT_STDIO: ExecSyncOptions = {
@@ -137,6 +220,7 @@ async function main() {
   await setupScores();
   await setupServices();
   await setupEndpoints();
+  await setupTasks();
 }
 
 main();
