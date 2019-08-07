@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import moment from "moment";
+import {
+  isWithinRange,
+  differenceInSeconds,
+  addSeconds,
+  format,
+  distanceInWordsToNow
+} from "date-fns";
 import { Header, Container } from "semantic-ui-react";
 import { Line } from "react-chartjs-2";
 
@@ -15,10 +21,10 @@ const RoundDisplay: React.FC = () => {
         orderBy: "endTime_ASC"
       })
   );
-  const [currentMoment, setCurrentMoment] = useState(moment());
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   useEffect(() => {
-    const interval = setInterval(() => setCurrentMoment(moment()), 1000);
+    const interval = setInterval(() => setCurrentDate(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -26,67 +32,68 @@ const RoundDisplay: React.FC = () => {
     <Loader
       status={status}
       render={dayList => {
+        let displayOption = {
+          addSuffix: true,
+          includeSeconds: true
+        };
+
+        // CTF is running
         for (let idx = 0; idx < dayList.length; idx++) {
           const today = dayList[idx];
-          const startMoment = moment(today.startTime);
-          const endMoment = moment(today.endTime);
 
-          if (currentMoment.isBetween(startMoment, endMoment)) {
+          const startTimeDate = new Date(today.startTime);
+          const endTimeDate = new Date(today.endTime);
+
+          if (isWithinRange(currentDate, startTimeDate, endTimeDate)) {
             const roundNumber =
               Math.floor(
-                currentMoment.diff(startMoment) /
-                  1000 /
+                differenceInSeconds(currentDate, startTimeDate) /
                   today.roundDurationInSeconds
               ) + 1;
 
-            let roundStartMoment = moment(startMoment);
-            roundStartMoment.add(
-              today.roundDurationInSeconds * (roundNumber - 1),
-              "seconds"
+            let roundStart = addSeconds(
+              startTimeDate,
+              today.roundDurationInSeconds * (roundNumber - 1)
             );
-            const roundEndMoment = moment(roundStartMoment);
-            roundEndMoment.add(today.roundDurationInSeconds, "seconds");
-
-            const duration = moment.duration(
-              roundEndMoment.diff(currentMoment)
-            );
+            let roundEnd = addSeconds(roundStart, today.roundDurationInSeconds);
 
             return (
               <Header as="h1" textAlign="center">
                 {today.name} - Round {roundNumber}
                 <Header.Subheader>
-                  {roundStartMoment.format("HH:mm:ss")} ~{" "}
-                  {roundEndMoment.format("HH:mm:ss")} ({duration.humanize(true)}
-                  )
+                  {format(roundStart, "HH:mm:ss")} ~{" "}
+                  {format(roundEnd, "HH:mm:ss")} (
+                  {distanceInWordsToNow(roundEnd, displayOption)})
                 </Header.Subheader>
               </Header>
             );
           }
         }
 
+        // Preparation time between days
         let lastEndTime = null;
         for (let idx = 0; idx < dayList.length; idx++) {
           const tomorrow = dayList[idx];
-          const startMoment = moment(tomorrow.startTime);
-          const endMoment = moment(tomorrow.endTime);
+
+          const startTimeDate = new Date(tomorrow.startTime);
+          const endTimeDate = new Date(tomorrow.endTime);
 
           if (
-            (lastEndTime === null || lastEndTime <= currentMoment) &&
-            currentMoment < startMoment
+            (lastEndTime === null || lastEndTime <= currentDate) &&
+            currentDate < startTimeDate
           ) {
-            const duration = moment.duration(startMoment.diff(currentMoment));
             return (
               <Header as="h1" textAlign="center">
                 {tomorrow.name} preparation
                 <Header.Subheader>
-                  starts at {startMoment.format("HH:mm")} (
-                  {duration.humanize(true)})
+                  starts at {format(startTimeDate, "HH:mm")} (
+                  {distanceInWordsToNow(startTimeDate, displayOption)})
                 </Header.Subheader>
               </Header>
             );
           }
 
-          lastEndTime = endMoment;
+          lastEndTime = endTimeDate;
         }
 
         return (
@@ -151,7 +158,6 @@ const ScoreTimeline: React.FC = () => {
         }
 
         for (const scoreLog of scoreUpdateLogs) {
-          console.log(scoreLog.time);
           teamDict[scoreLog.team.id].data.push({
             x: scoreLog.time,
             y: scoreLog.score
@@ -175,7 +181,7 @@ const ScoreTimeline: React.FC = () => {
           teamData.push({
             label: team.team.name,
             fill: false,
-            tension: 0.07,
+            tension: 0,
             borderColor: color[0],
             backgroundColor: color[1],
             data: team.data

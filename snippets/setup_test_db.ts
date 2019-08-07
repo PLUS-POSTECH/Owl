@@ -1,5 +1,6 @@
 import { prisma } from "../generated/prisma-client";
 import child_process, { ExecSyncOptions } from "child_process";
+import { subDays, addDays, addHours } from "date-fns";
 import slugify from "slugify";
 
 const teams = ["PLUS", "KoreanBadass", "r00timentary", "PPP"];
@@ -16,16 +17,14 @@ const setupDays = async () => {
   const totalDays = 4;
   const todayIndex = 2;
 
-  let firstDayStart = new Date();
-  firstDayStart.setHours(startHour, 0, 0, 0);
-  firstDayStart.setDate(firstDayStart.getDate() - (todayIndex - 1));
+  let firstDayStart = subDays(
+    new Date().setHours(startHour, 0, 0, 0),
+    todayIndex - 1
+  );
 
   for (let i = 0; i < totalDays; i++) {
-    let startTime = new Date(firstDayStart);
-    startTime.setDate(startTime.getDate() + i);
-
-    let endTime = new Date(startTime);
-    endTime.setHours(endTime.getHours() + (endHour - startHour));
+    let startTime = addDays(firstDayStart, i);
+    let endTime = addHours(startTime, endHour - startHour);
 
     await prisma.createDay({
       name: `Day ${i + 1}`,
