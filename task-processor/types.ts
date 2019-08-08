@@ -5,11 +5,7 @@ export enum MessageType {
   Wakeup,
 }
 
-export class Message {
+export interface Message {
   type: MessageType
-  message: any
-  constructor(type: MessageType, message: any) {
-    this.type = type
-    this.message = message
-  }
+  message?: any
 }

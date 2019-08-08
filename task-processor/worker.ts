@@ -53,7 +53,6 @@ async function finalizeExploit(taskId: number, result: ExecaReturnValue) {
     },
     where: { id: taskId }
   })
-  return flag
 }
 
 async function finalizeExploitError(taskId: number, result: ExecaError) {
@@ -88,7 +87,7 @@ async function finalizeSubmit(taskId: number, result: ExecaReturnValue) {
   } else if (submitResult === "DUPLICATE") {
     await updateStatus(taskId, "SUBMIT_DUPLICATE")
   } else {
-    await updateStatus(taskId, "SUBMIT_ERROR", `Incompatible status output: ${submitResult}`)
+    await updateStatus(taskId, "SUBMIT_ERROR", `Unknown status output: ${submitResult}`)
   }
 }
 
@@ -104,13 +103,13 @@ async function runExploit(task: Task) {
   const endpoint = await prisma.task({ id: task.id }).endpoint()
   const exploit = await prisma.task({ id: task.id }).exploit()
 
-  const exploitAttachmentOption = exploit.attachment
-  if (exploitAttachmentOption === undefined)
+  const exploitAttachment = exploit.attachment
+  if (exploitAttachment === undefined) {
     updateStatus(task.id, "EXPLOIT_ERROR", "Nothing to run.")
+    return
+  }
 
-  const encodedAttachment = exploitAttachmentOption!
-  const decodedAttachment = toByteArray(encodedAttachment)
-
+  const decodedAttachment = toByteArray(exploitAttachment)
   const exploitDir = await tmpdir()
   const exploitName = "exploit.py"
   const exploitPath = path.join(exploitDir.path, exploitName)
@@ -159,14 +158,12 @@ async function runSubmit(task: Task) {
 
 async function runTask(taskId: number) {
   try {
-    const taskOption = await prisma.task({ id: taskId })
-    if (taskOption === null) return
-    const task = taskOption!
+    const task = await prisma.task({ id: taskId })
+    if (task === null) return
     await runExploit(task)
 
-    const updatedTaskOption = await prisma.task({ id: taskId })
-    if (updatedTaskOption === null) return
-    const updatedTask = updatedTaskOption!
+    const updatedTask = await prisma.task({ id: taskId })
+    if (updatedTask === null) return
     await runSubmit(updatedTask)
   } catch (error) {
     await updateStatus(taskId, "UNKNOWN_ERROR", error.message)
@@ -174,19 +171,23 @@ async function runTask(taskId: number) {
 }
 
 async function handleMessage(message: Message) {
+  const taskRequestMessage: Message = { type: MessageType.TaskRequest }
   switch (message.type) {
     case MessageType.Sleep: {
       isIdle = true
+      break
     }
     case MessageType.TaskPush: {
-      await runTask(message.message as number)
-      process.send!(new Message(MessageType.TaskRequest, null))
+      await runTask(message.message! as number)
+      process.send!(taskRequestMessage)
+      break
     }
     case MessageType.Wakeup: {
       if (isIdle === true) {
         isIdle = false
-        process.send!(new Message(MessageType.TaskRequest, null))
+        process.send!(taskRequestMessage)
       }
+      break
     }
   }
 }
