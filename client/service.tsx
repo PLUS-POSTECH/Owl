@@ -108,26 +108,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = props => {
         status={status}
         render={([service, endpoints, exploits]) => (
           <>
-            <Segment>
-              <Header as="h1">{service.name}</Header>
-              <p>{service.description}</p>
-            </Segment>
-            <Table celled>
-              <Table.Header>
-                <Table.Row>
-                  <Table.HeaderCell>Team</Table.HeaderCell>
-                  <Table.HeaderCell>Connection</Table.HeaderCell>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {endpoints.map(endpoint => (
-                  <Table.Row key={endpoint.id}>
-                    <Table.Cell>{endpoint.team.name}</Table.Cell>
-                    <Table.Cell>{endpoint.connectionString}</Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
+            <Header as="h1">{service.name}</Header>
             <Header as="h2">Exploits</Header>
             {exploits.length > 0 ? (
               <Menu size="large" fluid vertical>
@@ -144,6 +125,23 @@ const ServiceDetail: React.FC<ServiceDetailProps> = props => {
             ) : (
               <p>There is no exploit for this problem</p>
             )}
+            <Header as="h2">Endpoints</Header>
+            <Table celled>
+              <Table.Header>
+                <Table.Row>
+                  <Table.HeaderCell>Team</Table.HeaderCell>
+                  <Table.HeaderCell>Connection</Table.HeaderCell>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {endpoints.map(endpoint => (
+                  <Table.Row key={endpoint.id}>
+                    <Table.Cell>{endpoint.team.name}</Table.Cell>
+                    <Table.Cell>{endpoint.connectionString}</Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table>
           </>
         )}
       />
