@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "lib": ["es2016", "esnext.asynciterable"],
+    "baseUrl": "../node_modules",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true
+  }
+}

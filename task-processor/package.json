@@ -1,0 +1,29 @@
+{
+  "name": "owl-task-processor",
+  "version": "1.0.0",
+  "description": "Task processing module for Owl",
+  "main": "index.js",
+  "repository": "git@github.com:PLUS-POSTECH/Owl.git",
+  "author": "Kangsu Kim <ksalpha.x@gmail.com>",
+  "license": "(Apache-2.0 OR MIT)",
+  "scripts": {
+    "start": "ts-node index.ts"
+  },
+  "dependencies": {
+    "@types/base64-js": "^1.2.5",
+    "@types/fs-extra": "^8.0.0",
+    "@types/graphql": "^14.2.3",
+    "base64-js": "^1.3.0",
+    "execa": "^2.0.3",
+    "fs-extra": "^8.1.0",
+    "graphql": "^14.4.2",
+    "moment": "^2.24.0",
+    "prisma-client-lib": "^1.34.3",
+    "synchd": "^1.1.0",
+    "tmp-promise": "^2.0.2"
+  },
+  "devDependencies": {
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.3"
+  }
+}
