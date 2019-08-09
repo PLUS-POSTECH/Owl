@@ -2,10 +2,10 @@ export enum MessageType {
   Sleep,
   TaskPush,
   TaskRequest,
-  Wakeup,
+  Wakeup
 }
 
 export interface Message {
-  type: MessageType
-  message?: any
+  type: MessageType;
+  message?: any;
 }
