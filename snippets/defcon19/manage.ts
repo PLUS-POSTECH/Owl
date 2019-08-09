@@ -36,6 +36,7 @@ const teamList: Team[] = teamNames.map((teamName, i) => {
 
 yargs
   .scriptName("manage.ts")
+  .command("hotfix", "temporary command", yargs => yargs, hotfix)
   .command("init", "initialize the database", yargs => yargs, init)
   .command("clear", "clear all data", yargs => yargs, clear)
   .command(
@@ -58,6 +59,38 @@ yargs
   .strict()
   .version(false)
   .help().argv;
+
+async function hotfix() {
+  /*
+  function pad(n: number, width: number) {
+    let nstr = String(n);
+    return nstr.length >= width ? nstr : new Array(width - nstr.length + 1).join('0') + nstr;
+  }
+
+  // Fix telooogram endpoint
+  teamNames.map(async (teamName, i) => {
+    let endpoint = await prisma.endpoints({
+      where: {
+        team: {
+          name: teamName
+        },
+        service: {
+          name: "telooogram"
+        }
+      }
+    });
+
+    await prisma.updateEndpoint({
+      data: {
+        connectionString: `telooogram.oooverflow.io:40${pad(i+1, 2)}`
+      },
+      where: {
+        id: endpoint[0].id
+      }
+    })
+  })
+  */
+}
 
 async function init() {
   for (const teamName of teamNames) {

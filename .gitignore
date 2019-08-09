@@ -14,3 +14,5 @@ dist/
 
 # Python
 *.pyc
+
+client/game-state.ts

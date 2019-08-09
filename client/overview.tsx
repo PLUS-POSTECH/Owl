@@ -353,6 +353,5 @@ export const Overview: React.FC = () => (
     }}
   >
     <RoundDisplay />
-    <ScoreTimeline />
   </div>
 );
