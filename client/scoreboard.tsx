@@ -1,5 +1,5 @@
-import React from "react";
-import { Header } from "semantic-ui-react";
+import React, { useState } from "react";
+import { Header, Form, Checkbox, Container } from "semantic-ui-react";
 import { Line } from "react-chartjs-2";
 
 import { game_state } from "./game-state";
@@ -8,12 +8,17 @@ export const ScoreboardPath = "/scoreboard";
 
 const RoundDisplay: React.FC = () => {
   return <Header as="h1" textAlign="center">
-    Current Tick: {game_state.current_tick}
+    Scoreboard for tick {game_state.current_tick}
   </Header>
 };
 
 const ScoreTimeline: React.FC = () => {
-  let randomColorGenerator = function() {
+  const [perRound, setPerRound] = useState(false);
+  const [addAttack, setAddAttack] = useState(true);
+  const [addDefense, setAddDefense] = useState(true);
+  const [addKoth, setAddKoth] = useState(true);
+
+  let randomColorGenerator = function () {
     const red = Math.floor(Math.random() * 256);
     const green = Math.floor(Math.random() * 256);
     const blue = Math.floor(Math.random() * 256);
@@ -23,7 +28,7 @@ const ScoreTimeline: React.FC = () => {
     ];
   };
 
-  const teams_dict: {[id: string]: any} = {};
+  const teams_dict: { [id: string]: any } = {};
 
   for (const team of game_state.teams) {
     let color = randomColorGenerator();
@@ -42,10 +47,28 @@ const ScoreTimeline: React.FC = () => {
   for (let tick = 0; tick < game_state.scores.length; tick++) {
     labels.push(String(tick));
     const score_data = game_state.scores[tick];
-    const ranks: {[rank: string]: {"ATTACK": number, "DEFENSE": number, "KING_OF_THE_HILL": number, "id": number}} = score_data.teams
+    const ranks: { [rank: string]: { "ATTACK": number, "DEFENSE": number, "KING_OF_THE_HILL": number, "id": number } } = score_data.teams
     for (const rank in ranks) {
       let team_score = ranks[rank];
-      teams_dict[team_score.id].data.push(team_score.ATTACK + team_score.DEFENSE + team_score.KING_OF_THE_HILL);
+
+      let current_score = 0;
+      if (addAttack) {
+        current_score += team_score.ATTACK;
+      }
+      if (addDefense) {
+        current_score += team_score.DEFENSE;
+      }
+      if (addKoth) {
+        current_score += team_score.KING_OF_THE_HILL;
+      }
+
+      if (perRound || teams_dict[team_score.id].data.length == 0) {
+        teams_dict[team_score.id].data.push(current_score);
+      } else {
+        let target_data = teams_dict[team_score.id].data;
+        let last_score = target_data[target_data.length - 1];
+        teams_dict[team_score.id].data.push(last_score + current_score);
+      }
     }
   }
 
@@ -55,34 +78,52 @@ const ScoreTimeline: React.FC = () => {
   }
 
   return (
-    <Line
-      data={{
-        labels: labels,
-        datasets: teams_arr
-      }}
-      options={{
-        scales: {
-          xAxes: [
-            {
-              display: true,
-              scaleLabel: {
+    <>
+      <Container text textAlign="center">
+        <Form>
+          <Form.Field>
+            <Checkbox label="Per Round" checked={perRound} onClick={() => setPerRound(!perRound)} />
+          </Form.Field>
+          <Form.Field>
+            <Checkbox label="Attack" checked={addAttack} onClick={() => setAddAttack(!addAttack)} />
+          </Form.Field>
+          <Form.Field>
+            <Checkbox label="Defense" checked={addDefense} onClick={() => setAddDefense(!addDefense)} />
+          </Form.Field>
+          <Form.Field>
+            <Checkbox label="King of the Hill" checked={addKoth} onClick={() => setAddKoth(!addKoth)} />
+          </Form.Field>
+        </Form>
+      </Container>
+      <Line
+        data={{
+          labels: labels,
+          datasets: teams_arr
+        }}
+        options={{
+          scales: {
+            xAxes: [
+              {
                 display: true,
-                labelString: "Tick"
+                scaleLabel: {
+                  display: true,
+                  labelString: "Tick"
+                }
               }
-            }
-          ],
-          yAxes: [
-            {
-              display: true,
-              scaleLabel: {
+            ],
+            yAxes: [
+              {
                 display: true,
-                labelString: "Score"
+                scaleLabel: {
+                  display: true,
+                  labelString: "Score"
+                }
               }
-            }
-          ]
-        }
-      }}
-    />
+            ]
+          }
+        }}
+      />
+    </>
   );
 };
 
