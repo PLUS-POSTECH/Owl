@@ -27,17 +27,21 @@ const ServiceList: React.FC<RouteChildrenProps> = props => {
       render={serviceList => (
         <>
           <Header as="h1">Service List ({serviceList.length} services)</Header>
-          <Menu size="large" fluid vertical>
-            {serviceList.map(service => (
-              <Menu.Item
-                key={service.id}
-                as={Link}
-                to={`${match.url}${service.id}`}
-              >
-                {service.name}
-              </Menu.Item>
-            ))}
-          </Menu>
+          {serviceList.length > 0 ? (
+            <Menu size="large" fluid vertical>
+              {serviceList.map(service => (
+                <Menu.Item
+                  key={service.id}
+                  as={Link}
+                  to={`${match.url}${service.id}`}
+                >
+                  {service.name}
+                </Menu.Item>
+              ))}
+            </Menu>
+          ) : (
+            <p>There is no running service yet</p>
+          )}
         </>
       )}
     />
@@ -49,7 +53,7 @@ type ServiceDetailProps = RouteChildrenProps<{ id: string }>;
 const ServiceDetail: React.FC<ServiceDetailProps> = props => {
   const match = props.match!;
 
-  const fetchServices = async () => {
+  const fetchService = async () => {
     const result = await prisma.service({
       id: match.params.id
     });
@@ -83,14 +87,26 @@ const ServiceDetail: React.FC<ServiceDetailProps> = props => {
         }
       }`);
 
-  const status = useAwait([fetchServices, fetchEndpoints], [match.params.id]);
+  const fetchExploits = async () =>
+    await prisma.exploits({
+      where: {
+        target: {
+          id: match.params.id
+        }
+      }
+    });
+
+  const status = useAwait(
+    [fetchService, fetchEndpoints, fetchExploits],
+    [match.params.id]
+  );
 
   return (
     <>
       <Link to={ServicePath}>&lt; back to service list</Link>
       <Loader
         status={status}
-        render={([service, endpoints]) => (
+        render={([service, endpoints, exploits]) => (
           <>
             <Segment>
               <Header as="h1">{service.name}</Header>
@@ -112,6 +128,22 @@ const ServiceDetail: React.FC<ServiceDetailProps> = props => {
                 ))}
               </Table.Body>
             </Table>
+            <Header as="h2">Exploits</Header>
+            {exploits.length > 0 ? (
+              <Menu size="large" fluid vertical>
+                {exploits.map(exploit => (
+                  <Menu.Item
+                    key={exploit.id}
+                    as={Link}
+                    to={`/exploit/${exploit.id}`}
+                  >
+                    {exploit.name}
+                  </Menu.Item>
+                ))}
+              </Menu>
+            ) : (
+              <p>There is no exploit for this problem</p>
+            )}
           </>
         )}
       />
