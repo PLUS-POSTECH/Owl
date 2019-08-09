@@ -11,3 +11,6 @@ generated/
 # Parcel
 .cache/
 dist/
+
+# Python
+*.pyc

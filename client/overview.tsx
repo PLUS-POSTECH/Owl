@@ -6,10 +6,10 @@ import {
   format,
   distanceInWordsToNow
 } from "date-fns";
-import { Header, Container, Table, Icon } from "semantic-ui-react";
+import { Header, Table, Icon } from "semantic-ui-react";
 import { Line } from "react-chartjs-2";
 
-import { prisma, Team, TaskStatus } from "../generated/prisma-client";
+import { prisma, Team, TaskStatus, Service } from "../generated/prisma-client";
 import { Loader, useAwait } from "./common";
 
 export const OverviewPath = "/overview";
