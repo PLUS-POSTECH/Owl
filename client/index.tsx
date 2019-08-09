@@ -13,12 +13,10 @@ import { Container, Menu, Icon } from "semantic-ui-react";
 import { AccessFailure } from "./common";
 import { Overview, OverviewPath } from "./overview";
 import { Service, ServicePath } from "./service";
-import { Endpoint, EndpointPath } from "./endpoint";
 
 const panes = [
   { text: "Overview", path: OverviewPath, component: Overview },
-  { text: "Services", path: ServicePath, component: Service },
-  { text: "Endpoints", path: EndpointPath, component: Endpoint }
+  { text: "Services", path: ServicePath, component: Service }
 ];
 
 const LogoIcon = () => (
