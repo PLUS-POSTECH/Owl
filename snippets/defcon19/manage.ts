@@ -68,8 +68,8 @@ async function init() {
 
   const fiveMinutesinInSeconds = 5 * 60;
 
-  let firstDayStartTime = new Date(2019, 8, 9, 9, 0, 0, 0);
-  let firstDayEndTime = new Date(2019, 8, 9, 17, 0, 0, 0);
+  let firstDayStartTime = new Date(2019, 7, 9, 9, 0, 0, 0);
+  let firstDayEndTime = new Date(2019, 7, 9, 17, 0, 0, 0);
 
   await prisma.createDay({
     name: "Day 1",
