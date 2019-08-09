@@ -1,7 +1,11 @@
 from datetime import datetime
 
-from gql import gql
-from common import client
+# pip install gql
+from gql import gql, Client
+from gql.transport.requests import RequestsHTTPTransport
+
+transport = RequestsHTTPTransport("http://localhost:4466/", use_json=True)
+client = Client(transport=transport, fetch_schema_from_transport=True)
 
 
 def get_team_list():
