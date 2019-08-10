@@ -147,7 +147,15 @@ const AttackBoard: React.FC<AttackBoardProps> = ({ startTime, endTime }) => {
     );
   };
 
-  const status = useAwait(fetchTasks);
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  const status = useAwait(fetchTasks, [currentDate]);
+
+  useEffect(() => {
+    const interval = setInterval(() => setCurrentDate(new Date()), 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   return <Loader status={status} render={component => component} />;
 };
 
@@ -185,7 +193,7 @@ const RoundDisplay: React.FC = () => {
             const roundNumber =
               Math.floor(
                 differenceInSeconds(currentDate, startTimeDate) /
-                  today.roundDurationInSeconds
+                today.roundDurationInSeconds
               ) + 1;
 
             let roundStart = addSeconds(
@@ -300,7 +308,7 @@ const ScoreTimeline: React.FC = () => {
           });
         }
 
-        let randomColorGenerator = function() {
+        let randomColorGenerator = function () {
           const red = Math.floor(Math.random() * 256);
           const green = Math.floor(Math.random() * 256);
           const blue = Math.floor(Math.random() * 256);

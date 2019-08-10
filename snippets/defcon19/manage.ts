@@ -30,7 +30,7 @@ const teamNames = [
 const teamList: Team[] = teamNames.map((teamName, i) => {
   return {
     name: teamName,
-    host: `10.13.37.${i+1}`
+    host: `10.13.37.${i + 1}`
   };
 });
 
@@ -102,7 +102,7 @@ async function init() {
   const fiveMinutesinInSeconds = 5 * 60;
 
   let firstDayStartTime = new Date(2019, 7, 9, 10, 0, 0, 0);
-  let firstDayEndTime = new Date(2019, 7, 9, 17, 0, 0, 0);
+  let firstDayEndTime = new Date(2019, 7, 9, 20, 0, 0, 0);
 
   await prisma.createDay({
     name: "Day 1",
